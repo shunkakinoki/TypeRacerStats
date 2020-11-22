@@ -1,13 +1,13 @@
-import json
 import os
+import sys
 import discord
 from discord.ext import commands
-
-import sys
 sys.path.insert(0, '')
-from TypeRacerStats.config import *
-from TypeRacerStats.Core.Common.aliases import *
-from TypeRacerStats.Core.Common.prefixes import *
+from TypeRacerStats.config import BOT_TOKEN
+from TypeRacerStats.config import DEFAULT_COMMAND_PREFIX
+from TypeRacerStats.Core.Common.prefixes import get_prefix
+from TypeRacerStats.Core.Common.prefixes import load_prefixes
+from TypeRacerStats.Core.Common.prefixes import update_prefixes
 
 bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
 bot.remove_command('help')
@@ -33,6 +33,6 @@ async def on_guild_remove(guild):
 if __name__ == '__main__':
     for filename in os.listdir('TypeRacerStats/Core'):
         if filename.endswith('.py') and filename != '__init__.py':
-            bot.load_extension(f"Core.{filename[:-3]}") 
+            bot.load_extension(f"Core.{filename[:-3]}")
 
 bot.run(BOT_TOKEN)

@@ -1,5 +1,5 @@
 import json
-from TypeRacerStats.file_paths import *
+from TypeRacerStats.file_paths import PREFIXES_FILE_PATH
 
 def load_prefixes():
     with open(PREFIXES_FILE_PATH, 'r') as jsonfile:

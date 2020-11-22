@@ -1,5 +1,5 @@
 import json
-from TypeRacerStats.file_paths import *
+from TypeRacerStats.file_paths import ALIASES_FILE_PATH
 
 command_aliases = {}
 with open(ALIASES_FILE_PATH, 'r') as jsonfile:
