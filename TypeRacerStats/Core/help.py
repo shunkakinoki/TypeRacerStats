@@ -22,7 +22,7 @@ class Help(commands.Cog):
         with open(os.path.dirname(__file__) + '/../src/commands.json', 'r') as jsonfile:
             bot_commands = json.load(jsonfile)
 
-        for command in list(bot_commands.values()):
+        for command in [command for category in bot_commands.values() for command in category]:
             name = command['name']
             for alias in command['aliases']:
                 self.normalized_commands.update({alias: name})
@@ -95,7 +95,6 @@ class Help(commands.Cog):
 
 def value_formatter(command_list, command_prefix):
     value = ''
-
     for command in command_list:
         value += f"`{command_prefix}{command['name']} {command['usage']['general']}`\n"
     return value[:-1]
