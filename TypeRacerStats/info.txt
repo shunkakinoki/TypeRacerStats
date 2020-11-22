@@ -1,0 +1,13 @@
+<:info:745337206931193988> About Page
+9442302
+TypeRacer Stats Bot is a Discord bot that provides users with extensive statistics and various unique features (over 20 commands). Run `{PFX}help` to learn more about the commands.
+https://i.imgur.com/l3itW9Y.png
+Creators:::Developed by **Eugene**—<:e6f4e37l:745451706724253747> **e6f4e37l#0785**\nConceptualized/Designed by <:keegant:745451650180710428> **keegan#1689**
+
+Bot Admins:::e6f4e37l#0785\nkeegan#1689\nAmaranth#0069
+
+Account Linking:::If you'd like to link your Discord with your TypeRacer account, contact a bot admin. This allows for easier command usage: e.g. `{PFX}stats [user]` becomes `{PFX}stats`. (`{PFX}stats @user` will not work, it is only used for self commands.)
+
+Donation/Help:::Coming soon…
+
+Note: This bot was developed desktop usage, some features may appear broken on mobile.

@@ -1,0 +1,533 @@
+{
+    "info": [
+        {
+            "name": "help",
+            "description": "Returns information for given command",
+            "speed": "fast",
+            "usage": {
+                "general": "[command]",
+                "example": "realspeed",
+                "alt_example": []
+            },
+            "aliases": ["h"],
+            "linked": false
+        },
+        {
+            "name": "info",
+            "description": "Returns information about the bots' creators",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["about", "abt"],
+            "linked": false
+        }
+    ],
+    "configuration": [
+        {
+            "name": "changeprefix",
+            "description": "Changes bot's prefix on server\n**NOTE:** only server admins can run this",
+            "speed": "fast",
+            "usage": {
+                "general": "[prefix]",
+                "example": "!",
+                "alt_example": []
+            },
+            "aliases": ["cp"],
+            "linked": false
+        },
+        {
+            "name": "register",
+            "description": "Registers your account to the bot, so you don't have to type your username everytime",
+            "speed": "fast",
+            "usage": {
+                "general": "[typeracer_username]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["link"],
+            "linked": false
+        },
+        {
+            "name": "setparameter",
+            "description": "Registers your account to the given speed parameter; subsequent command calls will be calculated with it\n**NOTE:** Your account must be linked first",
+            "speed": "fast",
+            "usage": {
+                "general": "[lagged/unlagged/adjusted/desslejusted]",
+                "example": "lagged",
+                "alt_example": []
+            },
+            "aliases": ["sp"],
+            "linked": true
+        },
+        {
+            "name": "setuniverse",
+            "description": "Registers your account to the given TypeRacer universe; subsequent command calls will use it\n**NOTE:** Your account must be linked first",
+            "speed": "fast",
+            "usage": {
+                "general": "[universe]",
+                "example": "trump",
+                "alt_example": []
+            },
+            "aliases": ["su"],
+            "linked": true
+        }
+    ],
+    "basic": [
+        {
+            "name": "stats",
+            "description": "Returns basic account stats for given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["prof", "profile"],
+            "linked": true
+        },
+        {
+            "name": "getdata",
+            "description": "Downloads given user's entire race history (may take several minutes); caps at 5,000 for non-admins",
+            "speed": "slow",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": [
+                    {
+                        "usage": "[user] <discord_ID>",
+                        "notes": "**For Bot Admins Only**"
+                    }
+                ]
+            },
+            "aliases": ["download", "dl", "gd"],
+            "linked": true
+        },
+        {
+            "name": "today",
+            "description": "Returns given user's stats on a given day; defaults to current UTC day",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <yyyy-mm-dd>",
+                "example": "keegant",
+                "alt_example": [
+                    {
+                        "usage": "keegant 2019-03-26",
+                        "notes": "The date can be specified if a `date` in the form YYYY-MM-DD is provided"
+                    }
+                ]
+            },
+            "aliases": ["day"],
+            "linked": true
+        },
+        {
+            "name": "realspeed",
+            "description": "Returns unlagged and adjusted speeds for the given user / race",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <race_num>",
+                "example": "keegant 300000",
+                "alt_example": [
+                    {
+                        "usage": "keegant",
+                        "notes": "Returns given user's latest race if `race_num` is not provided"
+                    },
+                    {
+                        "usage": "https://data.typeracer.com/pit/result?id=|tr:keegant|300000",
+                        "notes": "Returns real speeds for given race URL"
+                    }
+                ]
+            },
+            "aliases": ["rs"],
+            "linked": true
+        },
+        {
+            "name": "realspeedaverage",
+            "description": "Returns average unlagged and adjusted speeds over a given race interval; caps at 20 races for non-admins",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <first_race> <last_race>",
+                "example": "e6f4e37l 2001 2020",
+                "alt_example": [
+                    {
+                        "usage": "e6f4e37l 20",
+                        "notes": "Returns average of user's last `num` races if only 1 number is provided"
+                    },
+                    {
+                        "usage": "e6f4e37l",
+                        "notes": "Returns average of user's last 10 races if only a username is provided"
+                    }
+                ]
+            },
+            "aliases": ["rsa"],
+            "linked": true
+        },
+        {
+            "name": "leaderboard",
+            "description": "Returns the top 10 users in a given category",
+            "speed": "medium",
+            "usage": {
+                "general": "[type] <amount>",
+                "example": "[races/points/textstyped/textbests/toptens]",
+                "alt_example": [
+                    {
+                        "usage": "toptens num",
+                        "notes": "Returns the leaderboard for text top `num`s; defaults to 10 otherwise"
+                    }
+                ]
+            },
+            "aliases": [],
+            "linked": true
+        },
+        {
+            "name": "lastonline",
+            "description": "Returns the time since given user's last race (play universe)",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["lastseen", "lo", "ls"],
+            "linked": true
+        },
+        {
+            "name": "medals",
+            "description": "Displays a given user's medal breakdown",
+            "speed": "medium",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": [],
+            "linked": true
+        },
+        {
+            "name": "toptens",
+            "description": "Returns the number of text top 10s for a given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "poem",
+                "alt_example": []
+            },
+            "aliases": ["10"],
+            "linked": true
+        }
+    ],
+    "advanced": [
+        {
+            "name": "top",
+            "description": "Returns top 10 best results for given user in given category",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [wpm/points]",
+                "example": "keegant wpm",
+                "alt_example": []
+            },
+            "aliases": ["best"],
+            "linked": true
+        },
+        {
+            "name": "worst",
+            "description": "Returns top 10 worst results for given user in given category",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [wpm/points]",
+                "example": "keegant wpm",
+                "alt_example": []
+            },
+            "aliases": ["bottom"],
+            "linked": true
+        },
+        {
+            "name": "personalbest",
+            "description": "Returns statistics on given user on a given text",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <text_ID>",
+                "example": "keegant 3810446",
+                "alt_example": [
+                    {
+                        "usage": "charlieog",
+                        "notes": "Returns statistics for given user's last raced text"
+                    }
+                ]
+            },
+            "aliases": ["pb"],
+            "linked": true
+        },
+        {
+            "name": "racedetails",
+            "description": "Returns detailed breakdown of a user's account",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["rd"],
+            "linked": true
+        },
+        {
+            "name": "unraced",
+            "description": "Returns 5 randomly selected unraced texts for given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <length>",
+                "example": "despot",
+                "alt_example": [
+                    {
+                        "usage": "joshua278 150",
+                        "notes": "Returns 5 randomly selected unraced texts with length less than `length` for given user"
+                    }
+                ]
+            },
+            "aliases": ["ur"],
+            "linked": true
+        },
+        {
+            "name": "textsunder",
+            "description": "Returns 5 randomly selected texts under `wpm` for given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [wpm] <length>",
+                "example": "landarian 150",
+                "alt_example": [
+                    {
+                        "usage": "landarian 150 150",
+                        "notes": "Returns 5 randomly selected texts under `wpm` and with length less than `length` for given user"
+                    }
+                ]
+            },
+            "aliases": ["tu"],
+            "linked": true
+        },
+        {
+            "name": "textsoverorequal",
+            "description": "Returns the number and percentage of texts typed over specified parameter",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [num] [wpm/points/times]",
+                "example": "despot 200 wpm",
+                "alt_example": [
+                    {
+                        "usage": "atthetop 160",
+                        "notes": "Category defaults to `wpm` if none is provided"
+                    }
+                ]
+            },
+            "aliases": ["tor"],
+            "linked": false
+        },
+        {
+            "name": "racesover",
+            "description": "Returns the number and percentage of races over specified parameter",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [num] [wpm/points]",
+                "example": "despot 200 wpm",
+                "alt_example": [
+                    {
+                        "usage": "atthetop 160",
+                        "notes": "Category defaults to `wpm` if none is provided"
+                    }
+                ]
+            },
+            "aliases": ["ro"],
+            "linked": false
+        },
+        {
+            "name": "milestone",
+            "description": "Returns the date and race upon which the given user achieved the given milestone",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [num] [races/points/wpm]",
+                "example": "keegant 300000 races",
+                "alt_example": []
+            },
+            "aliases": ["ms"],
+            "linked": false
+        },
+        {
+            "name": "marathon",
+            "description": "Returns the most races completed a given user completed in a given length of time, `seconds` being the maximum amount of time allowed between races before a session ends",
+            "speed": "slow",
+            "usage": {
+                "general": "[user] <seconds>",
+                "example": "keegant 86400",
+                "alt_example": [
+                    {
+                        "usage": "keegant",
+                        "notes": "`seconds` defaults to 1 day if it is not provided"
+                    }
+                ]
+            },
+            "aliases": ["42"],
+            "linked": true
+        },
+        {
+            "name": "sessionstats",
+            "description": "Returns the highest race count and longest time session for the given user, `seconds` being the maximum amount of time allowed between races before a session ends",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <seconds>",
+                "example": "keegant 1800",
+                "alt_example": [
+                    {
+                        "usage": "keegant",
+                        "notes": "`seconds` defaults to 30 minutes if it is not provided"
+                    }
+                ]
+            },
+            "aliases": ["ms"],
+            "linked": true
+        },
+        {
+            "name": "fastestcompletion",
+            "description": "Returns the fastest the given user completed the given number of races",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] [num_races]",
+                "example": "keegant 100",
+                "alt_example": []
+            },
+            "aliases": ["fc"],
+            "linked": true
+        },
+        {
+            "name": "boxplot",
+            "description": "Returns WPM box plots for up to 4 users",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <user_2> ... <user_4>",
+                "example": "keegant",
+                "alt_example": [
+                    {
+                        "usage": "boxplot keegant e6f4e37l deroche1 arenasnow",
+                        "notes": "Up to 4 users can be graphed"
+                    }
+                ]
+            },
+            "aliases": ["bp"],
+            "linked": true
+        },
+        {
+            "name": "histogram",
+            "description": "Returns WPM histogram for the given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["hist", "hg"],
+            "linked": true
+        },
+        {
+            "name": "raceline",
+            "description": "Returns WPM histogram for the given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <user_2> ... <user_10>",
+                "example": "keegant",
+                "alt_example": [
+                    {
+                        "usage": "keegant e6f4e37l deroche1 wordracer888 mark40511 chimchimchim jessegarcia lucean oneguardsam pentalon",
+                        "notes": "Up to 10 users can be graphed"
+                    }
+                ]
+            },
+            "aliases": ["rl"],
+            "linked": true
+        }
+    ],
+    "other": [
+        {
+            "name": "search",
+            "description": "Returns a list of all quotes containing given search query; each query must be at least 3 words long; query is case insensitive",
+            "speed": "fast",
+            "usage": {
+                "general": "[query]",
+                "example": "They don't know",
+                "alt_example": []
+            },
+            "aliases": [],
+            "linked": false
+        },
+        {
+            "name": "levenshtein",
+            "description": "Returns the top 5 quotes with the lowest Levenshtein distance from the given query; each query must be at most 40 characters long; query is case sensitive",
+            "speed": "slow",
+            "usage": {
+                "general": "[query]",
+                "example": "They don't know",
+                "alt_example": []
+            },
+            "aliases": ["leven"],
+            "linked": false
+        },
+        {
+            "name": "searchid",
+            "description": "Returns the text of the specified ID",
+            "speed": "fast",
+            "usage": {
+                "general": "[text_ID]",
+                "example": "3810149",
+                "alt_example": []
+            },
+            "aliases": ["id"],
+            "linked": false
+        },
+        {
+            "name": "competition",
+            "description": "Returns the (updated) top 10 users for current daily competition; sorted by points as default",
+            "speed": "medium",
+            "usage": {
+                "general": "<points/races/wpm>",
+                "example": "races",
+                "alt_example": []
+            },
+            "aliases": ["comp"],
+            "linked": false
+        },
+        {
+            "name": "unixreference",
+            "description": "Returns table of UNIX time conversions",
+            "speed": "fast",
+            "usage": {
+                "general": "<timestamp>",
+                "example": "15000000000",
+                "alt_example": [
+                    {
+                        "usage": "1.0365e9",
+                        "notes": "UNIX timestamp can be given as either an integer or scientific notation"
+                    }
+                ]
+            },
+            "aliases": ["unix"],
+            "linked": false
+        },
+        {
+            "name": "premium",
+            "description": "Verifies premium membership to grant Discord role",
+            "usage": {
+                "general": "[user]"
+            },
+            "aliases": [],
+            "linked": false
+        },
+        {
+            "name": "verify",
+            "description": "Verifies premium membership to grant Discord role",
+            "usage": {
+                "general": "[verification_code]"
+            },
+            "aliases": [],
+            "linked": false
+        }
+    ]
+}
