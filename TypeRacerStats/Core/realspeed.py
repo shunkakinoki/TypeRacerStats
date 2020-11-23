@@ -7,13 +7,13 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.config import TR_WARNING
+from TypeRacerStats.config import BOT_ADMIN_IDS
 from TypeRacerStats.Core.Common.accounts import account_information
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
-import time
 
 class RealSpeed(commands.Cog):
     def __init__(self, bot):
@@ -21,15 +21,17 @@ class RealSpeed(commands.Cog):
 
     @commands.command(aliases = get_aliases('realspeed'))
     async def realspeed(self, ctx, *args):
-        account = account_information(ctx.message.author.id)
+        user_id = ctx.message.author.id
+        account = account_information(user_id)
         desslejusted, universe = account['desslejusted'], account['universe']
         race_api_response = None
         replay_url = ''
 
-        if len(args) == 0: args = check_account(ctx.message.author.id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) > 2 or len(args) == 0:
-            await ctx.send(embed = Error(ctx, ctx.message)
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
                                    .parameters('realspeed [user] [race_num]` or `realspeed [url]'))
             return
 
@@ -47,7 +49,8 @@ class RealSpeed(commands.Cog):
                     replay_url = Urls().result(args[0], last_race, universe)
                     urls = [[replay_url, 'text']]
                 except:
-                    await ctx.send(embed = Error(ctx, ctx.message)
+                    await ctx.send(content = f"<@{user_id}>",
+                                   embed = Error(ctx, ctx.message)
                                            .missing_information(("User doesn't exist or has no races in the "
                                                                  f"**{universe}** universe")))
                     return
@@ -57,7 +60,8 @@ class RealSpeed(commands.Cog):
                 replay_url = Urls().result(args[0], int(args[1]), universe)
                 urls = [[replay_url, 'text']]
             except ValueError:
-                await ctx.send(embed = Error(ctx, ctx.message)
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
                                        .incorrect_format('`race_num` must be a positive integer'))
                 return
 
@@ -70,7 +74,8 @@ class RealSpeed(commands.Cog):
                 universe = result['universe']
                 race_api_response = await find_registered(player, universe, result['race_number'], timestamp)
         except:
-            await ctx.send(embed = Error(ctx, ctx.message)
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
                                    .missing_information('`var typingLog` was not found in the requested URL'))
             return
 
@@ -83,13 +88,13 @@ class RealSpeed(commands.Cog):
 
         if ping > 0:
             embed = discord.Embed(title = title,
-                                color = discord.Color(MAIN_COLOR),
-                                url = replay_url)
+                                  color = discord.Color(MAIN_COLOR),
+                                  url = replay_url)
         else:
             embed = discord.Embed(title = title,
-                              colour = discord.Colour(0xe0001a),
-                              url = replay_url,
-                              description = f"{TR_WARNING} This score is reverse lagged {TR_WARNING}")
+                                  colour = discord.Colour(0xe0001a),
+                                  url = replay_url,
+                                  description = f"{TR_WARNING} This score is reverse lagged {TR_WARNING}")
         embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
         embed.set_footer(text = "Adjusted speed is calculated by removing the start time from the race")
         value = f"\"{result['race_text']}\""
@@ -115,17 +120,18 @@ class RealSpeed(commands.Cog):
 
     @commands.command(aliases = get_aliases('realspeedaverage'))
     async def realspeedaverage(self, ctx, *args):
-        start_ = time.time()
-        account = account_information(ctx.message.author.id)
+        user_id = ctx.message.author.id
+        account = account_information(user_id)
         desslejusted, universe = account['desslejusted'], account['universe']
         race_api_response = None
         replay_url = ''
 
         if len(args) == 0 or (len(args) == 1 and len(args[0]) < 4):
-            args = check_account(ctx.message.author.id)(args)
+            args = check_account(user_id)(args)
 
         if len(args) > 3 or len(args) == 0:
-            await ctx.send(embed = Error(ctx, ctx.message)
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
                                    .parameters('realspeedaverage [user] <first_race> <last_race>'))
             return
 
@@ -135,7 +141,8 @@ class RealSpeed(commands.Cog):
             race_api_response = (await fetch(urls))[0][0]
             last_race = int(race_api_response['gn'])
         except:
-            await ctx.send(embed = Error(ctx, ctx.message)
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
                                    .missing_information(("User doesn't exist or has no races in the "
                                                          f"**{universe}** universe")))
             return
@@ -161,20 +168,35 @@ class RealSpeed(commands.Cog):
         if first_race <= 0 or last_race <= 0 or race_interval <= 0:
             invalid = True
         if invalid:
-            await ctx.send(embed = Error(ctx, ctx.message)
-                            .incorrect_format("The number of races must be a positive integer"))
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('The number of races must be a positive integer'))
             return
-        """ if race_interval >= 30:
-            await ctx.send(":joy_cat:")
-            return """
+        if race_interval >= 100 and not user_id in BOT_ADMIN_IDS:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .lacking_permissions('You may only request up to 100 races'))
+            return
+        elif race_interval >= 500:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .lacking_permissions('You may only request up to 500 races'))
+            return
 
         urls = []
         for i in range(first_race, last_race + 1):
             replay_url = Urls().result(args[0], i, universe)
             urls.append([replay_url, 'text'])
-        
+
         responses = await fetch(urls)
         parsed_responses = scrape_result(responses)
+
+        if len(parsed_responses) == 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information('`var typingLog` was not found in any of the races'))
+            return
+
         parsed_responses = sorted(parsed_responses,
                                   key = lambda x: int(x['race_number']),
                                   reverse = True)
@@ -194,6 +216,7 @@ class RealSpeed(commands.Cog):
                 computed_responses.append({
                     'url': Urls().result(player, parsed_response['race_number'], universe),
                     'race_number': parsed_response['race_number'],
+                    'lagged': race_api_response['wpm'],
                     'unlagged': realspeeds['unlagged'],
                     'adjusted': realspeeds['adjusted'],
                     'ping': realspeeds['ping'],
@@ -201,7 +224,76 @@ class RealSpeed(commands.Cog):
                     'desslejusted': realspeeds['desslejusted']
                 })
                 break
-        await ctx.send(f"Took {time.time() - start_} seconds for {race_interval + 1} races.\nFirst one:\n```{computed_responses[0]}```")
+
+        lagged_sum, unlagged_sum, adjusted_sum, ping_sum = (0,) * 4
+        start_sum, desslejusted_sum, lag_sum, reverse_lag_count = (0,) * 4
+
+        for computed_response in computed_responses:
+            lagged_sum += computed_response['lagged']
+            unlagged_sum += computed_response['unlagged']
+            adjusted_sum += computed_response['adjusted']
+            ping_sum += computed_response['ping']
+            start_sum += computed_response['start']
+            lag_sum += computed_response['unlagged'] - computed_response['lagged']
+            if computed_response['ping'] <= 0:
+                reverse_lag_count += 1
+            if desslejusted:
+                desslejusted_sum += computed_response['desslejusted']
+        
+        description = ''
+        if reverse_lag_count:
+            color = 0xe0001a
+            description = (f"{TR_WARNING} This interval contains "
+                           f"{reverse_lag_count} lagged score(s) {TR_WARNING}\n")
+        else:
+            color = MAIN_COLOR
+
+        race_count = len(computed_responses)
+
+        title = f"Real Speed Average for {player} (Races {f'{first_race:,}'} to {f'{last_race:,}'})"
+        real_speeds = f"**Lagged Average:** {f'{round(lagged_sum / race_count, 2):,}'} WPM\n"
+        delays = (f"**Average Lag:** {f'{round(lag_sum / race_count, 2):,}'} WPM\n"
+                    f"**Average Ping:** {f'{round(ping_sum / race_count, 3):,}'}ms\n")
+        real_speeds += f"**Unlagged Average:** {f'{round(unlagged_sum / race_count, 2):,}'} WPM\n"
+        real_speeds += f"**Adjusted Average:** {f'{round(adjusted_sum / race_count, 3):,}'} WPM\n"
+        if desslejusted:
+            real_speeds += f"\n**Desslejusted Average:** {f'{round(desslejusted_sum / race_count, 3):,}'} WPM"
+        delays += f"**Average Start:** {f'{round(start_sum / race_count, 3):,}'}ms"
+
+        if race_count >= 20:
+            if description:
+                embed = discord.Embed(title = title,
+                                     color = discord.Color(color),
+                                     description = description)
+            else:
+                embed = discord.Embed(title = title,
+                                     color = discord.Color(color))
+            embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+            embed.set_footer(text = "(Adjusted speed is calculated by removing the start time from the race)")
+            embed.add_field(name = "Speed", value = real_speeds, inline = False)
+            embed.add_field(name = "Delays", value = delays, inline = False)
+            await ctx.send(content = f"<@{user_id}>", embed = embed)
+            return
+        
+        embed = discord.Embed(title = title,
+                              color = discord.Colour(color),
+                              description = f"{description}**Speed**\n{real_speeds}\n**Delays**\n{delays}")
+        for computed_response in computed_responses:
+            name = f"""Real Speeds for Race #{f"{computed_response['race_number']:,}"}"""
+            if computed_response['ping'] < 0:
+                name += f" {TR_WARNING} Reverse Lagged {TR_WARNING}"
+            value = (f"""**Lagged Speed:** {f"{round(computed_response['lagged'], 2)}"} WPM """
+                     f"""({f"{round(computed_response['unlagged'] - computed_response['lagged'], 2):,}"} WPM lag) """
+                     f"""[<:replay:744891748513480816>]({computed_response['url']})\n"""
+                     f"""**Unlagged Speed:** {f"{round(computed_response['unlagged'], 2):,}"} WPM """
+                     f"""({f"{round(computed_response['ping']):,}"}ms ping)\n"""
+                     f"""**Adjusted Speed:** {f"{round(computed_response['adjusted'], 3):,}"} WPM """
+                     f"""({f"{round(computed_response['start'], 3):,}"}ms start)""")
+            if desslejusted:
+                value += f"""\n**Desslejusted Speed:** {f"{round(computed_response['desslejusted'], 3):,}"} WPM"""
+            embed.add_field(name = name, value = value, inline = False)
+
+        await ctx.send(embed = embed)
         return
 
 def scrape_result(responses):
