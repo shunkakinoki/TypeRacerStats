@@ -52,7 +52,7 @@ class RealSpeed(commands.Cog):
                     await ctx.send(content = f"<@{user_id}>",
                                    embed = Error(ctx, ctx.message)
                                            .missing_information(("User doesn't exist or has no races in the "
-                                                                 f"**{universe}** universe")))
+                                                                 f"[`{universe}`](https://play.typeracer.com/?universe={universe}) universe")))
                     return
 
         elif len(args) == 2:
@@ -76,7 +76,8 @@ class RealSpeed(commands.Cog):
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .missing_information('`var typingLog` was not found in the requested URL'))
+                                   .missing_information(('`var typingLog` was not found in the requested URL;\n'
+                                                         f"Currently linked to [`{universe}`](https://play.typeracer.com/?universe={universe})\n\n")))
             return
 
         lagged = race_api_response['wpm']
@@ -86,15 +87,17 @@ class RealSpeed(commands.Cog):
 
         title = f"Real Speeds for {player}'s {race_number} Race"
 
+        description = f"**Universe:** [`{universe}`](https://play.typeracer.com/?universe={universe})\n"
+
         if ping > 0:
-            embed = discord.Embed(title = title,
-                                  color = discord.Color(MAIN_COLOR),
-                                  url = replay_url)
+            color = MAIN_COLOR
         else:
-            embed = discord.Embed(title = title,
-                                  colour = discord.Colour(0xe0001a),
-                                  url = replay_url,
-                                  description = f"{TR_WARNING} This score is reverse lagged {TR_WARNING}")
+            color = 0xe0001a
+            description += f"{TR_WARNING} This score is reverse lagged {TR_WARNING}"
+        embed = discord.Embed(title = title,
+                              colour = discord.Colour(color),
+                              url = replay_url,
+                              description = description)
         embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
         embed.set_footer(text = "Adjusted speed is calculated by removing the start time from the race")
         value = f"\"{result['race_text']}\""
@@ -144,7 +147,7 @@ class RealSpeed(commands.Cog):
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .missing_information(("User doesn't exist or has no races in the "
-                                                         f"**{universe}** universe")))
+                                                         f"[`{universe}`](https://play.typeracer.com/?universe={universe})")))
             return
 
         invalid = False
@@ -194,7 +197,8 @@ class RealSpeed(commands.Cog):
         if len(parsed_responses) == 0:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .missing_information('`var typingLog` was not found in any of the races'))
+                                   .missing_information(('`var typingLog` was not found in any of the races;\n'
+                                                         f"Currently linked to [`{universe}`](https://play.typeracer.com/?universe={universe})\n\n")))
             return
 
         parsed_responses = sorted(parsed_responses,
@@ -239,8 +243,8 @@ class RealSpeed(commands.Cog):
                 reverse_lag_count += 1
             if desslejusted:
                 desslejusted_sum += computed_response['desslejusted']
-        
-        description = ''
+
+        description = f"**Universe:** [`{universe}`](https://play.typeracer.com/?universe={universe})\n\n"
         if reverse_lag_count:
             color = 0xe0001a
             description = (f"{TR_WARNING} This interval contains "
@@ -253,7 +257,7 @@ class RealSpeed(commands.Cog):
         title = f"Real Speed Average for {player} (Races {f'{first_race:,}'} to {f'{last_race:,}'})"
         real_speeds = f"**Lagged Average:** {f'{round(lagged_sum / race_count, 2):,}'} WPM\n"
         delays = (f"**Average Lag:** {f'{round(lag_sum / race_count, 2):,}'} WPM\n"
-                    f"**Average Ping:** {f'{round(ping_sum / race_count, 3):,}'}ms\n")
+                  f"**Average Ping:** {f'{round(ping_sum / race_count, 3):,}'}ms\n")
         real_speeds += f"**Unlagged Average:** {f'{round(unlagged_sum / race_count, 2):,}'} WPM\n"
         real_speeds += f"**Adjusted Average:** {f'{round(adjusted_sum / race_count, 3):,}'} WPM\n"
         if desslejusted:
@@ -263,11 +267,11 @@ class RealSpeed(commands.Cog):
         if race_count >= 20:
             if description:
                 embed = discord.Embed(title = title,
-                                     color = discord.Color(color),
-                                     description = description)
+                                      color = discord.Color(color),
+                                      description = description)
             else:
                 embed = discord.Embed(title = title,
-                                     color = discord.Color(color))
+                                      color = discord.Color(color))
             embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
             embed.set_footer(text = "(Adjusted speed is calculated by removing the start time from the race)")
             embed.add_field(name = "Speed", value = real_speeds, inline = False)
@@ -305,8 +309,8 @@ def scrape_result(responses):
             soup = BeautifulSoup(response, 'html.parser')
             race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
             player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
-            typinglog = re.sub('\\t\d', 'a',
-                            re.search('typingLog\s=\s"(.*?)";', response)
+            typinglog = re.sub(r'\\t\d', 'a',
+                            re.search(r'typingLog\s=\s"(.*?)";', response)
                             .group(1).encode().decode('unicode-escape').translate(escapes))
 
             race_details = soup.select("table[class='raceDetails']")[0].select('tr')
@@ -351,7 +355,7 @@ def compute_realspeed(typinglog, lagged, desslejusted, universe):
         desslejusted_wpm = round(mult * quote_length / (actual_time - start), 3)
     else:
         desslejusted_wpm = None
-    
+
     return {'start': start,
             'unlagged': unlagged,
             'adjusted': adjusted,
@@ -359,7 +363,7 @@ def compute_realspeed(typinglog, lagged, desslejusted, universe):
             'desslejusted': desslejusted_wpm}
 
 async def find_registered(player, universe, gn, timestamp, *args):
-    if not(args):
+    if not args:
         urls = [[Urls().get_races(player, universe, timestamp - 1, timestamp + 1), 'json']]
         api_response = await fetch(urls)
         for race in api_response[0]:

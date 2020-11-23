@@ -62,7 +62,7 @@ class UserConfig(commands.Cog):
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (f"<@{user_id}> has been linked to [**{player}**]"
-                                                            f"(https://data.typeracer.com/pit/profile?user={player}).")))
+                                                            f"(https://data.typeracer.com/pit/profile?user={player})")))
 
     @commands.command(aliases = get_aliases('setparameter'))
     async def setparameter(self, ctx, *args):
@@ -145,8 +145,8 @@ class UserConfig(commands.Cog):
         update_accounts(accounts)
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
-                                             description = (f"<@{user_id}> has been linked to [**{universe}**]"
-                                                            f"(https://play.typeracer.com/?universe={universe}).")))
+                                             description = (f"<@{user_id}> has been linked to [`{universe}`]"
+                                                            f"(https://play.typeracer.com/?universe={universe})")))
 
 def setup(bot):
     bot.add_cog(UserConfig(bot))

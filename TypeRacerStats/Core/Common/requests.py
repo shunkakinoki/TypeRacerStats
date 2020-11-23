@@ -4,7 +4,6 @@ import aiohttp
 
 async def fetch_url(session, url, type_):
     async with session.get(url) as response:
-        print(url)
         if type_ == 'json':
             return json.loads(await response.read())
         else:
