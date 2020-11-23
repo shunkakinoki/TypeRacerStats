@@ -9,6 +9,7 @@ from TypeRacerStats.Core.Common.prefixes import get_prefix
 from TypeRacerStats.Core.Common.prefixes import load_prefixes
 from TypeRacerStats.Core.Common.prefixes import update_prefixes
 
+os.environ['TZ'] = 'UTC'
 bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
 bot.remove_command('help')
 
@@ -34,5 +35,7 @@ if __name__ == '__main__':
     for filename in os.listdir('TypeRacerStats/Core'):
         if filename.endswith('.py') and filename != '__init__.py':
             bot.load_extension(f"Core.{filename[:-3]}")
+
+
 
 bot.run(BOT_TOKEN)

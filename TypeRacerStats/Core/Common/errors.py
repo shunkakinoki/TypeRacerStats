@@ -30,7 +30,6 @@ class Error:
             embed.add_field(name = 'Error: Information Not Found', value = args[0])
             return embed
 
-
     def lacking_permissions(self, message):
         embed = discord.Embed(color = discord.Color(0x7f0dcc))
         embed.add_field(name = 'Error: Lacking Permissions', value = message)

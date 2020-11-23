@@ -1,11 +1,11 @@
-import  json
 import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.file_paths import ACCOUNTS_FILE_PATH
 from TypeRacerStats.file_paths import UNIVERSES_FILE_PATH
+from TypeRacerStats.Core.Common.accounts import load_accounts
+from TypeRacerStats.Core.Common.accounts import update_accounts
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.prefixes import get_prefix
@@ -73,7 +73,7 @@ class UserConfig(commands.Cog):
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message).parameters('setparameter [lagged/unlagged/adjusted/desslejusted]'))
             return
-        
+
         parameter = args[0].lower()
         if len(parameter) > 12:
             invalid = True
@@ -147,14 +147,6 @@ class UserConfig(commands.Cog):
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (f"<@{user_id}> has been linked to [**{universe}**]"
                                                             f"(https://play.typeracer.com/?universe={universe}).")))
-
-def load_accounts():
-    with open(ACCOUNTS_FILE_PATH, 'r') as jsonfile:
-        return json.load(jsonfile)
-
-def update_accounts(accounts):
-    with open(ACCOUNTS_FILE_PATH, 'w') as jsonfile:
-        json.dump(accounts, jsonfile, indent = 4)
 
 def setup(bot):
     bot.add_cog(UserConfig(bot))
