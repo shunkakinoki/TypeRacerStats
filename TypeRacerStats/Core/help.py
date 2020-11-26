@@ -84,7 +84,6 @@ class Help(commands.Cog):
                                embed = self.main_embed)
                 return
         await ctx.send(embed = self.main_embed)
-        return
 
     @commands.command(aliases = get_aliases('info'))
     async def info(self, ctx, *args):

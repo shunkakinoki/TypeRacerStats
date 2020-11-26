@@ -22,7 +22,7 @@ async def on_ready():
 @bot.event
 async def on_guild_join(guild):
     prefixes = load_prefixes()
-    prefixes[str(guild.id)] = DEFAULT_COMMAND_PREFIX
+    prefixes.update({str(guild.id): DEFAULT_COMMAND_PREFIX})
     update_prefixes(prefixes)
 
 @bot.event
@@ -31,11 +31,23 @@ async def on_guild_remove(guild):
     prefixes.pop(str(guild.id))
     update_prefixes(prefixes)
 
+@bot.event
+async def on_command_error(ctx, error):
+    if isinstance(error, commands.CommandOnCooldown):
+        if ctx.command.name == 'getdata':
+            await ctx.send("`getdata` request is currently running, try again later")
+        elif ctx.command.name == 'realspeedaverage':
+            await ctx.send(f"2≤ `realspeedaverage` requests are running for <@{ctx.message.author.id}>")
+    else:
+        print(error)
+
+@bot.event
+async def on_command_completion(ctx):
+    ctx.command.reset_cooldown(ctx)
+
 if __name__ == '__main__':
     for filename in os.listdir('TypeRacerStats/Core'):
         if filename.endswith('.py') and filename != '__init__.py':
             bot.load_extension(f"Core.{filename[:-3]}")
-
-
 
 bot.run(BOT_TOKEN)

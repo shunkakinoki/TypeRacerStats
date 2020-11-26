@@ -8,14 +8,18 @@ from TypeRacerStats.Core.Common.accounts import load_accounts
 from TypeRacerStats.Core.Common.accounts import update_accounts
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import href_universe
 from TypeRacerStats.Core.Common.prefixes import get_prefix
 from TypeRacerStats.Core.Common.prefixes import load_prefixes
 from TypeRacerStats.Core.Common.prefixes import update_prefixes
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.urls import Urls
 
 class UserConfig(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.cooldown(1, 1, commands.BucketType.default)
     @commands.command(aliases = get_aliases('changeprefix'))
     @commands.check(lambda ctx: ctx.message.author.guild_permissions.administrator)
     async def changeprefix(self, ctx, prefix):
@@ -24,6 +28,7 @@ class UserConfig(commands.Cog):
         update_prefixes(prefixes)
         await ctx.send(f"updated prefix to {prefix}")
 
+    @commands.cooldown(1, 3, commands.BucketType.default)
     @commands.command(aliases = get_aliases('register'))
     async def register(self, ctx, *args):
         user_id = str(ctx.message.author.id)
@@ -31,17 +36,20 @@ class UserConfig(commands.Cog):
 
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message).parameters('register [typeracer_username]'))
+                           embed = Error(ctx, ctx.message).parameters(f"{ctx.invoked_with} [typeracer_username]"))
             return
         player = args[0].lower()
+        urls = [Urls().get_user(player, 'play')]
         if len(player) > 31:
             invalid = True
-            """ AFTER URL MODULE, CHECK FOR ACCOUNT VALIDITY """
-
+        try:
+            test_response = await fetch(urls, 'json')
+        except:
+            invalid = True
         if invalid:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format('`typeracer_username` must be a TypeRacer username'))
+                                   .missing_information('`typeracer_username` must be a TypeRacer username'))
             return
         accounts = load_accounts()
 
@@ -64,58 +72,19 @@ class UserConfig(commands.Cog):
                                              description = (f"<@{user_id}> has been linked to [**{player}**]"
                                                             f"(https://data.typeracer.com/pit/profile?user={player})")))
 
-    @commands.command(aliases = get_aliases('setparameter'))
-    async def setparameter(self, ctx, *args):
-        user_id = str(ctx.message.author.id)
-        invalid = False
-
-        if len(args) != 1:
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message).parameters('setparameter [lagged/unlagged/adjusted/desslejusted]'))
-            return
-
-        parameter = args[0].lower()
-        if len(parameter) > 12:
-            invalid = True
-        else:
-            parameters = ['unlagged', 'adjusted', 'lagged', 'lag', 'unl', 'adj', 'desslejusted']
-            try:
-                if(not parameter in parameters):
-                    invalid = True
-            except KeyError:
-                invalid = True
-        if invalid:
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .incorrect_format('`parameter` must be `lagged/unlagged/adjusted/desslejusted`'))
-            return
-
-        accounts = load_accounts()
-
-        try:
-            accounts[user_id]['speed'] = parameter[0:3]
-        except KeyError:
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .missing_information(('Discord account must be linked to TypeRacer account with '
-                                                         f"`{get_prefix(ctx, ctx.message)}register [typeracer_username]`")))
-            return
-
-        update_accounts(accounts)
-
-        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
-                                             description = f"<@{user_id}> has been linked to `{parameter}`"))
-
+    @commands.cooldown(1, 1, commands.BucketType.default)
     @commands.command(aliases = get_aliases('setuniverse'))
     async def setuniverse(self, ctx, *args):
         user_id = str(ctx.message.author.id)
         invalid = False
 
-        if len(args) != 1:
+        if len(args) > 1:
             await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message).parameters('setuniverse [universe]'))
+                           embed = Error(ctx, ctx.message).parameters(f"{ctx.invoked_with} [universe]"))
             return
-
+        
+        if len(args) == 0:
+            args = ('play',)
         universe = args[0].lower()
         if len(universe) > 50:
             invalid = True
@@ -145,8 +114,7 @@ class UserConfig(commands.Cog):
         update_accounts(accounts)
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
-                                             description = (f"<@{user_id}> has been linked to [`{universe}`]"
-                                                            f"(https://play.typeracer.com/?universe={universe})")))
+                                             description = (f"<@{user_id}> has been linked to the {href_universe(universe)} universe")))
 
 def setup(bot):
     bot.add_cog(UserConfig(bot))

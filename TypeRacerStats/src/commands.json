@@ -51,18 +51,6 @@
             "linked": false
         },
         {
-            "name": "setparameter",
-            "description": "Registers your account to the given speed parameter; subsequent command calls will be calculated with it\n**NOTE:** Your account must be linked first",
-            "speed": "fast",
-            "usage": {
-                "general": "[lagged/unlagged/adjusted/desslejusted]",
-                "example": "lagged",
-                "alt_example": []
-            },
-            "aliases": ["sp"],
-            "linked": true
-        },
-        {
             "name": "setuniverse",
             "description": "Registers your account to the given TypeRacer universe; subsequent command calls will use it\n**NOTE:** Your account must be linked first",
             "speed": "fast",

@@ -1,0 +1,74 @@
+import datetime
+import re
+import sys
+from bs4 import BeautifulSoup
+sys.path.insert(0, '')
+from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.requests import fetch
+
+def compute_realspeed(quote_length, actual_time, start, lagged, desslejusted, universe):
+    if universe == 'lang_ko':
+        mult = 24000
+    elif universe == 'lang_zh' or universe == 'new_lang_zh-tw' or universe == 'lang_zh-tw' or universe == 'lang_ja':
+        mult = 60000
+    else:
+        mult = 12000
+
+    unlagged = round(mult * quote_length / actual_time, 2)
+    ping = mult * quote_length / lagged - actual_time
+    adjusted = round(mult * (quote_length - 1) / (actual_time - start), 3)
+    if desslejusted:
+        desslejusted_wpm = round(mult * quote_length / (actual_time - start), 3)
+    else:
+        desslejusted_wpm = None
+
+    return {'start': start,
+            'unlagged': unlagged,
+            'adjusted': adjusted,
+            'ping': ping,
+            'desslejusted': desslejusted_wpm}
+
+async def find_registered(player, universe, gn, timestamp):
+    urls = [Urls().get_races(player, universe, timestamp - 1, timestamp + 1)]
+    api_response = await fetch(urls, 'json')
+    print(api_response)
+    for race in api_response[0]:
+        if race['gn'] == gn:
+            return race
+
+def rs_typinglog_scraper(response):
+    escapes = ''.join([chr(char) for char in range(1, 32)])
+
+    try:
+        soup = BeautifulSoup(response, 'html.parser')
+        typinglog = re.sub('\\t\d', 'a',
+                        re.search(r'typingLog\s=\s"(.*?)";', response)
+                        .group(1).encode().decode('unicode-escape').translate(escapes))
+        times = [int(c) for c in re.findall(r"\d+", typinglog.split("|")[0])][2:]
+
+        race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
+        player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
+        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        universe = 'play'
+        for detail in race_details:
+            cells = detail.select('td')
+            category = cells[0].text.strip()
+            if category == "Race Number":
+                race_number = int(cells[1].text.strip())
+            elif category == "Date":
+                timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
+                                                        "%a, %d %b %Y %H:%M:%S")
+                                                        .strftime("%s"))
+            elif category == "Universe":
+                universe = cells[1].text.strip()
+
+        return {'player': player,
+                'timestamp': timestamp,
+                'race_number': race_number,
+                'universe': universe,
+                'race_text': race_text,
+                'start': times[0],
+                'duration': sum(times),
+                'length': len(times)}
+    except:
+        return None
