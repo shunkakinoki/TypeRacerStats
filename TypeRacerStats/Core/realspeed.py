@@ -87,9 +87,12 @@ class RealSpeed(commands.Cog):
                                                          f"Currently linked to the {href_universe(universe)} universe\n\n")))
             return
 
-        print(race_api_response)
         lagged = race_api_response['wpm']
-        realspeeds = compute_realspeed(result['length'], result['duration'], result['start'], lagged, desslejusted, universe)
+        try:
+            realspeeds = compute_realspeed(result['length'], result['duration'], result['start'], lagged, desslejusted, universe)
+        except ZeroDivisionError:
+            await ctx.send('alskdfjk')
+            return
         race_number = result['race_number']
         start, unlagged, adjusted, ping, desslejusted_wpm = tuple(realspeeds.values())
 

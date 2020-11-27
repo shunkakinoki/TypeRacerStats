@@ -72,3 +72,10 @@ def rs_typinglog_scraper(response):
                 'length': len(times)}
     except:
         return None
+
+def scrape_text(response):
+    try:
+        soup = BeautifulSoup(response, 'html.parser')
+        return soup.select('p')[0].text.strip()
+    except IndexError:
+        return None

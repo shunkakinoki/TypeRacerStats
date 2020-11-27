@@ -67,7 +67,6 @@ class Help(commands.Cog):
 
         for i in range(4, len(info) - 1):
             paragraph = info[i].split(':::')
-            print(paragraph)
             self.info_embed.add_field(name = paragraph[0], value = paragraph[1], inline = False)
         self.info_embed.set_footer(text = info[-1])
 

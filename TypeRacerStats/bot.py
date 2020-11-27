@@ -5,6 +5,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_TOKEN
 from TypeRacerStats.config import DEFAULT_COMMAND_PREFIX
+from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.prefixes import get_prefix
 from TypeRacerStats.Core.Common.prefixes import load_prefixes
 from TypeRacerStats.Core.Common.prefixes import update_prefixes
@@ -34,12 +35,12 @@ async def on_guild_remove(guild):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandOnCooldown):
-        if ctx.command.name == 'getdata':
-            await ctx.send("`getdata` request is currently running, try again later")
-        elif ctx.command.name == 'realspeedaverage':
-            await ctx.send(f"2≤ `realspeedaverage` requests are running for <@{ctx.message.author.id}>")
+        await ctx.send(content = f"<@{ctx.message.author.id}>",
+                       embed = Error(ctx, ctx.message)
+                               .cooldown((f"Maximum number of `{ctx.invoked_with}`"
+                                          " request(s) are running\nTry again later")))
     else:
-        print(error)
+        raise(error)
 
 @bot.event
 async def on_command_completion(ctx):

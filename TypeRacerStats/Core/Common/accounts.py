@@ -23,11 +23,9 @@ def account_information(discord_id):
     try:
         account = accounts[str(discord_id)]
         desslejusted = account['desslejusted']
-        speed = account['speed']
         universe = account['universe']
     except KeyError:
         desslejusted = False
-        speed = 'lag'
         universe = 'play'
     
-    return {'desslejusted': desslejusted, 'speed': speed, 'universe': universe}
+    return {'desslejusted': desslejusted, 'universe': universe}

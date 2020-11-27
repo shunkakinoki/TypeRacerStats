@@ -1,3 +1,4 @@
+import json
 import time
 import sys
 from bs4 import BeautifulSoup
@@ -5,6 +6,7 @@ import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.file_paths import TOPTENS_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -31,7 +33,7 @@ class BasicStats(commands.Cog):
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters('stats [user]'))
+                                   .parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
@@ -143,7 +145,8 @@ class BasicStats(commands.Cog):
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters('lastonline [user]'))
+                                   .parameters(f"{ctx.invoked_with} [user]"))
+            return
         player = args[0].lower()
         try:
             urls = [Urls().get_races(player, universe, 1)]
@@ -154,6 +157,7 @@ class BasicStats(commands.Cog):
                                    .missing_information((f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
                                                          "doesn't exist or has no races in the "
                                                          f"{href_universe(universe)} universe")))
+            return
         
         time_difference = time.time() - response[0]
         await ctx.send(embed = discord.Embed(colour = discord.Colour(MAIN_COLOR),
@@ -171,7 +175,7 @@ class BasicStats(commands.Cog):
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters('medals [user]'))
+                                   .parameters(f"{ctx.invoked_with} [user]"))
         player = args[0].lower()
         try:
             urls = [Urls().user(player, 'play')]
@@ -245,6 +249,209 @@ class BasicStats(commands.Cog):
                             inline = True)
         await ctx.send(embed = embed)
         return
+    
+    @commands.command(aliases = get_aliases('toptens'))
+    async def toptens(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if len(args) == 0: args = check_account(user_id)(args)
+
+        if len(args) != 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user]"))
+            return
+        
+        player = args[0].lower()
+        with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
+            player_top_tens = json.load(jsonfile)
+        
+        try:
+            player_data = player_top_tens[player]
+            last_updated = float(player_top_tens['last updated'])
+        except KeyError:
+            embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
+                                  color = discord.Color(MAIN_COLOR),
+                                  description = "It's empty here.")
+            embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+            await ctx.send(embed = embed)
+            return
+        
+        total = 0
+        for value in player_data.values():
+            total += int(value)
+
+        breakdown = ''
+        for i in range(1, 4):
+            breakdown += f"**{i}:** {f'{int(player_data[str(i)]):,}'}\n"
+        for i in range(4, 11):
+            breakdown += f"**{i}:** {f'{int(player_data[str(i)]):,}'} | "
+        breakdown = breakdown[:-3]
+
+        embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
+                              color = discord.Color(MAIN_COLOR),
+                              description = f"**{f'{total}'}** text top 10s")
+        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_footer(text = f"Text top 10 data was last updated {seconds_to_text(time.time() - last_updated)} ago")
+        embed.add_field(name = "Breakdown", value = breakdown, inline = False)
+        await ctx.send(embed = embed)
+        return
+    
+    @commands.cooldown(1, 20, commands.BucketType.default)
+    @commands.command(aliases = get_aliases('leaderboard'))
+    async def leaderboard(self, ctx, *args):
+        user_id = ctx.message.author.id
+        num_lb = 10
+        error_one = Error(ctx, ctx.message) \
+                    .parameters(f"{ctx.invoked_with} [races/points/textbests/textstyped/toptens] <num>")
+        error_two = Error(ctx, ctx.message) \
+                    .incorrect_format('`num` must be a positive integer between 1 and 10')
+
+        if len(args) == 0:
+            await ctx.send(content = f"<@{user_id}>", embed = error_one)
+            return
+        elif len(args) == 2:
+            if args[0].lower() != "toptens":
+                await ctx.send(content = f"<@{user_id}>", embed = error_one)
+                return
+            try:
+                num_lb = int(args[1])
+                if num_lb < 1 or 10 < num_lb:
+                    await ctx.send(content = f"<@{user_id}>", embed = error_two)
+                    return
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>", embed = error_two)
+                return
+        elif 2 < len(args):
+            await ctx.send(content = f"<@{user_id}>", embed = error_one)
+            return
+
+        category_dict = {
+            'races': 'races',
+            'points': 'points',
+            'textbests': 'wpm_textbests',
+            'textstyped': 'texts_raced',
+            'toptens': 'toptens'
+        }
+        try:
+            category = category_dict[args[0].lower()]
+            urls = [Urls().leaders(category)]
+        except KeyError:
+            await ctx.send(content = f"<@{user_id}>", embed = error_two)
+            return
+        
+        ranks = [":first_place:",
+                 ":second_place:",
+                 ":third_place:",
+                 "<:04:744526168060985345>",
+                 "<:05:744526576795910266>",
+                 "<:06:744527060265074758>",
+                 "<:07:744527225533104261>",
+                 "<:08:744527293443080272>",
+                 "<:09:744527358538547250>",
+                 "<:10:744527414918381598>"]
+
+        def helper_formatter(player, country, parameter, index, *args):
+            formatted = ranks[index - 1]
+            if country:
+                formatted += f":flag_{country}: "
+            else:
+                formatted += '<:flagblank:744520567113252926> '
+            if type(parameter) == str:
+                formatted += f"{player} — {parameter}\n"
+                return formatted
+            if args:
+                formatted += f"{player} — {f'{parameter:,}'} WPM\n"
+                return formatted
+            formatted += f"{player} — {f'{round(parameter):,}'}\n"
+            return formatted
+        
+        value = ''
+        if category == 'races': name = '**Races Leaderboard**'
+        elif category == 'points': name = '**Points Leaderboard**'
+        elif category == 'wpm_textbests': name = '**Text Bests Leaderboard**'
+        elif category == 'texts_raced': name = '**Texts Raced Leaderboard**'
+
+        top_players = []
+        if category != 'toptens':
+            response = await fetch(urls, 'read')
+            soup = BeautifulSoup(response[0], 'html.parser')
+            rows = soup.select('table')[0].select('tr')
+            for i in range(1, 16):
+                player = rows[i].select('td')[1].select('a')[0]['href'][18:]
+                player_urls = [Urls().get_user(player, 'play')]
+                player_response = await fetch(player_urls, 'json')
+                player_response = player_response[0]
+                country = player_response['country']
+                if category == 'races': parameter = int(player_response['tstats']['cg'])
+                elif category == 'points': parameter = float(player_response['tstats']['points'])
+                elif category == 'wpm_textbests': parameter = float(rows[i].select('td')[2].text)
+                elif category == 'texts_raced': parameter = rows[i].select('td')[4].text
+                top_players.append([player, parameter, country])
+
+            if category != 'texts_raced':
+                top_players = sorted(top_players, key = lambda x: x[1], reverse = True)
+            if category != 'wpm_textbests':
+                for i in range(0, 10):
+                    player_info = top_players[i]
+                    value += helper_formatter(player_info[0], player_info[2], player_info[1], i + 1)
+            else:
+                for i in range(0, 10):
+                    player_info = top_players[i]
+                    value += helper_formatter(player_info[0], player_info[2], player_info[1], i + 1, True)
+        else:
+            with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
+                player_top_tens = json.load(jsonfile)
+            last_updated = float(player_top_tens['last updated'])
+            del(player_top_tens['last updated'])
+
+            for player, top_tens in player_top_tens.items():
+                top_count = 0
+                top_tens_values = list(top_tens.values())
+                for count in range(0, num_lb):
+                    top_count += int(top_tens_values[count])
+                top_players.append([player, top_count])
+
+            top_players = [player for player in top_players if player[1] != 0]
+            top_players = sorted(top_players, key = lambda x: x[1])
+            players_with_top_tens = len(top_players)
+
+            value += f"{f'{players_with_top_tens:,}'} players have top {num_lb}s\n"
+            for i in range(0, 10):
+                num = ranks[i]
+                value += (f"{num} {top_players[-(i + 1)][0]} "
+                          f"— {f'{top_players[-(i + 1)][1]:,}'}\n")
+            value = value[:-1]
+            name = {
+                1: 'Ones',
+                2: 'Twos',
+                3: 'Threes',
+                4: 'Fours',
+                5: 'Fives',
+                6: 'Sixes',
+                7: 'Sevens',
+                8: 'Eights',
+                9: 'Nines',
+                10: 'Tens'
+            }
+            name = f"Text Top {name[num_lb]}"
+        
+        embed = discord.Embed(color = discord.Color(MAIN_COLOR))
+        embed.add_field(name = name, value = value)
+        if category == 'wpm_textbests':
+            embed.set_footer(text = 'All users have at least 1,000 races and \n 400 texts typed')
+        elif category == 'toptens':
+            embed.set_footer(text = ("Text top 10 data was last updated\n"
+                                     f"{seconds_to_text(time.time() - last_updated)} ago"))
+        await ctx.send(embed = embed)
+
+        if category != 'toptens':
+            urls = []
+            for player in top_players:
+                urls.append(Urls().trd_import(player))
+            await fetch(urls, 'text')
+        return            
+
 
 def setup(bot):
     bot.add_cog(BasicStats(bot))

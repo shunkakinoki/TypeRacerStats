@@ -8,7 +8,7 @@ class Urls:
         self.tr_results = 'https://data.typeracer.com/pit/result?id='
         self.trd_users = 'http://typeracerdata.com/api?username='
         self.trd_imports = 'http://typeracerdata.com/import?username='
-        self.trd_leaders = 'http://typeracerdata.com/leaders?min_races=1000&min_texts=400&rank_end=20&sort='
+        self.trd_leaders = 'http://typeracerdata.com/leaders?min_races=1000&min_texts=400&rank_end=15&sort='
         self.trd_text_ids = 'http://typeracerdata.com/text?id='
 
     def get_races(self, player, universe, *args):

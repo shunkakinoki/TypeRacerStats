@@ -166,8 +166,20 @@
                     }
                 ]
             },
-            "aliases": [],
+            "aliases": ["lb"],
             "linked": true
+        },
+        {
+            "name": "competition",
+            "description": "Returns the (updated) top 10 users for current daily competition; sorted by points as default",
+            "speed": "medium",
+            "usage": {
+                "general": "<points/races/wpm>",
+                "example": "races",
+                "alt_example": []
+            },
+            "aliases": ["comp"],
+            "linked": false
         },
         {
             "name": "lastonline",
@@ -468,18 +480,6 @@
                 "alt_example": []
             },
             "aliases": ["id"],
-            "linked": false
-        },
-        {
-            "name": "competition",
-            "description": "Returns the (updated) top 10 users for current daily competition; sorted by points as default",
-            "speed": "medium",
-            "usage": {
-                "general": "<points/races/wpm>",
-                "example": "races",
-                "alt_example": []
-            },
-            "aliases": ["comp"],
             "linked": false
         },
         {
