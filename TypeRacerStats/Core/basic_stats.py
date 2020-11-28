@@ -1,20 +1,35 @@
+import datetime
 import json
 import time
 import sys
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
+import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH
 from TypeRacerStats.file_paths import TOPTENS_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe
 from TypeRacerStats.Core.Common.formatting import seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
+
+ranks = [":first_place:",
+         ":second_place:",
+         ":third_place:",
+         "<:04:744526168060985345>",
+         "<:05:744526576795910266>",
+         "<:06:744527060265074758>",
+         "<:07:744527225533104261>",
+         "<:08:744527293443080272>",
+         "<:09:744527358538547250>",
+         "<:10:744527414918381598>"]
 
 class BasicStats(commands.Cog):
     def __init__(self, bot):
@@ -195,6 +210,7 @@ class BasicStats(commands.Cog):
             if len(cells) < 2: continue
             if cells[0].text.strip() == "Awards":
                 medals = cells[1].select('img')
+                break
 
         breakdown = {
             "g": {1: 0, 2: 0, 3: 0},
@@ -237,15 +253,15 @@ class BasicStats(commands.Cog):
                             inline = True)
         if(sum(weekly)):
             embed.add_field(name = "Weekly",
-                            value = helper_constructor(daily),
+                            value = helper_constructor(weekly),
                             inline = True)
         if(sum(monthly)):
             embed.add_field(name = "Monthly",
-                            value = helper_constructor(daily),
+                            value = helper_constructor(monthly),
                             inline = True)
         if(sum(yearly)):
             embed.add_field(name = "Yearly",
-                            value = helper_constructor(daily),
+                            value = helper_constructor(yearly),
                             inline = True)
         await ctx.send(embed = embed)
         return
@@ -339,17 +355,6 @@ class BasicStats(commands.Cog):
         except KeyError:
             await ctx.send(content = f"<@{user_id}>", embed = error_two)
             return
-        
-        ranks = [":first_place:",
-                 ":second_place:",
-                 ":third_place:",
-                 "<:04:744526168060985345>",
-                 "<:05:744526576795910266>",
-                 "<:06:744527060265074758>",
-                 "<:07:744527225533104261>",
-                 "<:08:744527293443080272>",
-                 "<:09:744527358538547250>",
-                 "<:10:744527414918381598>"]
 
         def helper_formatter(player, country, parameter, index, *args):
             formatted = ranks[index - 1]
@@ -358,12 +363,12 @@ class BasicStats(commands.Cog):
             else:
                 formatted += '<:flagblank:744520567113252926> '
             if type(parameter) == str:
-                formatted += f"{player} — {parameter}\n"
+                formatted += f"{player} - {parameter}\n"
                 return formatted
             if args:
-                formatted += f"{player} — {f'{parameter:,}'} WPM\n"
+                formatted += f"{player} - {f'{parameter:,}'} WPM\n"
                 return formatted
-            formatted += f"{player} — {f'{round(parameter):,}'}\n"
+            formatted += f"{player} - {f'{round(parameter):,}'}\n"
             return formatted
         
         value = ''
@@ -420,7 +425,7 @@ class BasicStats(commands.Cog):
             for i in range(0, 10):
                 num = ranks[i]
                 value += (f"{num} {top_players[-(i + 1)][0]} "
-                          f"— {f'{top_players[-(i + 1)][1]:,}'}\n")
+                          f"- {f'{top_players[-(i + 1)][1]:,}'}\n")
             value = value[:-1]
             name = {
                 1: 'Ones',
@@ -450,8 +455,102 @@ class BasicStats(commands.Cog):
             for player in top_players:
                 urls.append(Urls().trd_import(player))
             await fetch(urls, 'text')
-        return            
+        return 
 
+    @commands.cooldown(2, 25, commands.BucketType.default)
+    @commands.command(aliases = get_aliases('competition'))
+    async def competition(self, ctx, *args):
+        user_id = ctx.message.author.id
+        account = account_information(user_id)
+        universe = account['universe']
+
+        categories = {
+            'races': 'gamesFinished',
+            'points': 'points',
+            'wpm': 'wpm'
+        }
+
+        if len(args) == 0:
+            args = ('points',)
+        if len(args) == 1:
+            try:
+                category = categories[args[0].lower()]
+            except KeyError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format('Must provide a valid cateogry: `races/points/wpm`'))
+                return
+        else:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [races/points/wpm]"))
+            return
+
+        urls = [Urls().get_competition('day', category, universe)]
+        competition = await fetch(urls, 'json')
+        competition = competition[0]
+
+        def helper_formatter(player, country, points, races, wpm_sum, index):
+            formatted = ranks[index]
+            if country:
+                formatted += f":flag_{country}: "
+            else:
+                formatted += "<:flagblank:744520567113252926> "
+            formatted += f"{player} - {f'{points:,}'} | {f'{races:,}'} | {f'{round(wpm_sum / races, 2):,}'} WPM\n"
+            return formatted
+
+        players = []
+        for competitor in competition:
+            player = competitor[1]['typeracerUid'][3:]
+            if competitor[0]['country']:
+                country = competitor[0]['country']
+            else:
+                country = ''
+
+            today_timestamp = (datetime.datetime.utcnow().date() \
+                               - datetime.date(1970, 1, 1)).total_seconds()
+            file_name = f"t_{player}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
+
+            conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
+            c = conn.cursor()
+            try:
+                user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY gn DESC LIMIT 1")
+                last_race = user_data.fetchone()
+                time_stamp = last_race[1] + 0.01
+            except sqlite3.OperationalError:
+                time_stamp = today_timestamp
+                c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
+
+            races = await fetch_data(player, universe, time_stamp, today_timestamp + 86400)
+            if races:
+                c.executemany(f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", races)
+                conn.commit()
+            points, wpm = [], []
+            data = c.execute(f"SELECT * FROM {file_name}").fetchall()
+            for row in data:
+                points.append(row[4])
+                wpm.append(row[3])
+            players.append([player, country, round(sum(points)), len(points), sum(wpm)])
+
+        if category == 'points':
+            players = sorted(players, key = lambda x: x[2])[-10:][::-1]
+        elif category == 'gamesFinished':
+            players = sorted(players, key = lambda x: x[3])[-10:][::-1]
+        elif category == 'wpm':
+            players = sorted(players, key = lambda x: x[4] / x[3])[-10:][::-1]
+
+        value = ''
+        for i in range(0, 10):
+            player = players[i]
+            value += helper_formatter(player[0], player[1], player[2], player[3], player[4], i)
+        
+        embed = discord.Embed(title = f"Daily Competition ({args[0]})",
+                              color = discord.Color(MAIN_COLOR),
+                              url = urls[0])
+        embed.add_field(name = datetime.datetime.utcnow().date().strftime("%B %d, %Y"),
+                        value = value)
+        await ctx.send(embed = embed)
+        return
 
 def setup(bot):
     bot.add_cog(BasicStats(bot))

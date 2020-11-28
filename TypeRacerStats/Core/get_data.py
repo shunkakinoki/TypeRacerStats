@@ -49,7 +49,7 @@ class GetData(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM {player} ORDER BY gn DESC LIMIT 1")
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY gn DESC LIMIT 1")
             last_race = user_data.fetchone()
             last_race_timestamp = last_race[1]
             races_remaining = total_races - last_race[0]
@@ -62,13 +62,19 @@ class GetData(commands.Cog):
                                        .missing_information(f"{player} has no races"))
                 return
             else:
-                c.execute(f"CREATE TABLE {player} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
+                c.execute(f"CREATE TABLE t_{player} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
         if races_remaining > 5000 and not user_id in BOT_ADMIN_IDS:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .lacking_permissions(('Data request exceeds 5,000 races. '
                                                          'Have a bot admin run the command.')))
+            return
+        if races_remaining == 0:
+            await ctx.send(embed = discord.Embed(title = 'Data Request',
+                                                color = discord.Color(MAIN_COLOR),
+                                                description = (f"{player}'s data successfully created/updated\n"
+                                                               '0 races added')))
             return
 
         start_ = time.time()
@@ -134,7 +140,7 @@ class GetData(commands.Cog):
                                    .missing_information('`user` must be a TypeRacer username'))
             return
 
-        file_name = f"{player}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
+        file_name = f"t_{player}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
         conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
         c = conn.cursor()
         try:

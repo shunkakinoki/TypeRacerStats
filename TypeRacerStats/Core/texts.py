@@ -9,7 +9,7 @@ from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.config import TR_GHOST
 from TypeRacerStats.config import TR_INFO
 from TypeRacerStats.config import BOT_ADMIN_IDS
-from TypeRacerStats.file_paths import TEXTS_FILE_PATH
+from TypeRacerStats.file_paths import TEXTS_FILE_PATH_CSV
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.urls import Urls
@@ -42,7 +42,7 @@ class Texts(commands.Cog):
         embed.set_footer(text = 'Page 1')
 
         texts, messages = [], []
-        with open(TEXTS_FILE_PATH, 'r') as csvfile:
+        with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
             reader = csv.reader(csvfile)
             next(reader)
             for row in reader:
@@ -108,6 +108,8 @@ class Texts(commands.Cog):
             elif react.emoji == '▶️':
                 index += 1
             action = msg.edit
+        if embed_count <= 1:
+            await ctx.send(embed = messages[0])
         return
     
     @commands.cooldown(3, 25, commands.BucketType.user)
@@ -130,7 +132,7 @@ class Texts(commands.Cog):
             return
         
         texts = []
-        with open(TEXTS_FILE_PATH, 'r') as csvfile:
+        with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
             reader = csv.reader(csvfile)
             next(reader)
             for row in reader:
@@ -213,7 +215,7 @@ class Texts(commands.Cog):
 
         await ctx.send(content = f"<@{user_id}>",
                        embed = Error(ctx, ctx.message)
-                               .incorrect_format(f"{ID} isnot a valid text ID"))
+                               .incorrect_format(f"{ID} is not a valid text ID"))
         return
 
 def predicate(message, l, r, user_id):

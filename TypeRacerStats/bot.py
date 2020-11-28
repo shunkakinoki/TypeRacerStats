@@ -40,7 +40,7 @@ async def on_command_error(ctx, error):
                                .cooldown((f"Maximum number of `{ctx.invoked_with}`"
                                           " request(s) are running\nTry again later")))
     else:
-        raise(error)
+        raise error
 
 @bot.event
 async def on_command_completion(ctx):
