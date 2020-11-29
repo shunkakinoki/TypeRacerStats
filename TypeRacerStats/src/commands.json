@@ -153,6 +153,27 @@
             "linked": true
         },
         {
+            "name": "lastrace",
+            "description": "Returns unlagged and adjusted speeds for the everyone in provided race",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <race_num>",
+                "example": "keegant 300000",
+                "alt_example": [
+                    {
+                        "usage": "keegant",
+                        "notes": "Returns given user's latest match if `race_num` is not provided"
+                    },
+                    {
+                        "usage": "https://data.typeracer.com/pit/result?id=|tr:keegant|300000",
+                        "notes": "Returns real speeds for given race URL"
+                    }
+                ]
+            },
+            "aliases": ["lr", "last"],
+            "linked": true
+        },
+        {
             "name": "leaderboard",
             "description": "Returns the top 10 users in a given category",
             "speed": "medium",

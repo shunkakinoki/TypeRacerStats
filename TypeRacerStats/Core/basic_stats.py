@@ -8,6 +8,7 @@ from discord.ext import commands
 import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.config import NUMBERS
 from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH
 from TypeRacerStats.file_paths import TOPTENS_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information
@@ -19,17 +20,6 @@ from TypeRacerStats.Core.Common.formatting import href_universe
 from TypeRacerStats.Core.Common.formatting import seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
-
-ranks = [":first_place:",
-         ":second_place:",
-         ":third_place:",
-         "<:04:744526168060985345>",
-         "<:05:744526576795910266>",
-         "<:06:744527060265074758>",
-         "<:07:744527225533104261>",
-         "<:08:744527293443080272>",
-         "<:09:744527358538547250>",
-         "<:10:744527414918381598>"]
 
 class BasicStats(commands.Cog):
     def __init__(self, bot):
@@ -357,7 +347,7 @@ class BasicStats(commands.Cog):
             return
 
         def helper_formatter(player, country, parameter, index, *args):
-            formatted = ranks[index - 1]
+            formatted = NUMBERS[index - 1]
             if country:
                 formatted += f":flag_{country}: "
             else:
@@ -423,7 +413,7 @@ class BasicStats(commands.Cog):
 
             value += f"{f'{players_with_top_tens:,}'} players have top {num_lb}s\n"
             for i in range(0, 10):
-                num = ranks[i]
+                num = NUMBERS[i]
                 value += (f"{num} {top_players[-(i + 1)][0]} "
                           f"- {f'{top_players[-(i + 1)][1]:,}'}\n")
             value = value[:-1]
@@ -491,7 +481,7 @@ class BasicStats(commands.Cog):
         competition = competition[0]
 
         def helper_formatter(player, country, points, races, wpm_sum, index):
-            formatted = ranks[index]
+            formatted = NUMBERS[index]
             if country:
                 formatted += f":flag_{country}: "
             else:
@@ -509,7 +499,7 @@ class BasicStats(commands.Cog):
 
             today_timestamp = (datetime.datetime.utcnow().date() \
                                - datetime.date(1970, 1, 1)).total_seconds()
-            file_name = f"t_{player}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
+            file_name = f"t_{player}_{universe}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
 
             conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
             c = conn.cursor()
@@ -530,7 +520,7 @@ class BasicStats(commands.Cog):
             for row in data:
                 points.append(row[4])
                 wpm.append(row[3])
-            players.append([player, country, round(sum(points)), len(points), sum(wpm)])
+            players.append([player, country, round(sum(points)), len(points), round(sum(wpm), 2)])
 
         if category == 'points':
             players = sorted(players, key = lambda x: x[2])[-10:][::-1]
@@ -546,6 +536,7 @@ class BasicStats(commands.Cog):
         
         embed = discord.Embed(title = f"Daily Competition ({args[0]})",
                               color = discord.Color(MAIN_COLOR),
+                              description = f"**Universe:** {href_universe(universe)}",
                               url = urls[0])
         embed.add_field(name = datetime.datetime.utcnow().date().strftime("%B %d, %Y"),
                         value = value)

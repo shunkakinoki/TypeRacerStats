@@ -26,7 +26,8 @@ class UserConfig(commands.Cog):
         prefixes = load_prefixes()
         prefixes[str(ctx.guild.id)] = prefix
         update_prefixes(prefixes)
-        await ctx.send(f"updated prefix to {prefix}")
+        await ctx.send(embed = discord.Embed(title = f"Updated prefix to {prefix}",
+                                             color = discord.Color(0)))
 
     @commands.cooldown(1, 3, commands.BucketType.default)
     @commands.command(aliases = get_aliases('register'))

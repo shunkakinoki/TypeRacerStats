@@ -140,7 +140,7 @@ class GetData(commands.Cog):
                                    .missing_information('`user` must be a TypeRacer username'))
             return
 
-        file_name = f"t_{player}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
+        file_name = f"t_{player}_play_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
         conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
         c = conn.cursor()
         try:

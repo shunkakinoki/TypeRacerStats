@@ -17,7 +17,7 @@ bot.remove_command('help')
 @bot.event
 async def on_ready():
     await bot.wait_until_ready()
-    await bot.change_presence(activity = discord.Game(name = f"{DEFAULT_COMMAND_PREFIX}help | by e6f4e37l#0785 and KeeganT#1689"))
+    await bot.change_presence(activity = discord.Game(name = f"{DEFAULT_COMMAND_PREFIX}help | by e6f4e37l#0785 and keegan#1689"))
     print('TypeRacerStats ready.')
 
 @bot.event
@@ -38,8 +38,9 @@ async def on_command_error(ctx, error):
         await ctx.send(content = f"<@{ctx.message.author.id}>",
                        embed = Error(ctx, ctx.message)
                                .cooldown((f"Maximum number of `{ctx.invoked_with}`"
-                                          " request(s) are running\nTry again later")))
+                                          ' request(s) are running\nTry again later')))
     else:
+        ctx.command.reset_cooldown(ctx)
         raise error
 
 @bot.event

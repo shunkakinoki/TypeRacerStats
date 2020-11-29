@@ -31,7 +31,6 @@ def compute_realspeed(quote_length, actual_time, start, lagged, desslejusted, un
 async def find_registered(player, universe, gn, timestamp):
     urls = [Urls().get_races(player, universe, timestamp - 1, timestamp + 1)]
     api_response = await fetch(urls, 'json')
-    print(api_response)
     for race in api_response[0]:
         if race['gn'] == gn:
             return race
@@ -50,17 +49,20 @@ def rs_typinglog_scraper(response):
         player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
         race_details = soup.select("table[class='raceDetails']")[0].select('tr')
         universe = 'play'
+        opponents = []
         for detail in race_details:
             cells = detail.select('td')
             category = cells[0].text.strip()
-            if category == "Race Number":
+            if category == 'Race Number':
                 race_number = int(cells[1].text.strip())
-            elif category == "Date":
+            elif category == 'Date':
                 timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
                                                         "%a, %d %b %Y %H:%M:%S")
                                                         .strftime("%s"))
-            elif category == "Universe":
+            elif category == 'Universe':
                 universe = cells[1].text.strip()
+            elif category == 'Opponents':
+                opponents = [i['href'] for i in cells[1].select('a')]
 
         return {'player': player,
                 'timestamp': timestamp,
@@ -69,7 +71,8 @@ def rs_typinglog_scraper(response):
                 'race_text': race_text,
                 'start': times[0],
                 'duration': sum(times),
-                'length': len(times)}
+                'length': len(times),
+                'opponents': opponents}
     except:
         return None
 
@@ -79,3 +82,4 @@ def scrape_text(response):
         return soup.select('p')[0].text.strip()
     except IndexError:
         return None
+
