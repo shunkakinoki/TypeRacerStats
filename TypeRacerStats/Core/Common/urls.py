@@ -5,6 +5,7 @@ class Urls:
         self.trapi_competitions = 'https://data.typeracer.com/partial_rankings?n=12&kind='
         self.tr_competitions = "https://data.typeracer.com/pit/competitions?kind="
         self.tr_users = 'https://data.typeracer.com/pit/profile?user='
+        self.tr_thumbnails = 'https://data.typeracer.com/misc/pic?uid=tr:'
         self.tr_results = 'https://data.typeracer.com/pit/result?id='
         self.trd_users = 'http://typeracerdata.com/api?username='
         self.trd_imports = 'http://typeracerdata.com/import?username='
@@ -29,6 +30,9 @@ class Urls:
 
     def user(self, player, universe):
         return f"{self.tr_users}{player}&universe={universe}"
+
+    def thumbnail(self, player):
+        return f"{self.tr_thumbnails}{player}"
 
     def result(self, player, race_num, universe):
         return f"{self.tr_results}{universe}|tr:{player}|{race_num}&allowDisqualified=true"

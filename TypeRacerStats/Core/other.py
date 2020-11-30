@@ -22,6 +22,7 @@ class Other(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} <timestamp>"))
             return
+
         if len(args) == 0:
             embed = discord.Embed(title = "Unix Timestamp Conversions",
                                   color = discord.Color(MAIN_COLOR))
@@ -38,6 +39,7 @@ class Other(commands.Cog):
                                      '1.65e9 - April 15, 2022'))
             await ctx.send(embed = embed)
             return
+
         try:
             time = int(args[0])
             await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),

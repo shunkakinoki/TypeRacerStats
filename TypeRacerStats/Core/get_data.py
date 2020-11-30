@@ -69,6 +69,7 @@ class GetData(commands.Cog):
                                                          'Have a bot admin run the command.')))
             return
         if races_remaining == 0:
+            conn.close()
             await ctx.send(embed = discord.Embed(title = 'Data Request',
                                                 color = discord.Color(MAIN_COLOR),
                                                 description = (f"{player}'s data successfully created/updated\n"
@@ -79,7 +80,7 @@ class GetData(commands.Cog):
         await ctx.send(embed = discord.Embed(title = 'Data Request',
                                              color = discord.Color(MAIN_COLOR),
                                              description = ('Request successful\n'
-                                                            f"Estimated download time: {seconds_to_text(0.00441911 * races_remaining + 0.75)}")))
+                                                            f"Estimated download time: {seconds_to_text(0.005125 * races_remaining + 0.5)}")))
 
         try:
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01)
@@ -175,7 +176,7 @@ class GetData(commands.Cog):
         embed = discord.Embed(title = f"{date} Stats for {player}",
                               color = discord.Color(MAIN_COLOR),
                               url = Urls().user(player, 'play'))
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
 
         if data:
             c.executemany(f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", data)
@@ -190,7 +191,6 @@ class GetData(commands.Cog):
             return
         conn.close()
 
-
         texts_data = load_texts_json()
         races, wpm, points, seconds_played, chars_typed, words_typed = (0,) * 6
         for row in data:
@@ -203,7 +203,7 @@ class GetData(commands.Cog):
             seconds_played += 12 * race_text_length / race_wpm
             chars_typed += race_text_length
             words_typed += word_count
-        
+
         average_wpm = round(wpm / races, 2)
         total_points = round(points)
         embed.add_field(name = 'Summary',
@@ -219,6 +219,7 @@ class GetData(commands.Cog):
                                  f"**Total Time Spent Racing:** {seconds_to_text(seconds_played)}\n"
                                  f"**Average Time Per Race:** {seconds_to_text(seconds_played / races)}"),
                         inline = False)
+
         await ctx.send(embed = embed)
         return
 

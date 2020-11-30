@@ -65,8 +65,9 @@ class AdvancedStats(commands.Cog):
 
         embed = discord.Embed(title = f"{player}'s Top {len(user_data)} Races (Lagged)",
                               color = discord.Color(MAIN_COLOR))
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
 
+        category = {'pts': 'points', 'wpm': 'WPM'}[category]
         texts = load_texts_large()
         for i, race in enumerate(user_data):
             value = f"{texts[str(race[2])]} [:cinema:]({Urls().result(player, 'play', race[0])})"
@@ -142,7 +143,7 @@ class AdvancedStats(commands.Cog):
 
         embed = discord.Embed(title = f"Race Details for {player}",
                               color = discord.Color(MAIN_COLOR))
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.set_footer(text = ('(Retroactive points represent the total number of points '
                                  'a user would have gained, before points were introduced '
                                  'in 2017)'))

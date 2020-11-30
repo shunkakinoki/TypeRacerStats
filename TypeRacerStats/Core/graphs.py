@@ -1,3 +1,4 @@
+import os
 import sys
 import time
 import discord
@@ -55,8 +56,8 @@ class Graphs(commands.Cog):
         file_name = f"{player} WPM.png"
         plt.savefig(file_name)
         wpm_picture = discord.File(file_name, filename = file_name)
-
         await ctx.send(file = wpm_picture)
+        os.remove(file_name)
         plt.close()
         return
 
@@ -103,6 +104,7 @@ class Graphs(commands.Cog):
         wpm_picture = discord.File(file_name, filename = file_name)
 
         await ctx.send(file = wpm_picture)
+        os.remove(file_name)
         plt.close()
         return
 
@@ -155,6 +157,7 @@ class Graphs(commands.Cog):
         races_over_time_picture = discord.File(file_name, filename = file_name)
 
         await ctx.send(file = races_over_time_picture)
+        os.remove(file_name)
         plt.close()
         return
 

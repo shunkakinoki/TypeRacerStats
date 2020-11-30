@@ -49,57 +49,39 @@ class BasicStats(commands.Cog):
                                    "doesn't exist")))
             return
 
-        if user_api['country']:
-            country = f":flag_{user_api['country']}: "
-        else:
-            country = ''
-        if user_api['name']:
-            name = user_api['name']
-        else:
-            name = ''
-        if user_api['lastName']:
-            name += f" {user_api['lastName']}"
-        if user_api['premium']:
-            premium = 'Premium'
-        else:
-            premium = 'Basic'
+        country = f":flag_{user_api['country']}: " if user_api['country'] else ''
+        name = user_api['name'] if user_api['name'] else ''
+        name += user_api['lastName'] if user_api['lastName'] else ''
+        premium = 'Premium' if user_api['premium'] else 'Basic'
         try:
             banned = user_api['tstats']['disqualified']
-            if banned == 'false' or not banned:
-                banned = ''
-            else:
-                banned = '\n**Status: **Banned'
+            banned = '' if banned == 'false' or not banned else '\n**Status:** Banned'
         except KeyError:
             banned = ''
 
         urls = [[Urls().trd_user(player, universe), 'json']]
         try:
-            trd_user_api = await fetch(urls, 'json')
-            trd_user_api = trd_user_api[0]
+            trd_user_api = (await fetch(urls, 'json'))[0]
             textbests = round(float(trd_user_api['account']['wpm_textbests']), 2)
-            textsraced =  trd_user_api['account']['texts_raced']
+            textsraced = trd_user_api['account']['texts_raced']
             extra_stats = (f"**Text Bests: **{textbests} WPM\n"
                            f"**Texts Typed: **{textsraced}\n")
         except:
-            textbests, textsraced, extra_stats = ('', ) * 3
+            textbests, textsraced, extra_stats = ('',) * 3
 
         urls = [Urls().user(player, universe)]
         try:
             response = await fetch(urls, 'text')
             response = response[0]
-            soup = BeautifulSoup(response, 'lxml')
+            soup = BeautifulSoup(response, 'html.parser')
             rows = soup.select("table[class='profileDetailsTable']")[0].select('tr')
-            for row in rows:
-                cells = row.select('td')
-                if len(cells) < 2: continue
-                if cells[0].text.strip() == "Racing Since":
-                    date_joined = cells[1].text.strip()
-            rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
             medal_count = 0
             for row in rows:
                 cells = row.select('td')
                 if len(cells) < 2: continue
-                if cells[0].text.strip() == "Awards":
+                if cells[0].text.strip() == 'Racing Since':
+                    date_joined = cells[1].text.strip()
+                if cells[0].text.strip() == 'Awards':
                     medal_count = len(cells[1].select('a'))
         except:
             await ctx.send(content = f"<@{user_id}>",
@@ -112,11 +94,12 @@ class BasicStats(commands.Cog):
             color = 0xe0001a
         else:
             color = MAIN_COLOR
+
         embed = discord.Embed(title = f"{country}{player}",
                               colour = discord.Colour(color),
                               description = f"**Universe:** {href_universe(universe)}",
                               url = urls[0])
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.add_field(name = "General",
                         value = (f"**Name:** {name}\n"
                                  f"**Joined: **{date_joined}\n"
@@ -131,6 +114,7 @@ class BasicStats(commands.Cog):
                                  f"""**Captcha Speed: **{round(user_api['tstats']['certWpm'], 2)} WPM\n"""
                                  f"""{extra_stats}**Medals: **{f'{medal_count:,}'}\n"""),
                         inline = False)
+
         await ctx.send(embed = embed)
         await fetch([Urls().trd_import(player)], 'text')
         return
@@ -148,7 +132,9 @@ class BasicStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user]"))
             return
+
         player = args[0].lower()
+
         try:
             urls = [Urls().get_races(player, universe, 1)]
             response = await fetch(urls, 'json', lambda x: x[0]['t'])
@@ -161,8 +147,10 @@ class BasicStats(commands.Cog):
             return
 
         time_difference = time.time() - response[0]
+
         await ctx.send(embed = discord.Embed(colour = discord.Colour(MAIN_COLOR),
-                       description = f"**{player}** last played {seconds_to_text(time_difference)}\nago on the {href_universe(universe)} universe"))
+                       description = (f"**{player}** last played {seconds_to_text(time_difference)}\n"
+                                      f"ago on the {href_universe(universe)} universe")))
         return
 
     @commands.cooldown(4, 12, commands.BucketType.user)
@@ -215,17 +203,18 @@ class BasicStats(commands.Cog):
         weekly = list(breakdown['w'].values())
         monthly = list(breakdown['m'].values())
         yearly = list(breakdown['y'].values())
+
         if not sum(general):
             embed = discord.Embed(title = f"Medal Stats for {player}",
                                   colour = discord.Colour(MAIN_COLOR),
                                   description = "It's empty here.")
-            embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+            embed.set_thumbnail(url = Urls().thumbnail(player))
             await ctx.send(embed = embed)
             return
 
         embed = discord.Embed(title = f"Medals Stats for {player}",
                               colour=discord.Colour(MAIN_COLOR))
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
         helper_constructor = lambda count: (f"**Total: **{sum(count)}\n"
                                             f":first_place: x {count[0]}\n"
                                             f":second_place: x {count[1]}\n"
@@ -249,6 +238,7 @@ class BasicStats(commands.Cog):
             embed.add_field(name = "Yearly",
                             value = helper_constructor(yearly),
                             inline = True)
+                            
         await ctx.send(embed = embed)
         return
 
@@ -275,7 +265,8 @@ class BasicStats(commands.Cog):
             embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
                                   color = discord.Color(MAIN_COLOR),
                                   description = "It's empty here.")
-            embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+            embed.set_thumbnail(url = Urls().thumbnail(player))
+
             await ctx.send(embed = embed)
             return
 
@@ -293,9 +284,10 @@ class BasicStats(commands.Cog):
         embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
                               color = discord.Color(MAIN_COLOR),
                               description = f"**{f'{total}'}** text top 10s")
-        embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
+        embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.set_footer(text = f"Text top 10 data was last updated {seconds_to_text(time.time() - last_updated)} ago")
         embed.add_field(name = "Breakdown", value = breakdown, inline = False)
+
         await ctx.send(embed = embed)
         return
 
@@ -335,6 +327,7 @@ class BasicStats(commands.Cog):
             'textstyped': 'texts_raced',
             'toptens': 'toptens'
         }
+
         try:
             category = category_dict[args[0].lower()]
             urls = [Urls().leaders(category)]
@@ -486,6 +479,8 @@ class BasicStats(commands.Cog):
             return formatted
 
         players = []
+        conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
+        c = conn.cursor()
         for competitor in competition:
             player = competitor[1]['typeracerUid'][3:]
             if competitor[0]['country']:
@@ -497,8 +492,6 @@ class BasicStats(commands.Cog):
                                - datetime.date(1970, 1, 1)).total_seconds()
             file_name = f"t_{player}_{universe}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
 
-            conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
-            c = conn.cursor()
             try:
                 user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY gn DESC LIMIT 1")
                 last_race = user_data.fetchone()
@@ -517,6 +510,8 @@ class BasicStats(commands.Cog):
                 points.append(row[4])
                 wpm.append(row[3])
             players.append([player, country, round(sum(points)), len(points), round(sum(wpm), 2)])
+
+        conn.close()
 
         if category == 'points':
             players = sorted(players, key = lambda x: x[2])[-10:][::-1]
