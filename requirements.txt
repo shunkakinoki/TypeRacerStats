@@ -1,6 +1,5 @@
 aiohttp
 bs4
 discord
-sqlite3
 python-Levenshtein
 matplotlib
