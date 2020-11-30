@@ -4,14 +4,11 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import UNIVERSES_FILE_PATH
-from TypeRacerStats.Core.Common.accounts import load_accounts
-from TypeRacerStats.Core.Common.accounts import update_accounts
+from TypeRacerStats.Core.Common.accounts import load_accounts, update_accounts
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe
-from TypeRacerStats.Core.Common.prefixes import get_prefix
-from TypeRacerStats.Core.Common.prefixes import load_prefixes
-from TypeRacerStats.Core.Common.prefixes import update_prefixes
+from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -28,6 +25,7 @@ class UserConfig(commands.Cog):
         update_prefixes(prefixes)
         await ctx.send(embed = discord.Embed(title = f"Updated prefix to {prefix}",
                                              color = discord.Color(0)))
+        return
 
     @commands.cooldown(1, 3, commands.BucketType.default)
     @commands.command(aliases = get_aliases('register'))
@@ -71,7 +69,8 @@ class UserConfig(commands.Cog):
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (f"<@{user_id}> has been linked to [**{player}**]"
-                                                            f"(https://data.typeracer.com/pit/profile?user={player})")))
+                                                            f"({Urls().user(player, 'play')})")))
+        return
 
     @commands.cooldown(1, 1, commands.BucketType.default)
     @commands.command(aliases = get_aliases('setuniverse'))
@@ -116,6 +115,7 @@ class UserConfig(commands.Cog):
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (f"<@{user_id}> has been linked to the {href_universe(universe)} universe")))
+        return
 
 def setup(bot):
     bot.add_cog(UserConfig(bot))

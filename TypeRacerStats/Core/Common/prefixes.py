@@ -12,4 +12,3 @@ def update_prefixes(prefixes):
 
 def get_prefix(bot, message):
     return load_prefixes()[str(message.guild.id)]
-    

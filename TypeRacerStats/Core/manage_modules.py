@@ -1,7 +1,6 @@
 import discord
 from discord.ext import commands
-from TypeRacerStats.config import BOT_OWNER_IDS
-from TypeRacerStats.config import HELP_BLACK
+from TypeRacerStats.config import BOT_OWNER_IDS, HELP_BLACK
 
 class ManageModules(commands.Cog):
     def __init__(self, bot):

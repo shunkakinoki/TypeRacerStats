@@ -2,22 +2,14 @@ import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.config import TR_WARNING
-from TypeRacerStats.config import BOT_OWNER_IDS
-from TypeRacerStats.config import NUMBERS
-from TypeRacerStats.config import BOT_ADMIN_IDS
-from TypeRacerStats.Core.Common.accounts import account_information
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.config import BOT_ADMIN_IDS, BOT_OWNER_IDS, MAIN_COLOR, NUMBERS, TR_WARNING
+from TypeRacerStats.Core.Common.accounts import account_information, check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import href_universe
-from TypeRacerStats.Core.Common.formatting import num_to_text
+from TypeRacerStats.Core.Common.formatting import href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.scrapers import compute_realspeed, find_registered, rs_typinglog_scraper
 from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.scrapers import rs_typinglog_scraper
-from TypeRacerStats.Core.Common.scrapers import compute_realspeed
-from TypeRacerStats.Core.Common.scrapers import find_registered
 
 class RealSpeed(commands.Cog):
     def __init__(self, bot):

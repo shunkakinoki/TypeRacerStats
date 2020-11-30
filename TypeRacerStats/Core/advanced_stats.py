@@ -17,7 +17,7 @@ from TypeRacerStats.Core.Common.urls import Urls
 class AdvancedStats(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.cooldown(20, 100, commands.BucketType.default)
     @commands.command(aliases = get_aliases('top') + get_aliases('worst') + ['worst'])
@@ -31,7 +31,7 @@ class AdvancedStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user] [wpm/points]"))
             return
-        
+
         player = args[0]
         categories = ['wpm', 'points']
 
@@ -93,7 +93,7 @@ class AdvancedStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user]"))
             return
-        
+
         player = args[0]
         texts_length = load_texts_json()
         races, words_typed, chars_typed, points, retro, time_spent = (0,) * 6

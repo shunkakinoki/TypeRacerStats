@@ -5,21 +5,18 @@ import discord
 from discord.ext import commands
 import Levenshtein
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.config import TR_GHOST
-from TypeRacerStats.config import TR_INFO
-from TypeRacerStats.config import BOT_ADMIN_IDS
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import TEXTS_FILE_PATH_CSV
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.urls import Urls
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import scrape_text
+from TypeRacerStats.Core.Common.urls import Urls
 
 class Texts(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.command(aliases = get_aliases('search'))
     async def search(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -34,7 +31,7 @@ class Texts(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [3≤ words]"))
             return
-        
+
         orig_query = ' '.join(args)
         query = orig_query.lower()
         embed = discord.Embed(title = f"Results for \"{orig_query}\"",
@@ -47,7 +44,7 @@ class Texts(commands.Cog):
             next(reader)
             for row in reader:
                 texts.append([row[0], row[1], row[2]])
-        
+
         count = 0
         embed_count = 0
         for i in range(0, len(texts)):
@@ -80,7 +77,7 @@ class Texts(commands.Cog):
                     embed.set_footer(text = f"Page {embed_count + 1}")
             except:
                 continue
-        
+
         if count == 0 and embed_count == 0:
             embed = discord.Embed(title = f"No results found for \"{orig_query}\"",
                                   color = discord.Color(MAIN_COLOR))
@@ -94,6 +91,7 @@ class Texts(commands.Cog):
         msg = None
         action = ctx.send
         time_ = time.time()
+
         while time.time() - time_ < 5 and embed_count > 1:
             res = await action(embed = messages[index])
             if res:
@@ -108,10 +106,11 @@ class Texts(commands.Cog):
             elif react.emoji == '▶️':
                 index += 1
             action = msg.edit
+
         if embed_count <= 1:
             await ctx.send(embed = messages[0])
         return
-    
+
     @commands.cooldown(3, 25, commands.BucketType.user)
     @commands.command(aliases = get_aliases('levenshtein'))
     async def levenshtein(self, ctx, *args):
@@ -130,7 +129,7 @@ class Texts(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [≤40 chars]"))
             return
-        
+
         texts = []
         with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
             reader = csv.reader(csvfile)
@@ -157,7 +156,7 @@ class Texts(commands.Cog):
             levenshtein_sorted = sorted(texts, key = lambda x: x[3])[0:5]
         else:
             levenshtein_sorted = sorted(texts, key = lambda x: x[3])
-        
+
         embed = discord.Embed(title = ("Texts With Smallest Levenshtein Distance "
                                        f"to \"{query}\" (Length = {query_length})" ),
                               color = discord.Color(MAIN_COLOR))
@@ -165,11 +164,13 @@ class Texts(commands.Cog):
             cur = levenshtein_sorted[i]
             min_index = cur[4]
             text = cur[1]
+
             if len(text) < len(query):
                 formatted = f"**{text}**"
             else:
                 formatted = (f"{text[0:min_index]}**{text[min_index:min_index + query_length]}"
                               f"**{text[min_index + query_length:]}")
+
             value_1 = f"\"{formatted}\" "
             value_2 = (f"[{TR_INFO}]({Urls().text(texts[i][0])}) "
                         f"[{TR_GHOST}]({texts[i][2]})")
@@ -182,9 +183,10 @@ class Texts(commands.Cog):
                                     f"Race Text ID: {cur[0]}"),
                             value = value,
                             inline = False)
+
         await ctx.send(embed = embed)
         return
-    
+
     @commands.command(aliases = get_aliases('searchid'))
     async def searchid(self, ctx, *args):
         user_id = ctx.message.author.id

@@ -2,11 +2,9 @@ import json
 import os
 import discord
 from discord.ext import commands
-from TypeRacerStats.config import HELP_BLACK
-from TypeRacerStats.config import HELP_IMG
-from TypeRacerStats.config import SPEED_INDICATORS
-from TypeRacerStats.Core.Common.prefixes import get_prefix
+from TypeRacerStats.config import HELP_BLACK, HELP_IMG, SPEED_INDICATORS
 from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.prefixes import get_prefix
 
 class Help(commands.Cog):
     def __init__(self, bot):

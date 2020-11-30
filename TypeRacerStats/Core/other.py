@@ -12,7 +12,7 @@ from TypeRacerStats.Core.Common.formatting import seconds_to_text
 class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.command(aliases = get_aliases('unixreference'))
     async def unixreference(self, ctx, *args):
         user_id = ctx.message.author.id

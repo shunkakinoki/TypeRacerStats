@@ -2,7 +2,6 @@ import sys
 import time
 import discord
 from discord.ext import commands
-#import matplotlib
 import matplotlib.pyplot as plt
 import sqlite3
 sys.path.insert(0, '')
@@ -15,13 +14,13 @@ from TypeRacerStats.Core.Common.errors import Error
 class Graphs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-    
+
     @commands.command(aliases = get_aliases('histogram'))
     async def histogram(self, ctx, *args):
         user_id = ctx.message.author.id
 
         if len(args) == 0: args = check_account(user_id)(args)
-    
+
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -67,7 +66,7 @@ class Graphs(commands.Cog):
         user_id = ctx.message.author.id
 
         if len(args) == 0: args = check_account(user_id)(args)
-    
+
         if len(args) < 1 or len(args) > 4:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -113,7 +112,7 @@ class Graphs(commands.Cog):
         user_id = ctx.message.author.id
 
         if len(args) == 0: args = check_account(user_id)(args)
-    
+
         if len(args) < 1 or len(args) > 10:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)

@@ -7,17 +7,13 @@ import discord
 from discord.ext import commands
 import sqlite3
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.config import NUMBERS
-from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH
-from TypeRacerStats.file_paths import TOPTENS_FILE_PATH
-from TypeRacerStats.Core.Common.accounts import account_information
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.config import MAIN_COLOR, NUMBERS
+from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH
+from TypeRacerStats.Core.Common.accounts import account_information, check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import href_universe
-from TypeRacerStats.Core.Common.formatting import seconds_to_text
+from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -75,7 +71,7 @@ class BasicStats(commands.Cog):
                 banned = '\n**Status: **Banned'
         except KeyError:
             banned = ''
-        
+
         urls = [[Urls().trd_user(player, universe), 'json']]
         try:
             trd_user_api = await fetch(urls, 'json')
@@ -86,7 +82,7 @@ class BasicStats(commands.Cog):
                            f"**Texts Typed: **{textsraced}\n")
         except:
             textbests, textsraced, extra_stats = ('', ) * 3
-        
+
         urls = [Urls().user(player, universe)]
         try:
             response = await fetch(urls, 'text')
@@ -111,7 +107,7 @@ class BasicStats(commands.Cog):
                                    .missing_information((f"[**{player}**]({urls[0]}) "
                                                          "doesn't exist")))
             return
-        
+
         if banned:
             color = 0xe0001a
         else:
@@ -138,7 +134,7 @@ class BasicStats(commands.Cog):
         await ctx.send(embed = embed)
         await fetch([Urls().trd_import(player)], 'text')
         return
-    
+
     @commands.command(aliases = get_aliases('lastonline'))
     async def lastonline(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -163,7 +159,7 @@ class BasicStats(commands.Cog):
                                                          "doesn't exist or has no races in the "
                                                          f"{href_universe(universe)} universe")))
             return
-        
+
         time_difference = time.time() - response[0]
         await ctx.send(embed = discord.Embed(colour = discord.Colour(MAIN_COLOR),
                        description = f"**{player}** last played {seconds_to_text(time_difference)}\nago on the {href_universe(universe)} universe"))
@@ -255,7 +251,7 @@ class BasicStats(commands.Cog):
                             inline = True)
         await ctx.send(embed = embed)
         return
-    
+
     @commands.command(aliases = get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -267,11 +263,11 @@ class BasicStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user]"))
             return
-        
+
         player = args[0].lower()
         with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
             player_top_tens = json.load(jsonfile)
-        
+
         try:
             player_data = player_top_tens[player]
             last_updated = float(player_top_tens['last updated'])
@@ -282,7 +278,7 @@ class BasicStats(commands.Cog):
             embed.set_thumbnail(url = f"https://data.typeracer.com/misc/pic?uid=tr:{player}")
             await ctx.send(embed = embed)
             return
-        
+
         total = 0
         for value in player_data.values():
             total += int(value)
@@ -302,7 +298,7 @@ class BasicStats(commands.Cog):
         embed.add_field(name = "Breakdown", value = breakdown, inline = False)
         await ctx.send(embed = embed)
         return
-    
+
     @commands.cooldown(1, 20, commands.BucketType.default)
     @commands.command(aliases = get_aliases('leaderboard'))
     async def leaderboard(self, ctx, *args):
@@ -360,7 +356,7 @@ class BasicStats(commands.Cog):
                 return formatted
             formatted += f"{player} - {f'{round(parameter):,}'}\n"
             return formatted
-        
+
         value = ''
         if category == 'races': name = '**Races Leaderboard**'
         elif category == 'points': name = '**Points Leaderboard**'
@@ -430,7 +426,7 @@ class BasicStats(commands.Cog):
                 10: 'Tens'
             }
             name = f"Text Top {name[num_lb]}"
-        
+
         embed = discord.Embed(color = discord.Color(MAIN_COLOR))
         embed.add_field(name = name, value = value)
         if category == 'wpm_textbests':
@@ -533,7 +529,7 @@ class BasicStats(commands.Cog):
         for i in range(0, 10):
             player = players[i]
             value += helper_formatter(player[0], player[1], player[2], player[3], player[4], i)
-        
+
         embed = discord.Embed(title = f"Daily Competition ({args[0]})",
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Universe:** {href_universe(universe)}",

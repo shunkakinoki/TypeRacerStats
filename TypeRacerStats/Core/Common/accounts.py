@@ -27,5 +27,5 @@ def account_information(discord_id):
     except KeyError:
         desslejusted = False
         universe = 'play'
-    
+
     return {'desslejusted': desslejusted, 'universe': universe}

@@ -5,10 +5,8 @@ import discord
 from discord.ext import commands
 import sqlite3
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_ADMIN_IDS
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
+from TypeRacerStats.file_paths import DATABASE_PATH, TEMPORARY_DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
