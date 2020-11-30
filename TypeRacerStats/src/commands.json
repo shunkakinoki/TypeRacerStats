@@ -265,6 +265,18 @@
             "linked": true
         },
         {
+            "name": "racedetails",
+            "description": "Returns detailed breakdown of a user's account",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "keegant",
+                "alt_example": []
+            },
+            "aliases": ["rd"],
+            "linked": true
+        },
+        {
             "name": "personalbest",
             "description": "Returns statistics on given user on a given text",
             "speed": "fast",
@@ -279,18 +291,6 @@
                 ]
             },
             "aliases": ["pb"],
-            "linked": true
-        },
-        {
-            "name": "racedetails",
-            "description": "Returns detailed breakdown of a user's account",
-            "speed": "fast",
-            "usage": {
-                "general": "[user]",
-                "example": "keegant",
-                "alt_example": []
-            },
-            "aliases": ["rd"],
             "linked": true
         },
         {
@@ -342,6 +342,18 @@
                 ]
             },
             "aliases": ["tor"],
+            "linked": false
+        },
+        {
+            "name": "worstrelative",
+            "description": "Returns 5 randomly selected texts in bottom `percentage` relative speed for given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [percentage]",
+                "example": "charlieog 5",
+                "alt_example": []
+            },
+            "aliases": ["wr"],
             "linked": false
         },
         {
