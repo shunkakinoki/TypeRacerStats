@@ -106,6 +106,13 @@ class GetData(commands.Cog):
 
         if len(args) == 0: args = check_account(user_id)(args)
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
+        if ctx.invoked_with.lower() == 'yesterday':
+            today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
+            if len(args) > 1:
+                await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user]"))
+                return
 
         if len(args) == 2:
             try:
@@ -159,13 +166,6 @@ class GetData(commands.Cog):
                                        .missing_information(f"{player} has no races"))
             else:
                 c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
-        if races_remaining > 5000 and not user_id in BOT_ADMIN_IDS:
-            conn.close()
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .lacking_permissions(('Data request exceeds 5,000 races. '
-                                                         'Have a bot admin run the command.')))
-            return
 
         try:
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01, today_timestamp + 86400)

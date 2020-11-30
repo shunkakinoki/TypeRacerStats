@@ -107,7 +107,7 @@
                     }
                 ]
             },
-            "aliases": ["day"],
+            "aliases": ["day", "yesterday"],
             "linked": true
         },
         {
