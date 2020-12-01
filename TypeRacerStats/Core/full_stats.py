@@ -121,11 +121,11 @@ class FullStats(commands.Cog):
         try:
             first_race = c.execute(f"SELECT t FROM t_{player} LIMIT 1").fetchone()[0]
             if args[2] == 'wpm':
-                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE wpm >= {num} LIMIT 1").fetchone()
+                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE wpm >= {num} ORDER BY t LIMIT 1").fetchone()
             elif args[2] == 'races':
                 achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE gn == {num}").fetchone()
             else:
-                user_data = c.execute(f"SELECT t, pts, gn FROM t_{player}")
+                user_data = c.execute(f"SELECT t, pts, gn FROM t_{player} ORDER BY t")
                 sum_, achieved = 0, 0
                 for row in user_data:
                     sum_ += row[1]
@@ -198,7 +198,7 @@ class FullStats(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM t_{player}")
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t")
             user_data = user_data.fetchall()
             for i in range(0, len(user_data)):
                 tids.append(user_data[i][2])
@@ -304,7 +304,7 @@ class FullStats(commands.Cog):
         max_start, max_end, cur_start, cur_end = (0,) * 4
         max_tstart, max_tend, cur_tstart, cur_tend = (0,) * 4
         try:
-            user_data = c.execute(f"SELECT t FROM t_{player}")
+            user_data = c.execute(f"SELECT t FROM t_{player} ORDER BY t")
             user_data = user_data.fetchall()
             for i in range(1, len(user_data)):
                 if user_data[i][0] - user_data[i - 1][0] > session_length:
@@ -372,7 +372,7 @@ class FullStats(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM t_{player}")
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t")
             user_data = user_data.fetchall()
             try:
                 user_data[num_races - 1]
@@ -429,8 +429,7 @@ class FullStats(commands.Cog):
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',
-                        value = (f"**Total Races:** {f'{races:,}'}\n"
-                                 f"**Total Words Typed:** {f'{words_typed:,}'}\n"
+                        value = (f"**Total Words Typed:** {f'{words_typed:,}'}\n"
                                  f"**Average Words Per Races:** {f'{round(words_typed / races, 2):,}'}\n"
                                  f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
                                  f"**Average Chars Per Race:** {f'{round(chars_typed / races, 2):,}'}\n"
@@ -448,7 +447,7 @@ class FullStats(commands.Cog):
                                  f"**Slowest Race:** {f'{wpm_min:,}'}"),
                         inline = False)
         embed.add_field(name = 'Quotes',
-                        value = f"**Number of Unique Quotes:** {len(set(tids))}",
+                        value = f"**Number of Unique Quotes:** {f'{len(set(tids)):,}'}",
                         inline = False)
 
         await ctx.send(embed = embed)
