@@ -1,7 +1,7 @@
 import os
 import sys
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_TOKEN
 from TypeRacerStats.config import DEFAULT_COMMAND_PREFIX
@@ -42,6 +42,10 @@ async def on_command_error(ctx, error):
     else:
         ctx.command.reset_cooldown(ctx)
         raise error
+
+""" @tasks.loop(hours = 24)
+async def maintain():
+    print('lol') """
 
 @bot.event
 async def on_command_completion(ctx):
