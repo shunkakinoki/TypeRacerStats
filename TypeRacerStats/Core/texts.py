@@ -92,7 +92,7 @@ class Texts(commands.Cog):
         action = ctx.send
         time_ = time.time()
 
-        while time.time() - time_ < 5 and embed_count > 1:
+        while time.time() - time_ < 20 and embed_count > 1:
             res = await action(embed = messages[index])
             if res:
                 msg = res
