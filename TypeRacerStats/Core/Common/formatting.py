@@ -48,4 +48,4 @@ def num_to_text(n):
 def href_universe(universe):
     return f"[`{universe}`](https://play.typeracer.com/?universe={universe})"
 
-escape_sequence = lambda x: bool(re.findall('[^a-z^0-9]', x.lower()))
+escape_sequence = lambda x: bool(re.findall('[^a-z^0-9^_]', x.lower()))
