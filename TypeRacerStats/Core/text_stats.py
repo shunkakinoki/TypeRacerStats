@@ -1,9 +1,9 @@
 import csv
 import random
+import sqlite3
 import sys
 import discord
 from discord.ext import commands
-import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
@@ -11,8 +11,6 @@ from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.texts import load_texts_large
-from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 
 class TextStats(commands.Cog):
@@ -57,7 +55,7 @@ class TextStats(commands.Cog):
                     continue
 
         try:
-            if 1020 < len(text):
+            if len(text) > 1024:
                 text = f"\"{text[0:1020]}…\""
             else:
                 text = f"\"{text}\""
@@ -182,7 +180,7 @@ class TextStats(commands.Cog):
                                                  description = description))
             return
 
-        title = f"Random Unraced Texts"
+        title = 'Random Unraced Texts'
         if length:
             title += f" Under Length {length}"
         title += f" for {player} ({f'{len(unraced_tids):,}'} left)"

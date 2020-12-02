@@ -7,6 +7,7 @@ class Urls:
         self.tr_users = 'https://data.typeracer.com/pit/profile?user='
         self.tr_thumbnails = 'https://data.typeracer.com/misc/pic?uid=tr:'
         self.tr_results = 'https://data.typeracer.com/pit/result?id='
+        self.tr_texts = 'https://data.typeracer.com/pit/text_info?id='
         self.trd_users = 'http://typeracerdata.com/api?username='
         self.trd_imports = 'http://typeracerdata.com/import?username='
         self.trd_leaders = 'http://typeracerdata.com/leaders?min_races=1000&min_texts=400&rank_end=15&sort='
@@ -36,6 +37,9 @@ class Urls:
 
     def result(self, player, race_num, universe):
         return f"{self.tr_results}{universe}|tr:{player}|{race_num}&allowDisqualified=true"
+
+    def tr_text(self, tid):
+        return f"{self.tr_texts}{tid}"
 
     def trd_user(self, player, universe):
         return f"{self.trd_users}{player}&universe={universe}"

@@ -82,4 +82,3 @@ def scrape_text(response):
         return soup.select('p')[0].text.strip()
     except IndexError:
         return None
-

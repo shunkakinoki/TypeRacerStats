@@ -1,13 +1,11 @@
 import datetime
 import sys
-import time
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import seconds_to_text
 
 class Other(commands.Cog):
     def __init__(self, bot):

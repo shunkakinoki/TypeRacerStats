@@ -1,8 +1,8 @@
+import sqlite3
 import sys
 import time
 import discord
 from discord.ext import commands
-import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
@@ -40,7 +40,7 @@ class AdvancedStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .incorrect_format('`category` must be `wpm/points`'))
             return
-        
+
         if args[1] == 'points':
             category = 'pts'
         else:
@@ -111,7 +111,7 @@ class AdvancedStats(commands.Cog):
             chars_typed += texts_length[text_id]['length']
             time_spent += 12 * texts_length[text_id]['length'] / first_race[3]
             if first_race[4] == 0:
-                    retro += first_race[3] / 60 * texts_length[text_id]['word count']
+                retro += first_race[3] / 60 * texts_length[text_id]['word count']
             else:
                 if not first_point_race:
                     first_point_race = first_race[1]

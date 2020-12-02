@@ -1,9 +1,9 @@
 import datetime
+import sqlite3
 import sys
 import time
 import discord
 from discord.ext import commands
-import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH, TEMPORARY_DATABASE_PATH
@@ -171,7 +171,7 @@ class GetData(commands.Cog):
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01, today_timestamp + 86400)
         except UnboundLocalError:
             data = await fetch_data(player, 'play', today_timestamp, today_timestamp + 86400)
-    
+
         date = datetime.datetime.fromtimestamp(today_timestamp).strftime('%B %d, %Y')
         embed = discord.Embed(title = f"{date} Stats for {player}",
                               color = discord.Color(MAIN_COLOR),

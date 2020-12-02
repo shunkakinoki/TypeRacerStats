@@ -1,12 +1,11 @@
 import os
+import sqlite3
 import sys
 import time
 import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
-import sqlite3
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -42,7 +41,7 @@ class Graphs(commands.Cog):
             return
         conn.close()
 
-        fix, ax = plt.subplots()
+        ax = plt.subplots()[1]
         max_, min_ = max(data), min(data)
         if int(max_ - min_) // 10 == 0:
             ax.hist(data, bins = 1)
@@ -94,7 +93,7 @@ class Graphs(commands.Cog):
         title_text = title_text[:-4]
         title_text += 'WPM'
 
-        fix, ax = plt.subplots()
+        ax = plt.subplots()[1]
         ax.boxplot(data, showfliers = False)
         ax.set_xticklabels(list(args))
         ax.set_title(title_text)
@@ -142,7 +141,7 @@ class Graphs(commands.Cog):
             return
         conn.close()
 
-        fig, ax = plt.subplots()
+        ax = plt.subplots()[1]
         ax.plot(data_x[0] + [today], data_y[0] + [data_y[0][-1]], label = args[0])
         for i in range(1, len(args)):
             ax.plot(data_x[i] + [today], data_y[i] + [data_y[i][-1]], label = args[i])
@@ -152,7 +151,7 @@ class Graphs(commands.Cog):
         plt.grid(True)
         plt.tight_layout(rect=[0,0,0.75,1])
         ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
-        file_name = f"Races Over Time.png"
+        file_name = 'Races Over Time.png'
         plt.savefig(file_name)
         races_over_time_picture = discord.File(file_name, filename = file_name)
 

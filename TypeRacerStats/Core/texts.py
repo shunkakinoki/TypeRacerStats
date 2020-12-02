@@ -47,24 +47,24 @@ class Texts(commands.Cog):
 
         count = 0
         embed_count = 0
-        for i in range(0, len(texts)):
+        for i, cur in enumerate(texts):
             try:
-                start_index = texts[i][1].lower().index(query)
+                start_index = cur[1].lower().index(query)
                 query_length = len(query)
-                text = texts[i][1]
+                text = cur[1]
                 formatted = (f"{text[0:start_index]}**"
                             f"{text[start_index:start_index + query_length]}**"
                             f"{text[start_index + query_length:]}")
 
                 value_1 = f"\"{formatted}\" "
-                value_2 = (f"[{TR_INFO}]({Urls().text(texts[i][0])}) "
-                           f"[{TR_GHOST}]({texts[i][2]})")
+                value_2 = (f"[{TR_INFO}]({Urls().text(cur[0])}) "
+                           f"[{TR_GHOST}]({cur[2]})")
                 value = value_1 + value_2
                 if len(value) > 1024:
                     value_1 = value_1[0:1019 - len(value_2)]
                     value = value_1 + "…\"" + value_2
 
-                embed.add_field(name = f"Race Text ID: {texts[i][0]}",
+                embed.add_field(name = f"Race Text ID: {cur[0]}",
                                 value = value,
                                 inline = False)
                 count += 1
@@ -160,8 +160,7 @@ class Texts(commands.Cog):
         embed = discord.Embed(title = ("Texts With Smallest Levenshtein Distance "
                                        f"to \"{query}\" (Length = {query_length})" ),
                               color = discord.Color(MAIN_COLOR))
-        for i in range(0, len(levenshtein_sorted)):
-            cur = levenshtein_sorted[i]
+        for i, cur in enumerate(levenshtein_sorted):
             min_index = cur[4]
             text = cur[1]
 
@@ -197,8 +196,8 @@ class Texts(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [text_id]"))
             return
 
-        ID = args[0]
-        urls = [Urls().text(ID)]
+        tid = args[0]
+        urls = [Urls().text(tid)]
         text = await fetch(urls, 'text', scrape_text)
         if text[0]:
             value_1 = f"\"{text[0]}\""
@@ -207,9 +206,9 @@ class Texts(commands.Cog):
             if len(value) > 1024:
                 value_1 = value_1[0:1019 - len(value_2)]
                 value = value_1 + "…\"" + value_2
-            embed = discord.Embed(title = f"Search Result for {ID}",
+            embed = discord.Embed(title = f"Search Result for {tid}",
                                   color = discord.Color(MAIN_COLOR))
-            embed.add_field(name = f"Race Text ID: {ID}",
+            embed.add_field(name = f"Race Text ID: {tid}",
                             value = value,
                             inline = False)
             await ctx.send(embed = embed)
@@ -217,7 +216,7 @@ class Texts(commands.Cog):
 
         await ctx.send(content = f"<@{user_id}>",
                        embed = Error(ctx, ctx.message)
-                               .incorrect_format(f"{ID} is not a valid text ID"))
+                               .incorrect_format(f"{tid} is not a valid text ID"))
         return
 
 def predicate(message, l, r, user_id):

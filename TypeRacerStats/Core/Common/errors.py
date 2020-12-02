@@ -34,7 +34,7 @@ class Error:
         embed = discord.Embed(color = discord.Color(0x7f0dcc))
         embed.add_field(name = 'Error: Lacking Permissions', value = message)
         return embed
-    
+
     def cooldown(self, message):
         embed = discord.Embed(color = discord.Color(0x7f0dcc))
         embed.add_field(name = 'Error: Command Cooldown', value = message)

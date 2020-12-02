@@ -1,11 +1,11 @@
 import datetime
 import json
-import time
+import sqlite3
 import sys
+import time
 from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
-import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH
@@ -197,7 +197,7 @@ class BasicStats(commands.Cog):
             title = medal['title']
             breakdown["g"][int(title[0])] += 1
             breakdown[title[17]][int(title[0])] += 1
-        
+
         general = list(breakdown['g'].values())
         daily = list(breakdown['d'].values())
         weekly = list(breakdown['w'].values())
@@ -222,23 +222,23 @@ class BasicStats(commands.Cog):
         embed.add_field(name = "General",
                         value = helper_constructor(general),
                         inline = False)
-        if(sum(daily)):
+        if sum(daily):
             embed.add_field(name = "Daily",
                             value = helper_constructor(daily),
                             inline = True)
-        if(sum(weekly)):
+        if sum(weekly):
             embed.add_field(name = "Weekly",
                             value = helper_constructor(weekly),
                             inline = True)
-        if(sum(monthly)):
+        if sum(monthly):
             embed.add_field(name = "Monthly",
                             value = helper_constructor(monthly),
                             inline = True)
-        if(sum(yearly)):
+        if sum(yearly):
             embed.add_field(name = "Yearly",
                             value = helper_constructor(yearly),
                             inline = True)
-                            
+
         await ctx.send(embed = embed)
         return
 
@@ -310,13 +310,13 @@ class BasicStats(commands.Cog):
                 return
             try:
                 num_lb = int(args[1])
-                if num_lb < 1 or 10 < num_lb:
+                if num_lb < 1 or num_lb > 10:
                     await ctx.send(content = f"<@{user_id}>", embed = error_two)
                     return
             except ValueError:
                 await ctx.send(content = f"<@{user_id}>", embed = error_two)
                 return
-        elif 2 < len(args):
+        elif len(args) > 2:
             await ctx.send(content = f"<@{user_id}>", embed = error_one)
             return
 
@@ -341,7 +341,7 @@ class BasicStats(commands.Cog):
                 formatted += f":flag_{country}: "
             else:
                 formatted += '<:flagblank:744520567113252926> '
-            if type(parameter) == str:
+            if isinstance(parameter, str):
                 formatted += f"{player} - {parameter}\n"
                 return formatted
             if args:
@@ -387,7 +387,7 @@ class BasicStats(commands.Cog):
             with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
                 player_top_tens = json.load(jsonfile)
             last_updated = float(player_top_tens['last updated'])
-            del(player_top_tens['last updated'])
+            del player_top_tens['last updated']
 
             for player, top_tens in player_top_tens.items():
                 top_count = 0
@@ -434,7 +434,7 @@ class BasicStats(commands.Cog):
             for player in top_players:
                 urls.append(Urls().trd_import(player))
             await fetch(urls, 'text')
-        return 
+        return
 
     @commands.cooldown(2, 25, commands.BucketType.default)
     @commands.command(aliases = get_aliases('competition'))

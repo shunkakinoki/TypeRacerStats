@@ -1,9 +1,8 @@
 import datetime
+import sqlite3
 import sys
-import time
 import discord
 from discord.ext import commands
-import sqlite3
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
@@ -11,7 +10,6 @@ from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import num_to_text, seconds_to_text
-from TypeRacerStats.Core.Common.texts import load_texts_large
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -49,7 +47,7 @@ class FullStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .incorrect_format('`category` must be `wpm/points`'))
             return
-        
+
         if args[2] == 'points':
             category = 'pts'
         else:
@@ -190,7 +188,7 @@ class FullStats(commands.Cog):
         except ValueError:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format(f"`seconds` must be a positive number"))
+                                   .incorrect_format('`seconds` must be a positive number'))
             return
 
         cur_min, max_start, max_end = (0,) * 3
@@ -296,7 +294,7 @@ class FullStats(commands.Cog):
         except ValueError:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format(f"`seconds` must be a positive number"))
+                                   .incorrect_format('`seconds` must be a positive number'))
             return
 
         conn = sqlite3.connect(DATABASE_PATH)
@@ -363,7 +361,7 @@ class FullStats(commands.Cog):
         except ValueError:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format(f"`seconds` must be a positive number"))
+                                   .incorrect_format('`seconds` must be a positive number'))
             return
 
         min_start = 0

@@ -82,7 +82,7 @@ class UserConfig(commands.Cog):
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message).parameters(f"{ctx.invoked_with} [universe]"))
             return
-        
+
         if len(args) == 0:
             args = ('play',)
         universe = args[0].lower()
