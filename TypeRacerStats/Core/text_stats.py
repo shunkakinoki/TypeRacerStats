@@ -10,6 +10,7 @@ from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
 
