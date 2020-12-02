@@ -1,3 +1,5 @@
+import re
+
 def seconds_to_text(seconds, *args):
     if len(args) > 1: return
     elif len(args) == 1: addS = args[0]
@@ -45,3 +47,5 @@ def num_to_text(n):
 
 def href_universe(universe):
     return f"[`{universe}`](https://play.typeracer.com/?universe={universe})"
+
+escape_sequence = lambda x: bool(re.findall('[^a-z^0-9]', x.lower()))

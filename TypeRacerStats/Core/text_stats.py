@@ -31,7 +31,14 @@ class TextStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] [text_id]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
+
         if len(args) == 2:
             text_id = int(args[1])
         else:
@@ -123,7 +130,14 @@ class TextStats(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user] <length>"))
             return
-        player = args[0]
+
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
 
         if len(args) == 2:
             try:

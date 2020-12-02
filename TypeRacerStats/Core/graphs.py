@@ -10,6 +10,8 @@ from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.urls import Urls
 
 class Graphs(commands.Cog):
     def __init__(self, bot):
@@ -27,7 +29,13 @@ class Graphs(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                   "doesn't exist")))
+            return
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
@@ -72,6 +80,14 @@ class Graphs(commands.Cog):
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
             return
+
+        for player in args:
+            if escape_sequence(player):
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                      .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                      "doesn't exist")))
+                return
 
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
@@ -120,6 +136,14 @@ class Graphs(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_10>"))
             return
         today = time.time()
+
+        for player in args:
+            if escape_sequence(player):
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                      .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                      "doesn't exist")))
+                return
 
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()

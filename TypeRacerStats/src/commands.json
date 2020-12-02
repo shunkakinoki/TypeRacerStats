@@ -78,7 +78,7 @@
         },
         {
             "name": "getdata",
-            "description": "Downloads given user's entire race history (may take several minutes); caps at 5,000 for non-admins",
+            "description": "Downloads given user's entire race history (may take several minutes); caps at 10,000 for non-admins",
             "speed": "slow",
             "usage": {
                 "general": "[user]",

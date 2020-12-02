@@ -9,7 +9,7 @@ from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import num_to_text, seconds_to_text
+from TypeRacerStats.Core.Common.formatting import escape_sequence, num_to_text, seconds_to_text
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -28,7 +28,13 @@ class FullStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] [num] [wpm/points]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
 
         try:
             num = float(args[1])
@@ -93,7 +99,13 @@ class FullStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] [num] [races/wpm/points]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
 
         try:
             num = int(args[1])
@@ -177,7 +189,13 @@ class FullStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] <seconds>"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
         try:
             if len(args) == 1:
                 session_length = 86400
@@ -263,8 +281,8 @@ class FullStats(commands.Cog):
                         inline = False)
         embed.add_field(name = 'Speed',
                         value = (f"**Average (Lagged):** {f'{round(wpm_sum / races, 2):,}'} WPM\n"
-                                 f"**Fastest Race:** {f'{wpm_max:,}'}\n"
-                                 f"**Slowest Race:** {f'{wpm_min:,}'}"),
+                                 f"**Fastest Race:** {f'{wpm_max:,}'} WPM\n"
+                                 f"**Slowest Race:** {f'{wpm_min:,}'} WPM"),
                         inline = False)
 
         await ctx.send(embed = embed)
@@ -283,7 +301,13 @@ class FullStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] <seconds>"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
         try:
             if len(args) == 1:
                 session_length = 1800
@@ -352,7 +376,13 @@ class FullStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] [num_races]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
         try:
             num_races = float(args[1])
             if num_races <= 0 or num_races % 1 != 0:
@@ -441,8 +471,8 @@ class FullStats(commands.Cog):
                         inline = False)
         embed.add_field(name = 'Speed',
                         value = (f"**Average (Lagged):** {f'{round(wpm_sum / races, 2):,}'} WPM\n"
-                                 f"**Fastest Race:** {f'{wpm_max:,}'}\n"
-                                 f"**Slowest Race:** {f'{wpm_min:,}'}"),
+                                 f"**Fastest Race:** {f'{wpm_max:,}'} WPM\n"
+                                 f"**Slowest Race:** {f'{wpm_min:,}'} WPM"),
                         inline = False)
         embed.add_field(name = 'Quotes',
                         value = f"**Number of Unique Quotes:** {f'{len(set(tids)):,}'}",

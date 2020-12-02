@@ -9,7 +9,7 @@ from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import seconds_to_text
+from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.texts import load_texts_large
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
@@ -32,7 +32,14 @@ class AdvancedStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user] [wpm/points]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
+
         categories = ['wpm', 'points']
 
         if not args[1] in categories:
@@ -95,7 +102,14 @@ class AdvancedStats(commands.Cog):
                                    .parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0]
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
+
         texts_length = load_texts_json()
         races, words_typed, chars_typed, points, retro, time_spent = (0,) * 6
         conn = sqlite3.connect(DATABASE_PATH)

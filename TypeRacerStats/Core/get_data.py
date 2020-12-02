@@ -34,6 +34,13 @@ class GetData(commands.Cog):
             return
 
         player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
+
         urls = [Urls().get_races(player, 'play', 1)]
         try:
             api_response = await fetch(urls, 'json')
@@ -61,11 +68,11 @@ class GetData(commands.Cog):
                 return
             else:
                 c.execute(f"CREATE TABLE t_{player} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
-        if races_remaining > 5000 and not user_id in BOT_ADMIN_IDS:
+        if races_remaining > 10000 and not user_id in BOT_ADMIN_IDS:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .lacking_permissions(('Data request exceeds 5,000 races. '
+                                   .lacking_permissions(('Data request exceeds 10,000 races. '
                                                          'Have a bot admin run the command.')))
             return
         if races_remaining == 0:
@@ -136,6 +143,12 @@ class GetData(commands.Cog):
             return
 
         player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
+            return
         urls = [Urls().get_races(player, 'play', 1)]
         try:
             api_response = await fetch(urls, 'json')
