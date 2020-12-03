@@ -381,18 +381,6 @@
             "linked": false
         },
         {
-            "name": "worstrelative",
-            "description": "Returns 5 randomly selected texts in bottom `percentage` relative speed for given user",
-            "speed": "fast",
-            "usage": {
-                "general": "[user] [percentage]",
-                "example": "charlieog 5",
-                "alt_example": []
-            },
-            "aliases": ["wr"],
-            "linked": false
-        },
-        {
             "name": "racesover",
             "description": "Returns the number and percentage of races over specified parameter",
             "speed": "fast",

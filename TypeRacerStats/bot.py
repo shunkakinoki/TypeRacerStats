@@ -3,19 +3,14 @@ import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_TOKEN
-from TypeRacerStats.config import DEFAULT_COMMAND_PREFIX
+from TypeRacerStats.config import BOT_TOKEN, DEFAULT_COMMAND_PREFIX, MAINTAIN
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.maintenance import drop_temporary_tables, maintain_players, maintain_top_tens
-from TypeRacerStats.Core.Common.prefixes import get_prefix
-from TypeRacerStats.Core.Common.prefixes import load_prefixes
-from TypeRacerStats.Core.Common.prefixes import update_prefixes
+from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes
 
 os.environ['TZ'] = 'UTC'
 bot = commands.Bot(command_prefix = get_prefix, case_insensitive = True)
 bot.remove_command('help')
-
-MAINTAIN = False
 
 @bot.event
 async def on_ready():
