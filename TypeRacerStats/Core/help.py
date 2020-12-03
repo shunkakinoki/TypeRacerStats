@@ -98,17 +98,6 @@ def value_formatter(command_list, command_prefix):
 def embed_constructor(command, command_prefix):
     call = f"{command_prefix}{command['name']}"
 
-    if command['name'] == 'verify' or command['name'] == 'premium':
-        embed = discord.Embed(title = f"Help for `{command_prefix}premium` and `{command_prefix}verify`",
-                              color = discord.Color(HELP_BLACK),
-                              description = (f"`{command_prefix}premium [user]` and"
-                                             f" `{command_prefix}verify [verification_code]` - "
-                                             f"{command['description']}"))
-        embed.add_field(name = "Steps", value = (f"1. Run `{command_prefix}premium [user]`\n"
-                                                  "2. Check TypeRacer inbox for a message\n"
-                                                 f"3. Run `{command_prefix}verify [verification code]`"))
-        return embed
-
     embed = discord.Embed(title = f"Help for `{call}` {SPEED_INDICATORS[command['speed']]}",
                           color = discord.Colour(HELP_BLACK),
                           description = f"`{call} {command['usage']['general']}` - {command['description']}")

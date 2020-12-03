@@ -113,5 +113,34 @@ class UserConfig(commands.Cog):
                                              description = (f"<@{user_id}> has been linked to the {href_universe(universe)} universe")))
         return
 
+    @commands.cooldown(1, 1, commands.BucketType.default)
+    @commands.command(aliases = get_aliases('toggledessle'))
+    async def toggledessle(self, ctx, *args):
+        user_id = str(ctx.message.author.id)
+        invalid = False
+
+        if len(args) != 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message).parameters(f"{ctx.invoked_with}"))
+            return
+
+        accounts = load_accounts()
+
+        try:
+            cur = accounts[user_id]['desslejusted']
+            accounts[user_id]['desslejusted'] = not cur
+        except KeyError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information(('Discord account must be linked to TypeRacer account with '
+                                                         f"`{get_prefix(ctx, ctx.message)}register [typeracer_username]`")))
+            return
+
+        update_accounts(accounts)
+
+        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                             description = (f"<@{user_id}> has been set to `desslejusted` **{not cur}**")))
+        return
+
 def setup(bot):
     bot.add_cog(UserConfig(bot))

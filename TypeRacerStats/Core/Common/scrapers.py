@@ -42,8 +42,8 @@ def rs_typinglog_scraper(response):
         soup = BeautifulSoup(response, 'html.parser')
         typinglog = re.sub('\\t\d', 'a',
                         re.search(r'typingLog\s=\s"(.*?)";', response)
-                        .group(1).encode().decode('unicode-escape').translate(escapes))
-        times = [int(c) for c in re.findall(r"\d+", typinglog.split("|")[0])][2:]
+                        .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+        times = [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
 
         race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
         player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
@@ -73,6 +73,97 @@ def rs_typinglog_scraper(response):
                 'duration': sum(times),
                 'length': len(times),
                 'opponents': opponents}
+    except:
+        return None
+
+def raw_typinglog_scraper(response):
+    escapes = ''.join([chr(char) for char in range(1, 32)])
+
+    try:
+        soup = BeautifulSoup(response, 'html.parser')
+        typinglog = re.sub('\\t\d', 'a',
+                        re.search(r'typingLog\s=\s"(.*?)";', response)
+                        .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+        times = [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
+
+
+        race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
+        player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
+        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        universe = 'play'
+        opponents = []
+        for detail in race_details:
+            cells = detail.select('td')
+            category = cells[0].text.strip()
+            if category == 'Race Number':
+                race_number = int(cells[1].text.strip())
+            elif category == 'Date':
+                timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
+                                                        "%a, %d %b %Y %H:%M:%S")
+                                                        .strftime("%s"))
+            elif category == 'Universe':
+                universe = cells[1].text.strip()
+            elif category == 'Opponents':
+                opponents = [i['href'] for i in cells[1].select('a')]
+
+        try:
+            keystrokes = typinglog[1]
+            keystrokes = keystrokes[keystrokes.index(',') + 1:]
+            keystrokes = keystrokes[keystrokes.index(',') + 1:]
+            parsed_keystrokes, cur_dig, cur_str = [], '', ''
+            for i in keystrokes:
+                if i.isdigit():
+                    cur_dig += i
+                    if not(cur_str): continue
+                    parsed_keystrokes.append(cur_str)
+                    cur_str = ''
+                else:
+                    cur_str += i
+                    if not(cur_dig): continue
+                    parsed_keystrokes.append(int(cur_dig))
+                    cur_dig = ''
+            parsed_keystrokes.append(cur_str)
+            actions = []
+            num_count = 0
+            cur_action = []
+            for i in parsed_keystrokes:
+                if num_count == 1 and type(i) == int:
+                    num_count += 1
+                    continue
+                if num_count == 2 and type(i) == int:
+                    num_count = 0
+                    cur_action[0] = i
+                elif type(i) == int:
+                    if num_count == 0:
+                        cur_action.append(i)
+                    num_count += 1
+                elif i[0] == "+" or i[0] == "-":
+                    num_count = 0
+                    cur_action.append(i[0])
+                    actions.append(cur_action)
+                    cur_action = []
+            for i, action in enumerate(actions):
+                if len(action) == 3:
+                    actions[i] = [action[0], action[2]]
+            raw = []
+            for i in actions:
+                if i[1] == "+":
+                    raw.append(i[0])
+                else:
+                    raw.pop()
+        except:
+            raw = times
+        return {'player': player,
+                'timestamp': timestamp,
+                'race_number': race_number,
+                'universe': universe,
+                'race_text': race_text,
+                'start': times[0],
+                'duration': sum(times),
+                'length': len(times),
+                'opponents': opponents,
+                'correction': sum(times) - sum(raw),
+                'adj_correction': sum(times[1:]) - sum(raw[1:])}
     except:
         return None
 

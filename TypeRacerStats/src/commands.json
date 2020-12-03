@@ -61,6 +61,18 @@
             },
             "aliases": ["su"],
             "linked": true
+        },
+        {
+            "name": "toggledessle",
+            "description": "Toggles Desslejusted",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["tg"],
+            "linked": true
         }
     ],
     "basic": [
@@ -149,7 +161,19 @@
                     }
                 ]
             },
-            "aliases": ["rsa"],
+            "aliases": ["rsa", "rsa*"],
+            "linked": true
+        },
+        {
+            "name": "raw",
+            "description": "Returns raw speed for given race",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <race_num>",
+                "example": "azathoth1 22",
+                "alt_example": []
+            },
+            "aliases": [],
             "linked": true
         },
         {
@@ -554,24 +578,6 @@
                 ]
             },
             "aliases": ["unix"],
-            "linked": false
-        },
-        {
-            "name": "premium",
-            "description": "Verifies premium membership to grant Discord role",
-            "usage": {
-                "general": "[user]"
-            },
-            "aliases": [],
-            "linked": false
-        },
-        {
-            "name": "verify",
-            "description": "Verifies premium membership to grant Discord role",
-            "usage": {
-                "general": "[verification_code]"
-            },
-            "aliases": [],
             "linked": false
         }
     ]
