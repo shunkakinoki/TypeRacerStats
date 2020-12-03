@@ -6,6 +6,8 @@ Creators/Bot Owners:::**Developer:** <@697048255254495312> (`e6f4e37l#0785`)\n**
 
 Bot Admins:::<@697048255254495312>, <@155481579005804544>, <@517616542947475458>, <@279844278455500800>, <@447787480461344779>, <@422937332040335361>, <@108328502591250432>, <@191227023140585472>, <@470350615189389324>, <@599225109223571458>
 
+Invite Link:::[**Bot Invite Link**](https://discord.com/api/oauth2/authorize?client_id=742267194443956334&permissions=0&scope=bot)
+
 Discord Servers:::Check out the servers the bot is partnered with:\n[**TypeRacer**](http://discord.gg/typeracer)\n[**Amaranth's Typing Community**](https://discord.gg/nEskwytY5M)
 
 Donation/Help:::[**Vote for TypeRacerStats on `top.gg`**](https://top.gg/bot/742267194443956334)\n**Patreon (coming soon)**
