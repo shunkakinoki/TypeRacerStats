@@ -80,7 +80,7 @@ class TextStats(commands.Cog):
         value = ''
         for i, text in enumerate(top):
             value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, 'player', text[0])})\n"
+            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
         embed.add_field(name = f"Top {i + 1} Texts",
                         value = value,
                         inline = False)
@@ -88,7 +88,7 @@ class TextStats(commands.Cog):
         value = ''
         for i, text in enumerate(worst):
             value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, 'player', text[0])})\n"
+            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
         embed.add_field(name = f"Worst {i + 1} Texts",
                         value = value,
                         inline = False)
@@ -188,10 +188,10 @@ class TextStats(commands.Cog):
                                  f"**Average:** {f'{round(sum_ / count, 2):,}'}\n"
                                  f"**Fastest:** {f'{best:,}'} WPM "
                                  f"(Race #{f'{best_gn}'}) [:cinema:]"
-                                 f"({Urls().result(player, 'play', best_gn)})\n"
+                                 f"({Urls().result(player, best_gn, 'play')})\n"
                                  f"**Slowest:** {f'{worst:,}'} WPM "
                                  f"(Race #{f'{worst_gn}'}) [:cinema:]"
-                                 f"({Urls().result(player, 'play', worst_gn)})\n"))
+                                 f"({Urls().result(player, worst_gn, 'play')})\n"))
 
         await ctx.send(embed = embed)
         return

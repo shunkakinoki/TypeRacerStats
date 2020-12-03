@@ -18,9 +18,9 @@ async def on_ready():
     await bot.change_presence(activity = discord.Game(name = f"{DEFAULT_COMMAND_PREFIX}help | by e6f4e37l#0785 and keegan#1689"))
     print('TypeRacerStats ready.')
     if MAINTAIN:
-        drop_temporary_tables.start()
-        maintain_players.start()
-        maintain_top_tens.start()
+        await drop_temporary_tables.start()
+        await maintain_players.start()
+        await maintain_top_tens.start()
 
 @bot.event
 async def on_guild_join(guild):
