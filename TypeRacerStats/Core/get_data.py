@@ -54,7 +54,7 @@ class GetData(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY gn DESC LIMIT 1")
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t DESC LIMIT 1")
             last_race = user_data.fetchone()
             last_race_timestamp = last_race[1]
             races_remaining = total_races - last_race[0]
@@ -163,7 +163,7 @@ class GetData(commands.Cog):
         conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY gn DESC LIMIT 1")
+            user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY t DESC LIMIT 1")
             last_race = user_data.fetchone()
             if last_race:
                 last_race_timestamp = last_race[1]
@@ -178,7 +178,7 @@ class GetData(commands.Cog):
                                embed = Error(ctx, ctx.message)
                                        .missing_information(f"{player} has no races"))
             else:
-                c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
+                c.execute(f"CREATE TABLE {file_name} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
 
         try:
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01, today_timestamp + 86400)

@@ -40,7 +40,7 @@
         },
         {
             "name": "register",
-            "description": "Registers your account to the bot, so you don't have to type your username everytime",
+            "description": "Registers your account to the bot, so you don't have to type your username every time",
             "speed": "fast",
             "usage": {
                 "general": "[typeracer_username]",
@@ -96,7 +96,7 @@
         {
             "name": "today",
             "description": "Returns given user's stats on a given day; defaults to current UTC day",
-            "speed": "fast",
+            "speed": "medium",
             "usage": {
                 "general": "[user] <yyyy-mm-dd>",
                 "example": "keegant",
@@ -193,7 +193,7 @@
         {
             "name": "competition",
             "description": "Returns the (updated) top 10 users for current daily competition; sorted by points as default",
-            "speed": "medium",
+            "speed": "slow",
             "usage": {
                 "general": "<points/races/wpm>",
                 "example": "races",
@@ -277,6 +277,18 @@
             "linked": true
         },
         {
+            "name": "textbests",
+            "description": "Returns a given user's text bests average and top 5 best/worst texts",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "despot",
+                "alt_example": []
+            },
+            "aliases": ["tb"],
+            "linked": true
+        },
+        {
             "name": "personalbest",
             "description": "Returns statistics on given user on a given text",
             "speed": "fast",
@@ -328,7 +340,7 @@
             "linked": true
         },
         {
-            "name": "textsoverorequal",
+            "name": "textslessequal",
             "description": "Returns the number and percentage of texts typed over specified parameter",
             "speed": "fast",
             "usage": {
@@ -341,7 +353,7 @@
                     }
                 ]
             },
-            "aliases": ["tor"],
+            "aliases": ["tle", "tor", "to"],
             "linked": false
         },
         {
@@ -388,7 +400,7 @@
         {
             "name": "marathon",
             "description": "Returns the most races completed a given user completed in a given length of time, `seconds` being the maximum amount of time allowed between races before a session ends",
-            "speed": "slow",
+            "speed": "fast",
             "usage": {
                 "general": "[user] <seconds>",
                 "example": "keegant 86400",
@@ -405,7 +417,7 @@
         {
             "name": "sessionstats",
             "description": "Returns the highest race count and longest time session for the given user, `seconds` being the maximum amount of time allowed between races before a session ends",
-            "speed": "medium",
+            "speed": "fast",
             "usage": {
                 "general": "[user] <seconds>",
                 "example": "keegant 1800",
@@ -422,7 +434,7 @@
         {
             "name": "fastestcompletion",
             "description": "Returns the fastest the given user completed the given number of races",
-            "speed": "medium",
+            "speed": "fast",
             "usage": {
                 "general": "[user] [num_races]",
                 "example": "keegant 100",
@@ -475,6 +487,18 @@
                 ]
             },
             "aliases": ["rl"],
+            "linked": true
+        },
+        {
+            "name": "improvement",
+            "description": "Returns WPM over races/time for given user",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <time/races>",
+                "example": "e6f4e37l races",
+                "alt_example": []
+            },
+            "aliases": ["imp"],
             "linked": true
         }
     ],

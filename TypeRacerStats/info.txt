@@ -1,13 +1,13 @@
-<:info:745337206931193988> About Page
+<:info:745337206931193988> TypeRacerStats v2.0
 9442302
-TypeRacer Stats Bot is a Discord bot that provides users with extensive statistics and various unique features (over 20 commands). Run `{PFX}help` to learn more about the commands.
+**TypeRacerStats** is a Discord bot with over 39 commands to provide extensive [**TypeRacer**](http://typeracer.com/) statistics and features for users. Many of them are designed to help with improvement on the site. Run `{PFX}help` to learn more, or check out the [**GitHub Repo**](https://github.com/e6f4e37l/TypeRacerStats)!
 https://i.imgur.com/l3itW9Y.png
-Creators:::Developed by **Eugene**—<:e6f4e37l:745451706724253747> <@697048255254495312>\nConceptualized/Designed by <:keegant:745451650180710428> <@155481579005804544>
+Creators/Bot Owners:::**Developer:** <@697048255254495312>\n**Designer and Ideas:** <@155481579005804544>
 
-Bot Admins:::<@697048255254495312>\n<@155481579005804544>\n<@517616542947475458>
+Bot Admins:::<@697048255254495312>, <@155481579005804544>, <@517616542947475458>
 
-Account Linking:::If you'd like to link your Discord with your TypeRacer account, contact a bot admin. This allows for easier command usage: e.g. `{PFX}stats [user]` becomes `{PFX}stats`. (`{PFX}stats @user` will not work, it is only used for self commands.)
+Discord Servers:::Check out the servers the bot is partnered with:\n[**TypeRacer**](http://discord.gg/typeracer)\n[**Amaranth's Typing Community**](https://discord.gg/nEskwytY5M)
 
-Donation/Help:::Coming soon…
+Donation/Help:::[**Vote for TypeRacerStats on `top.gg`**](https://top.gg/bot/742267194443956334)\n**Patreon (coming soon)**
 
-Note: This bot was developed desktop usage, some features may appear broken on mobile.
+Note: This bot was developed for desktop usage, so some features' formatting may appear broken on mobile.

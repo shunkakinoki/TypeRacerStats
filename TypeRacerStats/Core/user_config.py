@@ -39,13 +39,9 @@ class UserConfig(commands.Cog):
             return
         player = args[0].lower()
         urls = [Urls().get_user(player, 'play')]
-        if len(player) > 31:
-            invalid = True
         try:
             test_response = await fetch(urls, 'json')
         except:
-            invalid = True
-        if invalid:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .missing_information('`typeracer_username` must be a TypeRacer username'))

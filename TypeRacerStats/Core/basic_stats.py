@@ -40,8 +40,7 @@ class BasicStats(commands.Cog):
         player = args[0].lower()
         urls = [Urls().get_user(player, universe)]
         try:
-            user_api = await fetch(urls, 'json')
-            user_api = user_api[0]
+            user_api = (await fetch(urls, 'json'))[0]
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -59,7 +58,7 @@ class BasicStats(commands.Cog):
         except KeyError:
             banned = ''
 
-        urls = [[Urls().trd_user(player, universe), 'json']]
+        urls = [Urls().trd_user(player, universe)]
         try:
             trd_user_api = (await fetch(urls, 'json'))[0]
             textbests = round(float(trd_user_api['account']['wpm_textbests']), 2)
@@ -71,8 +70,7 @@ class BasicStats(commands.Cog):
 
         urls = [Urls().user(player, universe)]
         try:
-            response = await fetch(urls, 'text')
-            response = response[0]
+            response = (await fetch(urls, 'text'))[0]
             soup = BeautifulSoup(response, 'html.parser')
             rows = soup.select("table[class='profileDetailsTable']")[0].select('tr')
             medal_count = 0
@@ -137,7 +135,7 @@ class BasicStats(commands.Cog):
 
         try:
             urls = [Urls().get_races(player, universe, 1)]
-            response = await fetch(urls, 'json', lambda x: x[0]['t'])
+            response = (await fetch(urls, 'json', lambda x: x[0]['t']))[0]
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -146,7 +144,7 @@ class BasicStats(commands.Cog):
                                                          f"{href_universe(universe)} universe")))
             return
 
-        time_difference = time.time() - response[0]
+        time_difference = time.time() - response
 
         await ctx.send(embed = discord.Embed(colour = discord.Colour(MAIN_COLOR),
                        description = (f"**{player}** last played {seconds_to_text(time_difference)}\n"
@@ -168,8 +166,8 @@ class BasicStats(commands.Cog):
         player = args[0].lower()
         try:
             urls = [Urls().user(player, 'play')]
-            response = await fetch(urls, 'text')
-            soup = BeautifulSoup(response[0], 'lxml')
+            response = (await fetch(urls, 'text'))[0]
+            soup = BeautifulSoup(response, 'lxml')
             rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
         except:
             await ctx.send(content = f"<@{user_id}>",

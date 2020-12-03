@@ -26,7 +26,7 @@ class Graphs(commands.Cog):
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
+                                   .parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
@@ -176,6 +176,90 @@ class Graphs(commands.Cog):
         plt.tight_layout(rect=[0,0,0.75,1])
         ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
         file_name = 'Races Over Time.png'
+        plt.savefig(file_name)
+        races_over_time_picture = discord.File(file_name, filename = file_name)
+
+        await ctx.send(file = races_over_time_picture)
+        os.remove(file_name)
+        plt.close()
+        return
+
+    @commands.command(aliases = get_aliases('improvement'))
+    async def improvement(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if len(args) == 1: args = check_account(user_id)(args)
+
+        if len(args) != 2:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user] <time/races>"))
+            return
+
+        player = args[0].lower()
+        if args[1].lower() not in ['time', 'races']:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Must provide a valid category: `time/races`'))
+            return
+
+        if args[1].lower() == 'time':
+            q_category = 't'
+            category = 'Time'
+        else:
+            q_category = 'gn'
+            category = 'Races'
+
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                   "doesn't exist")))
+            return
+        today = time.time()
+
+        data_x, data_y = [], []
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            player_data = c.execute(f"SELECT wpm, {q_category} FROM t_{player} ORDER by {q_category}")
+            for row in player_data:
+                data_x.append(row[1])
+                data_y.append(row[0])
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .not_downloaded())
+            return
+        conn.close()
+
+        length = len(data_x)
+        if length < 5000:
+            sma = length // 10
+        else:
+            sma = 500
+        fragment = length % sma
+        moving_y = [sum(data_y[i:i + sma]) / sma for i in range(0, length - fragment - sma)]
+        moving_x = data_x[:-fragment - sma] + [data_x[-1]]
+        if fragment:
+            moving_y += [sum(data_y[-fragment:]) / fragment]
+        else:
+            moving_y += [sum(data_y[-sma:]) / sma]
+
+        ax = plt.subplots()[1]
+        ax.scatter(data_x, data_y, marker = '.', alpha = 0.1, color = '#000000')
+        ax.plot(moving_x, moving_y, color = '#FF0000')
+        ax.set_title(f"{player}'s WPM Over {category}\n(Moving Average of {sma} Races)")
+
+        if q_category == 't':
+            ax.set_xlabel('Date (UNIX Timestamp)')
+        else:
+            ax.set_xlabel('Race #')
+
+        ax.set_ylabel('WPM')
+        plt.grid(True)
+        file_name = f"WPM Over {category}.png"
         plt.savefig(file_name)
         races_over_time_picture = discord.File(file_name, filename = file_name)
 

@@ -69,6 +69,7 @@ async def maintain_top_tens():
         data = (await fetch(partition, 'text', scraper, lambda x: re.findall('[0-9]+', x)[0]))
         for text in data:
             text_top_tens.update(text)
+        await asyncio.sleep(100)
 
     with open(TOPTENS_JSON_FILE_PATH, 'w') as jsonfile:
         json.dump(text_top_tens, jsonfile)
