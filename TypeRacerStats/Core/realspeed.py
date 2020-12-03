@@ -182,7 +182,7 @@ class RealSpeed(commands.Cog):
         desslejusted, universe = account['desslejusted'], account['universe']
         race_api_response = None
         replay_url = ''
-        redact = ctx.invoked_with[-1] == '*'
+        redact = not ctx.invoked_with[-1] == '*'
 
         if len(args) == 0 or (len(args) == 1 and len(args[0]) < 4):
             args = check_account(user_id)(args)

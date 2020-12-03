@@ -2,9 +2,9 @@
 9442302
 **TypeRacerStats** is a Discord bot with over 35 commands to provide extensive [**TypeRacer**](http://typeracer.com/) statistics and features for users. Many of them are designed to help with improvement on the site. Run `{PFX}help` to learn more, or check out the [**GitHub Repo**](https://github.com/e6f4e37l/TypeRacerStats)!
 https://i.imgur.com/l3itW9Y.png
-Creators/Bot Owners:::**Developer:** <@697048255254495312> (`e6f4e37l#0785`))\n**Designer and Ideas:** <@155481579005804544>
+Creators/Bot Owners:::**Developer:** <@697048255254495312> (`e6f4e37l#0785`)\n**Designer and Ideas:** <@155481579005804544>
 
-Bot Admins:::<@697048255254495312>, <@155481579005804544>, <@517616542947475458>, <@279844278455500800>, <@447787480461344779>, <@422937332040335361>, <@108328502591250432>, <@191227023140585472>
+Bot Admins:::<@697048255254495312>, <@155481579005804544>, <@517616542947475458>, <@279844278455500800>, <@447787480461344779>, <@422937332040335361>, <@108328502591250432>, <@191227023140585472>, <@470350615189389324>, <@599225109223571458>
 
 Discord Servers:::Check out the servers the bot is partnered with:\n[**TypeRacer**](http://discord.gg/typeracer)\n[**Amaranth's Typing Community**](https://discord.gg/nEskwytY5M)
 
