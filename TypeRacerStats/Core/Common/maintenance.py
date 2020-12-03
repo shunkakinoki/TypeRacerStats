@@ -66,6 +66,7 @@ async def maintain_top_tens():
             partition = []
 
     for partition in urls:
+        print(partition[0])
         data = (await fetch(partition, 'text', scraper, lambda x: re.findall('[0-9]+', x)[0]))
         for text in data:
             text_top_tens.update(text)
