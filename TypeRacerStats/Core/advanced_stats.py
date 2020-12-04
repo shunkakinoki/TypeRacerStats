@@ -78,7 +78,7 @@ class AdvancedStats(commands.Cog):
         texts = load_texts_large()
         for i, race in enumerate(user_data):
             value = f"{texts[str(race[2])]} [:cinema:]({Urls().result(player, 'play', race[0])})"
-            if category == 'pts':
+            if category == 'points':
                 name = f"{i + 1}. {race[4]} {category} (Race #{race[0]})"
             else:
                 name = f"{i + 1}. {race[3]} {category} (Race #{race[0]})"
