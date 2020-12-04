@@ -3,9 +3,9 @@
 
 
 ## Commands
-Some commands are _multiverse_, which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected.
+Some commands are ![mu], which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected.
 
-Another feature that some commands have is the ability to _link_ your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command.
+Another feature that some commands have is the ability to ![li] your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command.
 
 Finally, some commands' functionalities are limited according to the bot permissions a user has: regular, bot admin, or bot owner.
 
@@ -46,25 +46,25 @@ Basic commands do not require a user's information to be downloaded to provide s
 
 ### Advanced (all require `-getdata`)
 Advanced commands provide detailed statistical calculations, graphs, and services aimed to help users improve their typing speed and TypeRacer statistics.
-| Name                                              | Example |
-|:--------------------------------------------------|:-------:|
-| `-top [user] [wpm/points]`                        | View    |
-| `-worst [user] [wpm/points]`                      | View    |
-| `-racedetails [user]`                             | View    |
-| `-textbests [user]`                               | View    |
-| `-personalbest [user] <text_ID>`                  | View    |
-| `-unraced [user] <length>`                        | View    |
-| `-textsunder [user] [wpm] <length>`               | View    |
-| `-textslessequal [user] [num] [wpm/points/times]` | View    |
-| `-racesover [user] [num] [wpm/points]`            | View    |
-| `-milestone [user] [num] [races/points/wpm]`      | View    |
-| `-marathon [user] <seconds>`                      | View    |
-| `-sessionstats [user] <seconds>`                  | View    |
-| `-fastestcompletion [user] [num_races]`           | View    |
-| `-boxplot [user] <user_2> ... <user_4>`           | View    |
-| `-histogram [user]`                               | View    |
-| `-raceline [user] <user_2> ... <user_10>`         | View    |
-| `-improvement [user] <time/races>`                | View    |
+| Name                                              | Example | Function                                                                                                               | Aliases            |
+|:--------------------------------------------------|:-------:|------------------------------------------------------------------------------------------------------------------------|--------------------|
+| `-top [user] [wpm/points]`                        | View    | Returns user's top 10 races sorted by specified category. ![li]                                                        | `best`             |
+| `-worst [user] [wpm/points]`                      | View    | Returns user's worst 10 races sorted by specified cateogry. ![li]                                                      | `bottom`           |
+| `-racedetails [user]`                             | View    | Returns detailed breakdown of user's races. ![li]                                                                      | `rd`               |
+| `-textbests [user]`                               | View    | Returns user's top 5 texts, worst 5 texts, and text bests average (average of best in each text). ![li]                | `tb`               |
+| `-personalbest [user] <text_ID>`                  | View    | Returns user's average, best, and worst on specified `text_id`. Defaults to last-raced text if none provided. ![li]    | `pb`               |
+| `-unraced [user] <length>`                        | View    | Returns 5 randomly unraced texts under `length` characters. ![li]                                                      | `ur`               |
+| `-textsunder [user] [wpm] <length>`               | View    | Returns 5 randomly raced texts under `wpm` wpm and `length` characters. ![li]                                          | `tu`               |
+| `-textslessequal [user] [num] [wpm/points/times]` | View    | Returns number of texts typed more than or equal to `num` in specified category.                                       | `tle`, `tor`, `to` |
+| `-racesover [user] [num] [wpm/points]`            | View    | Returns number of races greater than `num` in specified category.                                                      | `ro`               |
+| `-milestone [user] [num] [races/points/wpm]`      | View    | Returns the time it took for user to achieve specified milestone.                                                      | `ms`               |
+| `-marathon [user] <seconds>`                      | View    | Returns the most races a user completed in `seconds` seconds and its breakdown; defaults to 86400 (1 day). ![li]       | `42`               |
+| `-sessionstats [user] <seconds>`                  | View    | Returns the longest session a user completed with breaks at most `seconds` seconds; defaults to 1800 (30 mins.). ![li] | `ss`               |
+| `-fastestcompletion [user] [num_races]`           | View    | Returns the fastest a user completed `num_races` races and its breakdown. ![li]                                        | `fc`               |
+| `-boxplot [user] <user_2> ... <user_4>`           | View    | Returns WPM boxplot of given user(s). Outliers are removed. ![li]                                                      | `bp`               |
+| `-histogram [user]`                               | View    | Returns WPM boxplot of given user. ![li]                                                                               | `hg`               |
+| `-raceline [user] <user_2> ... <user_10>`         | View    | Returns races over time graph for given user(s). ![li]                                                                 | `rl`               |
+| `-improvement [user] <time/races>`                | View    | Returns WPM over specified category for given user. ![li]                                                              | `imp`              |
 
 ### Other
 Other commands provide resources, information, and links related to TypeRacer.
