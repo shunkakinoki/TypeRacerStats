@@ -90,7 +90,7 @@ class GetData(commands.Cog):
                                                             f"Estimated download time: {seconds_to_text(0.005125 * races_remaining + 0.5)}")))
 
         try:
-            data = await fetch_data(player, 'play', last_race_timestamp + 0.01)
+            data = await fetch_data(player, 'play', last_race_timestamp + 0.01, time.time())
         except UnboundLocalError:
             data = await fetch_data(player, 'play')
         c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
