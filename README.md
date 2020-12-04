@@ -11,15 +11,21 @@ Finally, some commands' functionalities are limited according to the bot permiss
 
 ### Info
 Info commands provide information for the bot.
-| Name              | Example    | Function                                                                                               | Aliases        |
-|:------------------|------------|--------------------------------------------------------------------------------------------------------|----------------|
-| `-help [command]` | `-help rs` | Returns information for given command. Case sensitive and aliases may be used in place of `[command]`. | `h`            |
-| `-info`           | `-info`    | Returns information about the bot.                                                                     | `abt`, `about` |
-| `-invite`         | `-invite`  | Returns an invite link for the bot. Refer to the **Invite/Permissions** section below for permissions. | None           |
-| `-donate`         | `-donate`  | Returns donation link to support the bot.                                                              | `support`      |
+| Name              | Example | Function                                                                                               | Aliases        |
+|:------------------|:-------:|--------------------------------------------------------------------------------------------------------|----------------|
+| `-help [command]` | View    | Returns information for given command. Case sensitive and aliases may be used in place of `[command]`. | `h`            |
+| `-info`           | View    | Returns information about the bot.                                                                     | `abt`, `about` |
+| `-invite`         | View    | Returns an invite link for the bot. Refer to the **Invite/Permissions** section below for permissions. | None           |
+| `-donate`         | View    | Returns donation link to support the bot.                                                              | `support`      |
 
 ### Configuration
 Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.
+| Name                             | Example | Function                                                                                     | Aliases |
+|:---------------------------------|:-------:|----------------------------------------------------------------------------------------------|---------|
+| `-changeprefix [prefix]`         | View    | Changes the bot's prefix on the server.                                                      | `cp`    |
+| `-register [typeracer_username]` | View    | Links Discord account to TypeRacer account. [mu]                                             | `link`  |
+| `-setuniverse [universe]`        | View    | Links Discord account to provided TypeRacer universe; defaults to `play` universe. [mu] [li] | `su`    |
+| `-toggledessle`                  | View    | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. [li] | `tg`    |
 
 ### Basic
 Basic commands do not require a user's information to be downloaded to provide statistics.
