@@ -29,22 +29,42 @@ Configuration commands allow server admins to change the bot's prefix and users 
 
 ### Basic
 Basic commands do not require a user's information to be downloaded to provide statistics.
-| Name                                                 | Example | Function                                                                                             | Aliases                          |
-|:-----------------------------------------------------|:--------|------------------------------------------------------------------------------------------------------|----------------------------------|
-| `-stats [user]`                                      | View    | Returns basic stats for given user. ![mu] ![li]                                                      | `prof`, `profile`                |
-| `-getdata [user]`                                    | View    | Downloads given user's data; **Advanced** commands may be used after. ![li]                          | `dl`, `gd`, `download,`          |
-| `-today [user] <date>`                               | View    | Downloads given user's data for specified date. `yesterday`, `yday`, `yd` are special aliases. ![li] | `day`, `yesterday`, `yday`, `yd` |
-| `-realspeed [user] <race_num>` or `-realspeed [url]` | View    | Returns (realspeeds)[https://bit.ly/typeracerspeeds] for given race. ![mu] ![li]                     | `rs`                             |
-| `-realspeedaverage [user] <first_race> <last_race>`  | View    | Returns the realspeed average for given race interval. `rsa*` is a special alias. ![mu] ![li]        | `rsa`, `rsa*`                    |
-| `-raw [user] <race_num>` or `-raw [url]`             | View    | Returns realspeeds and _raw_ speed (speed with correction time omitted) for given race. ![mu] ![li]  | None                             |
-| `-lastrace [user] <race_num>` or `-lastrace [url]`   | View    | Returns all users' realspeeds ranked by unlagged for given race. ![mu] ![li]                         | `lr`, `last`                     |
-| `-leaderboard [category] <amount>`                   | View    | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`.               | `lb`                             |
-| `-competition <category>`                            | View    | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu] | `comp`                           |
-| `-lastonline [user]`                                 | View    | Returns the last time a user played. ![mu] ![li]                                                     | `lo`, `ls`, `lastseen`           |
-| `-medals [user]`                                     | View    | Returns the medals a user has. ![li]                                                                 | None                             |
-| `-toptens [user]`                                    | View    | Returns the number of text top 10s a user holds. ![li]<br/> ![ba] can request JSON breakdowns.       | `10`, `10*`, `toptens*`          |
+| Name                                                 | Example | Function                                                                                                 | Aliases                          |
+|:-----------------------------------------------------|:-------:|----------------------------------------------------------------------------------------------------------|----------------------------------|
+| `-stats [user]`                                      | View    | Returns basic stats for given user. ![mu] ![li]                                                          | `prof`, `profile`                |
+| `-getdata [user]`                                    | View    | Downloads given user's data; **Advanced** commands may be used after. ![li]                              | `dl`, `gd`, `download,`          |
+| `-today [user] <date>`                               | View    | Downloads given user's data for specified date. `yesterday`, `yday`, `yd` are special aliases. ![li]     | `day`, `yesterday`, `yday`, `yd` |
+| `-realspeed [user] <race_num>` or `-realspeed [url]` | View    | Returns [realspeeds](https://bit.ly/typeracerspeeds) for given race. ![mu] ![li]                         | `rs`                             |
+| `-realspeedaverage [user] <first_race> <last_race>`  | View    | Returns the realspeed average for given race interval. `rsa*` is a special alias. ![mu] ![li]            | `rsa`, `rsa*`                    |
+| `-raw [user] <race_num>` or `-raw [url]`             | View    | Returns realspeeds and _raw_ speed (speed with correction time omitted) for given race. ![mu] ![li]      | None                             |
+| `-lastrace [user] <race_num>` or `-lastrace [url]`   | View    | Returns all users' realspeeds ranked by unlagged for given race. ![mu] ![li]                             | `lr`, `last`                     |
+| `-leaderboard [category] <amount>`                   | View    | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`.                   | `lb`                             |
+| `-competition <category>`                            | View    | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu]     | `comp`                           |
+| `-lastonline [user]`                                 | View    | Returns the last time a user played. ![mu] ![li]                                                         | `lo`, `ls`, `lastseen`           |
+| `-medals [user]`                                     | View    | Returns the medals a user has. ![li]                                                                     | None                             |
+| `-toptens [user]`                                    | View    | Returns the number of text top 10s a user holds. ![li]<br/>![ba] can request JSON breakdowns with `10*`. | `10`, `10*`, `toptens*`          |
 
 ### Advanced (all require `-getdata`)
+Advanced commands provide detailed statistical calculations, graphs, and services aimed to help users improve their typing speed and TypeRacer statistics.
+| Name                                              | Example |
+|:--------------------------------------------------|:-------:|
+| `-top [user] [wpm/points]`                        | View    |
+| `-worst [user] [wpm/points]`                      | View    |
+| `-racedetails [user]`                             | View    |
+| `-textbests [user]`                               | View    |
+| `-personalbest [user] <text_ID>`                  | View    |
+| `-unraced [user] <length>`                        | View    |
+| `-textsunder [user] [wpm] <length>`               | View    |
+| `-textslessequal [user] [num] [wpm/points/times]` | View    |
+| `-racesover [user] [num] [wpm/points]`            | View    |
+| `-milestone [user] [num] [races/points/wpm]`      | View    |
+| `-marathon [user] <seconds>`                      | View    |
+| `-sessionstats [user] <seconds>`                  | View    |
+| `-fastestcompletion [user] [num_races]`           | View    |
+| `-boxplot [user] <user_2> ... <user_4>`           | View    |
+| `-histogram [user]`                               | View    |
+| `-raceline [user] <user_2> ... <user_10>`         | View    |
+| `-improvement [user] <time/races>`                | View    |
 
 ### Other
 Other commands provide resources, information, and links related to TypeRacer.
