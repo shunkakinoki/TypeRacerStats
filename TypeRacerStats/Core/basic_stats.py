@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, NUMBERS
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information, check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -244,7 +244,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
-        is_admin = user_id in BOT_OWNER_IDS
+        is_admin = user_id in BOT_ADMIN_IDS
         send_json = is_admin and ctx.invoked_with[-1] == '*'
 
         if len(args) == 0: args = check_account(user_id)(args)
