@@ -1,4 +1,5 @@
-# TypeRacerStats
+<h1 align = 'center'>TypeRacerStats</h1>
+
 **TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/), and was made with the [**Discord.py API**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in `requirements.txt`). It comes with over 35 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
 
 
@@ -10,25 +11,33 @@ Another feature that some commands have is the ability to ![li] your Discord acc
 Finally, some commands' functionalities are limited according to the bot permissions a user has: regular, bot admin, or bot owner.
 
 ### Info
-Info commands provide information for the bot.
+<details>
+<summary>Info commands provide information for the bot.</summary>
+  
 | Name              | Example | Function                                                                                               | Aliases        |
 |:------------------|:-------:|--------------------------------------------------------------------------------------------------------|----------------|
 | `-help [command]` | View    | Returns information for given command. Case sensitive and aliases may be used in place of `[command]`. | `h`            |
 | `-info`           | View    | Returns information about the bot.                                                                     | `abt`, `about` |
 | `-invite`         | View    | Returns an invite link for the bot. Refer to the **Invite/Permissions** section below for permissions. | None           |
 | `-donate`         | View    | Returns donation link to support the bot.                                                              | `support`      |
+</details>
 
 ### Configuration
-Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.
+<details>
+<summary>Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.</summary>
+
 | Name                             | Example | Function                                                                                       | Aliases |
 |:---------------------------------|:-------:|------------------------------------------------------------------------------------------------|---------|
 | `-changeprefix [prefix]`         | View    | Changes the bot's prefix on the server.                                                        | `cp`    |
 | `-register [typeracer_username]` | View    | Links Discord account to TypeRacer account. ![mu]                                              | `link`  |
 | `-setuniverse [universe]`        | View    | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su`    |
 | `-toggledessle`                  | View    | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li]  | `tg`    |
+</details>
 
 ### Basic
-Basic commands do not require a user's information to be downloaded to provide statistics.
+<details>
+<summary>Basic commands do not require a user's information to be downloaded to provide statistics.</summary>
+
 | Name                                                 | Example | Function                                                                                                   | Aliases                          |
 |:-----------------------------------------------------|:-------:|------------------------------------------------------------------------------------------------------------|----------------------------------|
 | `-stats [user]`                                      | View    | Returns basic stats for given user. ![mu] ![li]                                                            | `prof`, `profile`                |
@@ -43,9 +52,12 @@ Basic commands do not require a user's information to be downloaded to provide s
 | `-lastonline [user]`                                 | View    | Returns the last time a user played. ![mu] ![li]                                                           | `lo`, `ls`, `lastseen`           |
 | `-medals [user]`                                     | View    | Returns the medals a user has. ![li]                                                                       | None                             |
 | `-toptens [user]`                                    | View    | Returns the number of text top 10s a user holds. ![li]<br/>![ba] can request JSON breakdowns with `10*`.   | `10`, `10*`, `toptens*`          |
+</details>
 
 ### Advanced (all require `-getdata`)
-Advanced commands provide detailed statistical calculations, graphs, and services aimed to help users improve their typing speed and TypeRacer statistics.
+<details>
+<summary>Advanced commands provide detailed statistical calculations, graphs, and services aimed to help users improve their typing speed and TypeRacer statistics.</summary>
+
 | Name                                              | Example | Function                                                                                                               | Aliases            |
 |:--------------------------------------------------|:-------:|------------------------------------------------------------------------------------------------------------------------|--------------------|
 | `-top [user] [wpm/points]`                        | View    | Returns user's top 10 races sorted by specified category. ![li]                                                        | `best`             |
@@ -65,9 +77,12 @@ Advanced commands provide detailed statistical calculations, graphs, and service
 | `-histogram [user]`                               | View    | Returns WPM boxplot of given user. ![li]                                                                               | `hg`               |
 | `-raceline [user] <user_2> ... <user_10>`         | View    | Returns races over time graph for given user(s). ![li]                                                                 | `rl`               |
 | `-improvement [user] <time/races>`                | View    | Returns WPM over specified category for given user. ![li]                                                              | `imp`              |
+</details>
 
 ### Other
-Other commands provide resources, information, and links related to TypeRacer.
+<details>
+<summary>Other commands provide resources, information, and links related to TypeRacer.</summary>
+
 | Name                         | Example | Function                                                                                                                                                | Aliases  |
 |:-----------------------------|:-------:|---------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
 | `-search [query]`            | View    | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br/> ![ba] can request 1 word queries | None     |
@@ -75,6 +90,7 @@ Other commands provide resources, information, and links related to TypeRacer.
 | `-searchid [text_id]`        | View    | Returns text matching specified `text_id`. ![mu]                                                                                                        | `id`     |
 | `-unixreference <timestamp>` | View    | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table.                     | `unix`   |
 | `-serverinfo`                | View    | Returns basic information about the server the bot is in.                                                                                               |  `sinfo` |
+</details>
 
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00
