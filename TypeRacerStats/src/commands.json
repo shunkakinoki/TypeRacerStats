@@ -23,6 +23,30 @@
             },
             "aliases": ["about", "abt"],
             "linked": false
+        },
+        {
+            "name": "invite",
+            "description": "Returns an invite link for the bot",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": [],
+            "linked": false
+        },
+        {
+            "name": "donate",
+            "description": "Returns links to help support the project",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["support"],
+            "linked": false
         }
     ],
     "configuration": [
