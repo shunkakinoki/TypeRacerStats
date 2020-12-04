@@ -58,5 +58,31 @@ class Other(commands.Cog):
                                        .incorrect_format('`timestamp` must be an integer or scientific notation (e.g. 1.0365e9)'))
                 return
 
+    @commands.command(aliases = get_aliases('serverinfo'))
+    async def serverinfo(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if len(args) != 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with}"))
+            return
+
+        embed = discord.Embed(title = f"Server Information for {ctx.guild.name}",
+                              color = discord.Color(MAIN_COLOR),
+                              description = ctx.guild.description)
+        embed.set_thumbnail(url = ctx.guild.icon_url)
+        embed.add_field(name = 'Stats',
+                        value = (f"**Owner:** <@{ctx.guild.owner_id}>\n"
+                                 f"**Region:** {ctx.guild.region}\n"
+                                 f"**Created At:** {ctx.guild.created_at}\n"
+                                 f"**Member Count:** {f'{ctx.guild.member_count:,}'}\n"
+                                 f"**Text Channels:** {f'{len(ctx.guild.text_channels):,}'}\n"
+                                 f"**Roles:** {f'{len(ctx.guild.roles):,}'}"))
+        embed.set_image(url = ctx.guild.banner_url)
+
+        await ctx.send(embed = embed)
+        return
+
 def setup(bot):
     bot.add_cog(Other(bot))

@@ -567,6 +567,18 @@
             },
             "aliases": ["unix"],
             "linked": false
+        },
+        {
+            "name": "serverinfo",
+            "description": "Returns information about the server",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["sinfo"],
+            "linked": false
         }
     ]
 }
