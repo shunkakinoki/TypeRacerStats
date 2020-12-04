@@ -10,6 +10,6 @@ Invite Link:::[**Bot Invite Link**](https://discord.com/api/oauth2/authorize?cli
 
 Discord Servers:::Check out the servers the bot is partnered with:\n[**TypeRacer**](http://discord.gg/typeracer)\n[**Amaranth's Typing Community**](https://discord.gg/nEskwytY5M)
 
-Donation/Help:::[**Vote for TypeRacerStats on `top.gg`**](https://top.gg/bot/742267194443956334)\n**Patreon (coming soon)**
+Donation/Help:::[**Vote for TypeRacerStats on `top.gg`**](https://top.gg/bot/742267194443956334)\n**[PayPal](https://www.paypal.me/e3e2)**
 
 Note: This bot was developed for desktop usage, so some features' formatting may appear broken on mobile.

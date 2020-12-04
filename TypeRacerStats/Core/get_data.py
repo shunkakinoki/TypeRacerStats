@@ -117,8 +117,8 @@ class GetData(commands.Cog):
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
             if len(args) > 1:
                 await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user]"))
+                               embed = Error(ctx, ctx.message)
+                                       .parameters(f"{ctx.invoked_with} [user]"))
                 return
 
         if len(args) == 2:
