@@ -30,21 +30,22 @@ Configuration commands allow server admins to change the bot's prefix and users 
 ### Basic
 Basic commands do not require a user's information to be downloaded to provide statistics.
 
-### Advanced
+### Advanced (all require `-getdata`)
 
 ### Other
+Other commands provide resources, information, and links related to TypeRacer.
 | Name                         | Example | Function                                                                                                                                                | Aliases  |
 |:-----------------------------|:-------:|---------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
-| `-search [query]`            | View    | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br\> ![ba] can request 1 word queries | None     |
-| `-levenshtein [query]`       | View    | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br\> ![ba] can request any length  | `leven`  |
+| `-search [query]`            | View    | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br/> ![ba] can request 1 word queries | None     |
+| `-levenshtein [query]`       | View    | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br/> ![ba] can request any length  | `leven`  |
 | `-searchid [text_id]`        | View    | Returns text matching specified `text_id`. ![mu]                                                                                                        | `id`     |
 | `-unixreference <timestamp>` | View    | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table.                     | `unix`   |
-| `-serverinfo`                | View    | Returns basic information about the server the bot is in.                                                                                               |  `sinfo` |
+| `-serverinfo`                | View    | Returns basic information about the server the bot is in. ![bo]                                                                                         |  `sinfo` |
 
-[mu]: https://img.shields.io/badge/-multiverse-blue
-[li]: https://img.shields.io/badge/-link-blue
-[ba]: https://img.shields.io/badge/-bot%20admins-blue
-[bo]: https://img.shields.io/badge/-bot%20owners-blue
+[mu]: https://img.shields.io/badge/-multiverse-d3d3d3
+[li]: https://img.shields.io/badge/-link-ffcc00
+[ba]: https://img.shields.io/badge/-bot%20admins-ff4500
+[bo]: https://img.shields.io/badge/-bot%20owners-800080
 
 ## Credits
 Thank you to:
