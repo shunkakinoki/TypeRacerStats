@@ -29,6 +29,20 @@ Configuration commands allow server admins to change the bot's prefix and users 
 
 ### Basic
 Basic commands do not require a user's information to be downloaded to provide statistics.
+| Name                                                 | Example | Function                                                                                             | Aliases                          |
+|:-----------------------------------------------------|:--------|------------------------------------------------------------------------------------------------------|----------------------------------|
+| `-stats [user]`                                      | View    | Returns basic stats for given user. ![mu] ![li]                                                      | `prof`, `profile`                |
+| `-getdata [user]`                                    | View    | Downloads given user's data; **Advanced** commands may be used after. ![li]                          | `dl`, `gd`, `download,`          |
+| `-today [user] <date>`                               | View    | Downloads given user's data for specified date. `yesterday`, `yday`, `yd` are special aliases. ![li] | `day`, `yesterday`, `yday`, `yd` |
+| `-realspeed [user] <race_num>` or `-realspeed [url]` | View    | Returns (realspeeds)[https://bit.ly/typeracerspeeds] for given race. ![mu] ![li]                     | `rs`                             |
+| `-realspeedaverage [user] <first_race> <last_race>`  | View    | Returns the realspeed average for given race interval. `rsa*` is a special alias. ![mu] ![li]        | `rsa`, `rsa*`                    |
+| `-raw [user] <race_num>` or `-raw [url]`             | View    | Returns realspeeds and _raw_ speed (speed with correction time omitted) for given race. ![mu] ![li]  | None                             |
+| `-lastrace [user] <race_num>` or `-lastrace [url]`   | View    | Returns all users' realspeeds ranked by unlagged for given race. ![mu] ![li]                         | `lr`, `last`                     |
+| `-leaderboard [category] <amount>`                   | View    | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`.               | `lb`                             |
+| `-competition <category>`                            | View    | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu] | `comp`                           |
+| `-lastonline [user]`                                 | View    | Returns the last time a user played. ![mu] ![li]                                                     | `lo`, `ls`, `lastseen`           |
+| `-medals [user]`                                     | View    | Returns the medals a user has. ![li]                                                                 | None                             |
+| `-toptens [user]`                                    | View    | Returns the number of text top 10s a user holds. ![li]<br/> ![ba] can request JSON breakdowns.       | `10`, `10*`, `toptens*`          |
 
 ### Advanced (all require `-getdata`)
 
@@ -40,12 +54,11 @@ Other commands provide resources, information, and links related to TypeRacer.
 | `-levenshtein [query]`       | View    | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br/> ![ba] can request any length  | `leven`  |
 | `-searchid [text_id]`        | View    | Returns text matching specified `text_id`. ![mu]                                                                                                        | `id`     |
 | `-unixreference <timestamp>` | View    | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table.                     | `unix`   |
-| `-serverinfo`                | View    | Returns basic information about the server the bot is in. ![bo]                                                                                         |  `sinfo` |
+| `-serverinfo`                | View    | Returns basic information about the server the bot is in.                                                                                               |  `sinfo` |
 
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00
 [ba]: https://img.shields.io/badge/-bot%20admins-ff4500
-[bo]: https://img.shields.io/badge/-bot%20owners-800080
 
 ## Credits
 Thank you to:
