@@ -48,7 +48,6 @@ class TextStats(commands.Cog):
             for row in user_data:
                 count += 1
                 sum_ += row[2]
-            print(sum_ / count)
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
