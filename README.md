@@ -24,8 +24,8 @@ Finally, some commands' functionalities are limited according to the bot permiss
 
 [1]: https://i.gyazo.com/7919a19d1eb053d688e332835b1cd8ce.gif
 [2]: https://i.gyazo.com/94e63c59b8b7210a55ce805f5b9f08ed.gif
-[3]: https://i.stack.imgur.com/k57NK.png
-[4]: https://i.stack.imgur.com/k57NK.png
+[3]: https://i.gyazo.com/4230b88a0e45ba53817617a8a5205fc0.gif
+[4]: https://i.gyazo.com/077bbf46a86925f9c75071e86c256ec3.gif
 
 ### Configuration
 <details>
