@@ -20,12 +20,12 @@ Info commands provide information for the bot.
 
 ### Configuration
 Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.
-| Name                             | Example | Function                                                                                     | Aliases |
-|:---------------------------------|:-------:|----------------------------------------------------------------------------------------------|---------|
-| `-changeprefix [prefix]`         | View    | Changes the bot's prefix on the server.                                                      | `cp`    |
-| `-register [typeracer_username]` | View    | Links Discord account to TypeRacer account. [mu]                                             | `link`  |
-| `-setuniverse [universe]`        | View    | Links Discord account to provided TypeRacer universe; defaults to `play` universe. [mu] [li] | `su`    |
-| `-toggledessle`                  | View    | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. [li] | `tg`    |
+| Name                             | Example | Function                                                                                       | Aliases |
+|:---------------------------------|:-------:|------------------------------------------------------------------------------------------------|---------|
+| `-changeprefix [prefix]`         | View    | Changes the bot's prefix on the server.                                                        | `cp`    |
+| `-register [typeracer_username]` | View    | Links Discord account to TypeRacer account. ![mu]                                              | `link`  |
+| `-setuniverse [universe]`        | View    | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su`    |
+| `-toggledessle`                  | View    | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li]  | `tg`    |
 
 ### Basic
 Basic commands do not require a user's information to be downloaded to provide statistics.
