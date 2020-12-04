@@ -33,11 +33,18 @@ Basic commands do not require a user's information to be downloaded to provide s
 ### Advanced
 
 ### Other
+| Name                         | Example | Function                                                                                                                                                | Aliases  |
+|:-----------------------------|:-------:|---------------------------------------------------------------------------------------------------------------------------------------------------------|----------|
+| `-search [query]`            | View    | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br\> ![ba] can request 1 word queries | None     |
+| `-levenshtein [query]`       | View    | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br\> ![ba] can request any length  | `leven`  |
+| `-searchid [text_id]`        | View    | Returns text matching specified `text_id`. ![mu]                                                                                                        | `id`     |
+| `-unixreference <timestamp>` | View    | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table.                     | `unix`   |
+| `-serverinfo`                | View    | Returns basic information about the server the bot is in.                                                                                               |  `sinfo` |
 
 [mu]: https://img.shields.io/badge/-multiverse-blue
 [li]: https://img.shields.io/badge/-link-blue
-[ba]: https://img.shields.io/badge/-bot%20admin-blue
-[bo]: https://img.shields.io/badge/-bot%20owner-blue
+[ba]: https://img.shields.io/badge/-bot%20admins-blue
+[bo]: https://img.shields.io/badge/-bot%20owners-blue
 
 ## Credits
 Thank you to:
