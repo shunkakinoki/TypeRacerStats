@@ -1,4 +1,4 @@
-## TypeRacerStats
+# TypeRacerStats
 **TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/), and was made with the [**Discord.py API**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in `requirements.txt`). It comes with over 35 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
 
 
@@ -35,7 +35,7 @@ Basic commands do not require a user's information to be downloaded to provide s
 | `-getdata [user]`                                    | View    | Downloads given user's data; **Advanced** commands may be used after. ![li]                                | `dl`, `gd`, `download,`          |
 | `-today [user] <date>`                               | View    | Downloads given user's data for specified date. `yesterday`, `yday`, `yd` are special aliases. ![li]       | `day`, `yesterday`, `yday`, `yd` |
 | `-realspeed [user] <race_num>` or `-realspeed [url]` | View    | Returns [realspeeds](https://bit.ly/typeracerspeeds) for given race. ![mu] ![li]                           | `rs`                             |
-| `-realspeedaverage [user] <first_race> <last_race>`  | View    | Returns the realspeed average for given race interval. <br\>![ba] may request up to 150 races. ![mu] ![li] | `rsa`, `rsa*`                    |
+| `-realspeedaverage [user] <first_race> <last_race>`  | View    | Returns the realspeed average for given race interval. <br/>![ba] may request up to 150 races. ![mu] ![li] | `rsa`, `rsa*`                    |
 | `-raw [user] <race_num>` or `-raw [url]`             | View    | Returns realspeeds and _raw_ speed (speed with correction time omitted) for given race. ![mu] ![li]        | None                             |
 | `-lastrace [user] <race_num>` or `-lastrace [url]`   | View    | Returns all users' realspeeds ranked by unlagged for given race. ![mu] ![li]                               | `lr`, `last`                     |
 | `-leaderboard [category] <amount>`                   | View    | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`.                     | `lb`                             |
