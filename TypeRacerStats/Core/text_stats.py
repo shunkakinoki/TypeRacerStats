@@ -75,7 +75,9 @@ class TextStats(commands.Cog):
 
         embed.add_field(name = 'Texts',
                         value = (f"**Texts:** {f'{count:,}'}\n"
-                                 f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'}"))
+                                 f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'} ("
+                                 f"{f'{round(count * (5 - (sum_ / count) % 5), 2):,}'} total WPM gain "
+                                 f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"))
 
         value = ''
         for i, text in enumerate(top):
