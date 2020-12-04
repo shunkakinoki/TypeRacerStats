@@ -35,14 +35,12 @@ Finally, some commands' functionalities are limited according to the bot permiss
 |:-----|:-------:|----------|---------|
 | `-changeprefix [prefix]` | <details><summary>View</summary>![5]</details> | Changes the bot's prefix on the server. | `cp` |
 | `-register [typeracer_username]` | <details><summary>View</summary>![6]</details> | Links Discord account to TypeRacer account. ![mu] | `link` |
-| `-setuniverse [universe]` | <details><summary>View</summary>![7]</details> | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
-| `-toggledessle` | <details><summary>View</summary>![8]</details> | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
+| `-setuniverse [universe]` | None | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
+| `-toggledessle` | None | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
 </details>
 
 [5]: https://i.gyazo.com/9275dda7a232b24f7e9acd162b6b43a2.gif
 [6]: https://i.gyazo.com/4188c85795923471f4276b2ea8b12909.gif
-[7]: https://i.gyazo.com/cbc270b15266f3bf62ea06891b59b3e0.gif
-[8]: https://i.gyazo.com/1cdf514bf964535d47796132eb94b3dd.gif
 
 ### Basic
 <details>
@@ -83,24 +81,41 @@ Finally, some commands' functionalities are limited according to the bot permiss
 
 | Name | Example | Function | Aliases |
 |:-----|:-------:|----------|---------|
-| `-top [user] [wpm/points]` | View    | Returns user's top 10 races sorted by specified category. ![li] | `best` |
-| `-worst [user] [wpm/points]` | View    | Returns user's worst 10 races sorted by specified cateogry. ![li] | `bottom` |
-| `-racedetails [user]` | View    | Returns detailed breakdown of user's races. ![li] | `rd` |
-| `-textbests [user]` | View    | Returns user's top 5 texts, worst 5 texts, and text bests average (average of best in each text). ![li] | `tb` |
-| `-personalbest [user] <text_ID>` | View    | Returns user's average, best, and worst on specified `text_id`. Defaults to last-raced text if none provided. ![li] | `pb` |
-| `-unraced [user] <length>` | View    | Returns 5 randomly unraced texts under `length` characters. ![li] | `ur` |
-| `-textsunder [user] [wpm] <length>` | View    | Returns 5 randomly raced texts under `wpm` wpm and `length` characters. ![li] | `tu` |
-| `-textslessequal [user] [num] [wpm/points/times]` | View    | Returns number of texts typed more than or equal to `num` in specified category. | `tle`, `tor`, `to` |
-| `-racesover [user] [num] [wpm/points]` | View    | Returns number of races greater than `num` in specified category. | `ro` |
-| `-milestone [user] [num] [races/points/wpm]` | View    | Returns the time it took for user to achieve specified milestone. | `ms` |
-| `-marathon [user] <seconds>` | View    | Returns the most races a user completed in `seconds` seconds and its breakdown; defaults to 86400 (1 day). ![li] | `42` |
-| `-sessionstats [user] <seconds>` | View    | Returns the longest session a user completed with breaks at most `seconds` seconds; defaults to 1800 (30 mins.). ![li] | `ss` |
-| `-fastestcompletion [user] [num_races]` | View    | Returns the fastest a user completed `num_races` races and its breakdown. ![li] | `fc` |
-| `-boxplot [user] <user_2> ... <user_4>` | View    | Returns WPM boxplot of given user(s). Outliers are removed. ![li] | `bp` |
-| `-histogram [user]` | View    | Returns WPM boxplot of given user. ![li] | `hg` |
-| `-raceline [user] <user_2> ... <user_10>` | View    | Returns races over time graph for given user(s). ![li] | `rl` |
-| `-improvement [user] <time/races>` | View    | Returns WPM over specified category for given user. ![li] | `imp` |
+| `-top [user] [wpm/points]` | <details><summary>View</summary>![21]</details> | Returns user's top 10 races sorted by specified category. ![li] | `best` |
+| `-worst [user] [wpm/points]` | <details><summary>View</summary>![22]</details> | Returns user's worst 10 races sorted by specified cateogry. ![li] | `bottom` |
+| `-racedetails [user]` | <details><summary>View</summary>![23]</details> | Returns detailed breakdown of user's races. ![li] | `rd` |
+| `-textbests [user]` | <details><summary>View</summary>![24]</details> | Returns user's top 5 texts, worst 5 texts, and text bests average (average of best in each text). ![li] | `tb` |
+| `-personalbest [user] <text_ID>` | <details><summary>View</summary>![25]</details>| Returns user's average, best, and worst on specified `text_id`. Defaults to last-raced text if none provided. ![li] | `pb` |
+| `-unraced [user] <length>` | <details><summary>View</summary>![26]</details> | Returns 5 randomly unraced texts under `length` characters. ![li] | `ur` |
+| `-textsunder [user] [wpm] <length>` | <details><summary>View</summary>![26]</details> | Returns 5 randomly raced texts under `wpm` wpm and `length` characters. ![li] | `tu` |
+| `-textslessequal [user] [num] [wpm/points/times]` | <details><summary>View</summary>![27]</details> | Returns number of texts typed more than or equal to `num` in specified category. | `tle`, `tor`, `to` |
+| `-racesover [user] [num] [wpm/points]` | <details><summary>View</summary>![28]</details> | Returns number of races greater than `num` in specified category. | `ro` |
+| `-milestone [user] [num] [races/points/wpm]` | <details><summary>View</summary>![29]</details> | Returns the time it took for user to achieve specified milestone. | `ms` |
+| `-marathon [user] <seconds>` | <details><summary>View</summary>![30]</details> | Returns the most races a user completed in `seconds` seconds and its breakdown; defaults to 86400 (1 day). ![li] | `42` |
+| `-sessionstats [user] <seconds>` | <details><summary>View</summary>![31]</details> | Returns the longest session a user completed with breaks at most `seconds` seconds; defaults to 1800 (30 mins.). ![li] | `ss` |
+| `-fastestcompletion [user] [num_races]` | <details><summary>View</summary>![32]</details> | Returns the fastest a user completed `num_races` races and its breakdown. ![li] | `fc` |
+| `-boxplot [user] <user_2> ... <user_4>` | <details><summary>View</summary>![33]</details> | Returns WPM boxplot of given user(s). Outliers are removed. ![li] | `bp` |
+| `-histogram [user]` | <details><summary>View</summary>![34]</details> | Returns WPM boxplot of given user. ![li] | `hg` |
+| `-raceline [user] <user_2> ... <user_10>` | <details><summary>View</summary>![35]</details> | Returns races over time graph for given user(s). ![li] | `rl` |
+| `-improvement [user] <time/races>` | <details><summary>View</summary>![36]</details> | Returns WPM over specified category for given user. ![li] | `imp` |
 </details>
+
+[21]: https://i.gyazo.com/ed78ac261df7c06800c3cb52d1143b5e.gif
+[22]: https://i.gyazo.com/b700e5d1b752f552aad52fec30ec228c.gif
+[23]: https://i.gyazo.com/c2de466dcbcd6143704697ddba247001.gif
+[24]: https://i.gyazo.com/fdfe1c85943ea50709d5825ae7f5a58b.gif
+[25]: https://i.gyazo.com/70ba8338ecc7ff58b3a56ece46e68e37.gif
+[26]: https://i.gyazo.com/dedde1e179d364548934413be9cda3f9.gif
+[27]: https://i.gyazo.com/756f5040a1d019ca732a502d4d5051c8.gif
+[28]: https://i.gyazo.com/17bc59f72c26b1df64b79bb1365be749.gif
+[29]: https://i.gyazo.com/ffb483570dde1dc47337b095ef86f36a.gif
+[30]: https://i.gyazo.com/909410d45e798dba78aaf02bc017c2e9.gif
+[31]: https://i.gyazo.com/3596d5d980fc0518a5fa01f6462793ba.gif
+[32]: https://i.gyazo.com/5a89a2095bf833ee3e476da9d363d438.gif
+[33]: https://i.gyazo.com/a67596d807a5a9881dacdc5e4c102ca9.gif
+[34]: https://i.gyazo.com/4ca36e72ee226a9fad83dc2f8708410e.gif
+[35]: https://i.gyazo.com/4044245afb72e666cbad0d88a78d968e.gif
+[36]: https://i.gyazo.com/79d467b13a1717a4db59d80a064c2199.gif
 
 ### Other
 <details>
@@ -108,12 +123,18 @@ Finally, some commands' functionalities are limited according to the bot permiss
 
 | Name | Example | Function | Aliases |
 |:-----|:-------:|----------|---------|
-| `-search [query]` | View    | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br/> ![ba] can request 1 word queries | None |
-| `-levenshtein [query]` | View    | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br/> ![ba] can request any length | `leven` |
-| `-searchid [text_id]` | View    | Returns text matching specified `text_id`. ![mu] | `id` |
-| `-unixreference <timestamp>` | View    | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table. | `unix` |
-| `-serverinfo` | View    | Returns basic information about the server the bot is in. | `sinfo` |
+| `-search [query]` | <details><summary>View</summary>![37]</details> | Returns quotes containing given search query; each query must be at least 3 words long; query is case insensitive<br/> ![ba] can request 1 word queries | None |
+| `-levenshtein [query]` | <details><summary>View</summary>![38]</details> | Returns top 5 quotes with substring containing the least Levenshtein to given query; query must be at most 40 chars.<br/> ![ba] can request any length | `leven` |
+| `-searchid [text_id]` | <details><summary>View</summary>![39]</details> | Returns text matching specified `text_id`. ![mu] | `id` |
+| `-unixreference <timestamp>` | <details><summary>View</summary>![40]</details> | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table. | `unix` |
+| `-serverinfo` | <details><summary>View</summary>![41]</details> | Returns basic information about the server the bot is in. | `sinfo` |
 </details>
+
+[37]: https://i.gyazo.com/43f4e11b8a7ec6e7a3b1bdb99868d217.gif
+[38]: https://i.gyazo.com/e3c7ccbdf2a24a71c7d80b714c311410.gif
+[39]: https://i.gyazo.com/8a9e7a14e565c5778fdf219740aa5345.gif
+[40]: https://i.gyazo.com/1877d7ab9da0ae4744abc3f1882477b5.gif
+[41]: https://i.gyazo.com/ef08e87d9584a2f9eaba14c6aa0c6ad6.gif
 
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00
