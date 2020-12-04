@@ -3,7 +3,20 @@
 
 
 ## Commands
-Some commands are _multiverse_, which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected. Another feature that some commands have are the ability to _link_ your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command. Finally, some commands' functionalities are limited according to the bot permissions a user has: regular, bot admin, or bot owner.
+Some commands are _multiverse_, which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected.
+
+Another feature that some commands have is the ability to _link_ your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command.
+
+Finally, some commands' functionalities are limited according to the bot permissions a user has: regular, bot admin, or bot owner.
+
+### Info
+Info commands provide information for the bot.
+| Name              | Example    | Function                                                                                               | Aliases        |
+|:------------------|------------|--------------------------------------------------------------------------------------------------------|----------------|
+| `-help [command]` | `-help rs` | Returns information for given command. Case sensitive and aliases may be used in place of `[command]`. | `h`            |
+| `-info`           | `-info`    | Returns information about the bot.                                                                     | `abt`, `about` |
+| `-invite`         | `-invite`  | Returns an invite link for the bot. Refer to the **Invite/Permissions** section below for permissions. | None           |
+| `-donate`         | `-donate`  | Returns donation link to support the bot.                                                              | `support`      |
 
 ### Configuration
 Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.
@@ -15,6 +28,10 @@ Basic commands do not require a user's information to be downloaded to provide s
 
 ### Other
 
+[mu]: https://img.shields.io/badge/-multiverse-blue
+[li]: https://img.shields.io/badge/-link-blue
+[ba]: https://img.shields.io/badge/-bot%20admin-blue
+[bo]: https://img.shields.io/badge/-bot%20owner-blue
 
 ## Credits
 Thank you to:
