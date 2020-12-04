@@ -1,10 +1,10 @@
 <h1 align = 'center'>TypeRacerStats</h1>
 
-**TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/), and was made with the [**Discord.py API**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in `requirements.txt`). It comes with over 35 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
+**TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/) and was made with the [**Discord.py API**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in [`requirements.txt`](https://github.com/e6f4e37l/TypeRacerStats/blob/main/requirements.txt)). It comes with over 40 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
 
 
 ## Commands
-Some commands are ![mu], which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected.
+Some commands are ![mu], which means they provide statistics regardless of the TypeRacer universe—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected.
 
 Another feature that some commands have is the ability to ![li] your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command.
 
@@ -139,6 +139,14 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00
 [ba]: https://img.shields.io/badge/-bot%20admins-ff4500
+
+
+## Maintenance
+There are three things the bot must do to keep the data and itself maintained. All of these are done automatically and routinely by the bot in the background, so the bot remains 100% functional while the processes take place. These processes can be found in [`TypeRacerStats/TypeRacerStats/Core/Common/maintenance.py`](https://github.com/e6f4e37l/TypeRacerStats/blob/main/TypeRacerStats/Core/Common/maintenance.py).
+1. Update TypeRacer users' data every 24 hours even if they have not called `-getdata` that day.
+2. Drop the temporary tables created from `-today` and `-competition` calls every 24 hours.
+3. Scrape all text pit stop pages for texts' top 10 data once a week.
+
 
 ## Credits
 Thank you to:
