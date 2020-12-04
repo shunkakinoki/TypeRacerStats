@@ -3,13 +3,17 @@
 
 
 ## Commands
-The commands can be broken down into three categories:
+Some commands are _multiverse_, which means they provide statistics regardless of the TypeRacer—separate environments of TypeRacer with distinct texts, leaderboards, and scores—selected. Another feature that some commands have are the ability to _link_ your Discord account to a TypeRacer account; for commands with said feature, linked users will not have to type their TypeRacer username every time. This can be done using the `-link [typeracer_username]` command. Finally, some commands' functionalities are limited according to the bot permissions a user has: regular, bot admin, or bot owner.
+
+### Configuration
+Configuration commands allow server admins to change the bot's prefix and users to configure the settings of their Discord account with regards to the bot.
 
 ### Basic
+Basic commands do not require a user's information to be downloaded to provide statistics.
 
 ### Advanced
 
-## Other
+### Other
 
 
 ## Credits
@@ -19,7 +23,7 @@ Thank you to:
 
 
 ## Invite/Permissions
-The bot can be invited into any server using [this link](https://discord.com/api/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot). The default prefix is `-`, and it can be changed with `-changeprefix [prefix]`.
+The bot can be invited using [this link](https://discord.com/api/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot). The default prefix is `-`, and it can be changed with `-changeprefix [prefix]`.
 ### Text Permissions
 - [x] Send Messages
 - [x] Embed Links
