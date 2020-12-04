@@ -1,5 +1,6 @@
 import datetime
 import json
+import os
 import sqlite3
 import sys
 import time
@@ -7,8 +8,8 @@ from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR, NUMBERS
-from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH
+from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, NUMBERS
+from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information, check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
@@ -243,6 +244,8 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
+        is_admin = user_id in BOT_OWNER_IDS
+        send_json = is_admin and ctx.invoked_with[-1] == '*'
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -255,10 +258,27 @@ class BasicStats(commands.Cog):
         player = args[0].lower()
         with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
             player_top_tens = json.load(jsonfile)
+        last_updated = float(player_top_tens['last updated'])
+
+        if send_json:
+            if player == '*':
+                await ctx.send(file = discord.File(TOPTENS_JSON_FILE_PATH, f"top_ten_{last_updated}.json"))
+                return
+
+            subset = dict()
+            with open(TOPTENS_JSON_FILE_PATH, 'r') as jsonfile:
+                top_tens = json.load(jsonfile)
+            for item, value in top_tens.items():
+                if player in value.values():
+                    subset.update({item: value})
+            with open('temporary.json', 'w') as jsonfile:
+                json.dump(subset, jsonfile)
+            await ctx.send(file = discord.File('temporary.json', f"top_ten_{player}_{last_updated}.json"))
+            os.remove('temporary.json')
+            return
 
         try:
             player_data = player_top_tens[player]
-            last_updated = float(player_top_tens['last updated'])
         except KeyError:
             embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
                                   color = discord.Color(MAIN_COLOR),

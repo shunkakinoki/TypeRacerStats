@@ -259,7 +259,7 @@
                 "example": "poem",
                 "alt_example": []
             },
-            "aliases": ["10"],
+            "aliases": ["10", "10*", "toptens*"],
             "linked": true
         }
     ],
