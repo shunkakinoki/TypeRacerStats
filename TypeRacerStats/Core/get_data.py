@@ -113,7 +113,7 @@ class GetData(commands.Cog):
 
         if len(args) == 0: args = check_account(user_id)(args)
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
-        if ctx.invoked_with.lower() == 'yesterday':
+        if ctx.invoked_with.lower() in ['yesterday', 'yday', 'yd']:
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
             if len(args) > 1:
                 await ctx.send(content = f"<@{user_id}>",
@@ -149,6 +149,7 @@ class GetData(commands.Cog):
                                     .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
                                     "doesn't exist")))
             return
+
         urls = [Urls().get_races(player, 'play', 1)]
         try:
             api_response = await fetch(urls, 'json')

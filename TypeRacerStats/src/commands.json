@@ -119,7 +119,7 @@
                     }
                 ]
             },
-            "aliases": ["day", "yesterday"],
+            "aliases": ["day", "yesterday", "yd", "yday"],
             "linked": true
         },
         {
