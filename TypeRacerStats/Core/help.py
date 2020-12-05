@@ -70,22 +70,18 @@ class Help(commands.Cog):
             self.info_embed.add_field(name = paragraph[0], value = paragraph[1], inline = False)
         self.info_embed.set_footer(text = info[-1])
 
-    def create_invite_embed(self, bot, message):
-        command_prefix = get_prefix(bot, message)
-
+    def create_invite_embed(self):
         guilds = self.bot.guilds
         server_count = len(guilds)
         people_count = sum([i.member_count for i in guilds])
 
         self.invite_embed = discord.Embed(title = "TypeRacerStats Invite Link",
                                           color = discord.Color(0),
-                                          description = f"[**Invite Link**](https://discord.com/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot)")
+                                          description = '[**Invite Link**](https://discord.com/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot)')
         self.invite_embed.add_field(name = 'Stats',
                                     value = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers")
 
-    def create_donate_embed(self, bot, message):
-        command_prefix = get_prefix(bot, message)
-
+    def create_donate_embed(self):
         description = '[**Star on GitHub ⭐**](https://github.com/e6f4e37l/TypeRacerStats)\n'
         description += '[**Vote for TypeRacerStats on `top.gg` 🗳️**](https://top.gg/bot/742267194443956334)\n'
         description += '[**Support on PayPal ❤️**](https://www.paypal.me/e3e2)'
@@ -117,14 +113,14 @@ class Help(commands.Cog):
 
     @commands.command(aliases = get_aliases('invite'))
     async def invite(self, ctx, *args):
-        self.create_invite_embed(ctx, ctx.message)
+        self.create_invite_embed()
 
         if len(args) != 0: return
         await ctx.send(embed = self.invite_embed)
 
     @commands.command(aliases = get_aliases('donate'))
     async def donate(self, ctx, *args):
-        self.create_donate_embed(ctx, ctx.message)
+        self.create_donate_embed()
 
         if len(args) != 0: return
         await ctx.send(embed = self.donate_embed)

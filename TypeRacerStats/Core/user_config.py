@@ -20,6 +20,12 @@ class UserConfig(commands.Cog):
     @commands.command(aliases = get_aliases('changeprefix'))
     @commands.check(lambda ctx: ctx.message.author.guild_permissions.administrator)
     async def changeprefix(self, ctx, prefix):
+        if len(prefix) > 14:
+            await ctx.send(f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('`prefix` can not be longer than 14 characters'))
+            return
+
         prefixes = load_prefixes()
         prefixes[str(ctx.guild.id)] = prefix
         update_prefixes(prefixes)

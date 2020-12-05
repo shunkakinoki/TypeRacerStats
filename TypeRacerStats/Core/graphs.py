@@ -165,14 +165,17 @@ class Graphs(commands.Cog):
         data_x, data_y = [], []
         try:
             for user in args:
+                temp_x, temp_y, first_gn = [], [], 1
                 if opt:
                     user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt * 1_000_000_000}")
+                    first_t, first_gn = user_data.fetchone()
+                    temp_x.append(first_t)
+                    temp_y.append(1)
                 else:
                     user_data = c.execute(f"SELECT t, gn FROM t_{user}")
-                temp_x, temp_y = [], []
                 for i in user_data:
                     temp_x.append(i[0])
-                    temp_y.append(i[1])
+                    temp_y.append(i[1] - first_gn + 1)
                 data_x.append(temp_x)
                 data_y.append(temp_y)
         except sqlite3.OperationalError:
@@ -198,7 +201,10 @@ class Graphs(commands.Cog):
                                    .missing_information('No users had races specified time interval'))
             return
 
-        ax.set_title('Races Over Time')
+        title = 'Races Over Time'
+        if opt:
+            title += f"\n(Since {opt}e9 UNIX Timestamp)"
+        ax.set_title(title)
         ax.set_xlabel('Date (UNIX Timestamp)')
         ax.set_ylabel('Races')
         plt.grid(True)
@@ -267,7 +273,6 @@ class Graphs(commands.Cog):
             sma = length // 15
         else:
             sma = 500
-        fragment = length % sma
         moving_y = [sum(data_y[0:sma]) / sma]
         moving_y += [sum(data_y[i - sma:i]) / sma for i in range(sma, length)]
         moving_x = [data_x[0]] + data_x[sma:]
