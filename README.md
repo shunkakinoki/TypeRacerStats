@@ -77,7 +77,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [18]: https://i.gyazo.com/e8947d78fce9a17a980c7cd16d0a610e.gif
 [19]: https://i.gyazo.com/baae841b5b8be620a294fd33fdf36669.gif
 [20]: https://i.gyazo.com/320321451eefcff121f21683b3e5caa6.gif
-[42]: https://i.gyazo.com/320321451eefcff121f21683b3e5caa6.gif
+[42]: https://i.gyazo.com/4f2ab33bdc58eb73d8880a3d49699dd3.gif
 
 ### Advanced (all require `-getdata`)
 <details>
