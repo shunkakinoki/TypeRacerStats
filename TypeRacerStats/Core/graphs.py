@@ -239,16 +239,13 @@ class Graphs(commands.Cog):
 
         length = len(data_x)
         if length < 5000:
-            sma = length // 10
+            sma = length // 15
         else:
             sma = 500
         fragment = length % sma
-        moving_y = [sum(data_y[i:i + sma]) / sma for i in range(0, length - fragment - sma)]
-        moving_x = data_x[:-fragment - sma] + [data_x[-1]]
-        if fragment:
-            moving_y += [sum(data_y[-fragment:]) / fragment]
-        else:
-            moving_y += [sum(data_y[-sma:]) / sma]
+        moving_y = [sum(data_y[0:sma]) / sma]
+        moving_y += [sum(data_y[i - sma:i]) / sma for i in range(sma, length)]
+        moving_x = [data_x[0]] + data_x[sma:]
 
         ax = plt.subplots()[1]
         ax.scatter(data_x, data_y, marker = '.', alpha = 0.1, color = '#000000')
