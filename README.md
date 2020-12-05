@@ -35,12 +35,14 @@ Finally, some commands' functionalities are limited according to the bot permiss
 |:-----|:-------:|----------|---------|
 | `-changeprefix [prefix]` | <details><summary>View</summary>![5]</details> | Changes the bot's prefix on the server. | `cp` |
 | `-register [typeracer_username]` | <details><summary>View</summary>![6]</details> | Links Discord account to TypeRacer account. ![mu] | `link` |
-| `-setuniverse [universe]` | None | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
-| `-toggledessle` | None | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
+| `-setuniverse [universe]` | <details><summary>View</summary>![7]</details> | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
+| `-toggledessle` | <details><summary>View</summary>![8]</details> | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
 </details>
 
 [5]: https://i.gyazo.com/9275dda7a232b24f7e9acd162b6b43a2.gif
 [6]: https://i.gyazo.com/4188c85795923471f4276b2ea8b12909.gif
+[7]: https://i.gyazo.com/b4c3cc88b55a6c27a02cd1aa109c02b2.gif
+[8]: https://i.gyazo.com/68a0af23c3f57f33f8d9337567647e07.gif
 
 ### Basic
 <details>

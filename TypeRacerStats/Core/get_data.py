@@ -112,14 +112,22 @@ class GetData(commands.Cog):
         user_id = ctx.message.author.id
 
         if len(args) == 0: args = check_account(user_id)(args)
+
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
+
         if ctx.invoked_with.lower() in ['yesterday', 'yday', 'yd']:
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
-            if len(args) > 1:
+            if len(args) > 1 or len(args) == 0:
                 await ctx.send(content = f"<@{user_id}>",
                                embed = Error(ctx, ctx.message)
                                        .parameters(f"{ctx.invoked_with} [user]"))
                 return
+
+        if len(args) == 0 or len(args) > 2:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user] <yyyy-mm-dd>"))
+            return
 
         if len(args) == 2:
             try:
@@ -135,12 +143,6 @@ class GetData(commands.Cog):
                                embed = Error(ctx, ctx.message)
                                        .incorrect_format('`date` must be in the yyyy-mm-dd format'))
                 return
-
-        if len(args) == 0 or len(args) > 2:
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user] <yyyy-mm-dd>"))
-            return
 
         player = args[0].lower()
         if escape_sequence(player):
