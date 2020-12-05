@@ -160,7 +160,7 @@ class Texts(commands.Cog):
         embed = discord.Embed(title = ("Texts With Smallest Levenshtein Distance "
                                        f"to \"{query}\" (Length = {query_length})" ),
                               color = discord.Color(MAIN_COLOR))
-        for i, cur in enumerate(levenshtein_sorted):
+        for cur in levenshtein_sorted:
             min_index = cur[4]
             text = cur[1]
 
@@ -171,8 +171,8 @@ class Texts(commands.Cog):
                               f"**{text[min_index + query_length:]}")
 
             value_1 = f"\"{formatted}\" "
-            value_2 = (f"[{TR_INFO}]({Urls().text(texts[i][0])}) "
-                        f"[{TR_GHOST}]({texts[i][2]})")
+            value_2 = (f"[{TR_INFO}]({Urls().text(cur[0])}) "
+                        f"[{TR_GHOST}]({cur[2]})")
             value = value_1 + value_2
             if len(value) > 1024:
                 value_1 = value_1[0:1019 - len(value_2)]

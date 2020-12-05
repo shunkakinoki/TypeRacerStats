@@ -13,7 +13,8 @@ def check_account(discord_id):
     accounts = load_accounts()
 
     try:
-        return lambda x: (accounts[str(discord_id)]['main'],) + x
+        account = accounts[str(discord_id)]['main']
+        return lambda x: (account,) + x
     except KeyError:
         return lambda x: x
 

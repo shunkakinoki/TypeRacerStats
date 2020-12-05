@@ -123,7 +123,11 @@ class AdvancedStats(commands.Cog):
             races += 1
             words_typed += texts_length[text_id]['word count']
             chars_typed += texts_length[text_id]['length']
-            time_spent += 12 * texts_length[text_id]['length'] / first_race[3]
+            try:
+                time_spent += 12 * texts_length[text_id]['length'] / first_race[3]
+            except ZeroDivisionError:
+                races -= 1
+                pass
             if first_race[4] == 0:
                 retro += first_race[3] / 60 * texts_length[text_id]['word count']
             else:
@@ -142,7 +146,11 @@ class AdvancedStats(commands.Cog):
                     if not first_point_race:
                         first_point_race = row[1]
                     points += row[4]
-                time_spent += 12 * texts_length[text_id]['length'] / row[3]
+                try:
+                    time_spent += 12 * texts_length[text_id]['length'] / row[3]
+                except ZeroDivisionError:
+                    races -= 1
+                    pass
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",

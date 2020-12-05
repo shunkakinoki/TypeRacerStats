@@ -221,6 +221,28 @@
             "aliases": ["lr", "last"],
             "linked": true
         },
+
+        {
+            "name": "adjustedgraph",
+            "description": "Returns graph of adjusted speed over the course of given race",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <race_num>",
+                "example": "keegant 300000",
+                "alt_example": [
+                    {
+                        "usage": "keegant",
+                        "notes": "Returns given user's latest match if `race_num` is not provided"
+                    },
+                    {
+                        "usage": "https://data.typeracer.com/pit/result?id=|tr:keegant|300000",
+                        "notes": "Returns graph for given race URL"
+                    }
+                ]
+            },
+            "aliases": ["ag"],
+            "linked": true
+        },
         {
             "name": "leaderboard",
             "description": "Returns the top 10 users in a given category",

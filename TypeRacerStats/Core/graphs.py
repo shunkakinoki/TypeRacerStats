@@ -1,16 +1,20 @@
 import os
 import sqlite3
+import re
 import sys
 import time
+from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
+from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, account_information
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.formatting import escape_sequence, href_universe, num_to_text
+from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Graphs(commands.Cog):
@@ -216,7 +220,6 @@ class Graphs(commands.Cog):
                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
                                    "doesn't exist")))
             return
-        today = time.time()
 
         data_x, data_y = [], []
         conn = sqlite3.connect(DATABASE_PATH)
@@ -266,6 +269,121 @@ class Graphs(commands.Cog):
         await ctx.send(file = races_over_time_picture)
         os.remove(file_name)
         plt.close()
+        return
+
+    @commands.cooldown(5, 10, commands.BucketType.user)
+    @commands.cooldown(50, 100, commands.BucketType.default)
+    @commands.command(aliases = get_aliases('adjustedgraph'))
+    async def adjustedgraph(self, ctx, *args):
+        user_id = ctx.message.author.id
+        account = account_information(user_id)
+        universe = account['universe']
+
+        if len(args) == 0: args = check_account(user_id)(args)
+
+        if len(args) > 2 or len(args) == 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user] [race_num]` or `{ctx.invoked_with} [url]"))
+            return
+
+        if len(args) == 1:
+            try:
+                args[0].index('result?')
+                replay_url = args[0]
+                urls = [replay_url]
+            except ValueError:
+                try:
+                    player = args[0].lower()
+                    urls = [Urls().get_races(player, universe, 1)]
+                    race_api_response = await fetch(urls, 'json')
+                    last_race = race_api_response[0][0]['gn']
+                    race_api_response = race_api_response[0][0]
+                    replay_url = Urls().result(args[0], last_race, universe)
+                    urls = [replay_url]
+                except:
+                    await ctx.send(content = f"<@{user_id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .missing_information((f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
+                                                                 "doesn't exist or has no races in the "
+                                                                 f"{href_universe(universe)} universe")))
+                    return
+
+        elif len(args) == 2:
+            try:
+                replay_url = Urls().result(args[0], int(args[1]), universe)
+                urls = [replay_url]
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format('`race_num` must be a positive integer'))
+                return
+
+        try:
+            response = (await fetch(urls, 'text'))[0]
+            if not response:
+                raise KeyError
+            escapes = ''.join([chr(char) for char in range(1, 32)])
+            soup = BeautifulSoup(response, 'html.parser')
+            typinglog = re.sub('\\t\d', 'a',
+                            re.search(r'typingLog\s=\s"(.*?)";', response)
+                            .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+            times = [int(c) for c in re.findall(r"\d+", typinglog[0])][3:]
+
+            race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
+            player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
+            race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+            universe = 'play'
+            for detail in race_details:
+                cells = detail.select('td')
+                category = cells[0].text.strip()
+                if category == 'Race Number':
+                    race_number = int(cells[1].text.strip())
+                elif category == 'Universe':
+                    universe = cells[1].text.strip()
+        except:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information(('`var typingLog` was not found in the requested URL;\n'
+                                                         f"Currently linked to the {href_universe(universe)} universe\n\n")))
+            return
+
+        if universe == 'lang_ko':
+            mult = 24000
+        elif universe == 'lang_zh' or universe == 'new_lang_zh-tw' or universe == 'lang_zh-tw' or universe == 'lang_ja':
+            mult = 60000
+        else:
+            mult = 12000
+
+        data_y = []
+        total_time = 0
+        for i, time_ in enumerate(times):
+            total_time += time_
+            try:
+                data_y.append((i + 1) * mult / total_time)
+            except ZeroDivisionError:
+                pass
+
+        title_1 = f"Adjusted WPM Over {player}'s {num_to_text(race_number)} Race"
+        title = f"{title_1}\nUniverse: {universe}"
+        description = f"**Quote**\n\"{race_text[0:1008]}\""
+
+        ax = plt.subplots()[1]
+        ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
+        ax.set_title(title)
+        ax.set_xlabel('Keystrokes')
+        ax.set_ylabel('WPM')
+        plt.grid(True)
+        file_name = 'WPM Over Race.png'
+        plt.savefig(file_name)
+        plt.close()
+
+        file_ = discord.File(file_name, filename = 'image.png')
+        embed = discord.Embed(title = title_1, color = discord.Color(MAIN_COLOR), description = description, url = replay_url)
+        embed.set_image(url = 'attachment://image.png')
+        os.remove(file_name)
+
+        await ctx.send(file = file_, embed = embed)
         return
 
 def setup(bot):

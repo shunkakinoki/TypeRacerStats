@@ -188,10 +188,10 @@ class TextStats(commands.Cog):
                         value = (f"**Times:** {f'{count:,}'}\n"
                                  f"**Average:** {f'{round(sum_ / count, 2):,}'}\n"
                                  f"**Fastest:** {f'{best:,}'} WPM "
-                                 f"(Race #{f'{best_gn}'}) [:cinema:]"
+                                 f"(Race #{f'{best_gn:,}'}) [:cinema:]"
                                  f"({Urls().result(player, best_gn, 'play')})\n"
                                  f"**Slowest:** {f'{worst:,}'} WPM "
-                                 f"(Race #{f'{worst_gn}'}) [:cinema:]"
+                                 f"(Race #{f'{worst_gn:,}'}) [:cinema:]"
                                  f"({Urls().result(player, worst_gn, 'play')})\n"))
 
         await ctx.send(embed = embed)
