@@ -48,7 +48,8 @@ class GetData(commands.Cog):
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .missing_information('`user` must be a TypeRacer username'))
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist or has no races")))
             return
 
         conn = sqlite3.connect(DATABASE_PATH)
@@ -92,7 +93,8 @@ class GetData(commands.Cog):
         try:
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01, time.time())
         except UnboundLocalError:
-            data = await fetch_data(player, 'play')
+            data = await fetch_data(player, 'play', 1204243200, time.time())
+        print(data)
         c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
         conn.commit()
         conn.close()
@@ -159,7 +161,8 @@ class GetData(commands.Cog):
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .missing_information('`user` must be a TypeRacer username'))
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist or has no races")))
             return
 
         file_name = f"t_{player}_play_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')

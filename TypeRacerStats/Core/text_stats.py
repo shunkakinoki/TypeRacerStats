@@ -119,12 +119,15 @@ class TextStats(commands.Cog):
                                     "doesn't exist")))
             return
 
+        cur_wpm = -1
         if len(args) == 2:
             text_id = int(args[1])
         else:
             try:
                 urls = [Urls().get_races(player, 'play', 1)]
-                text_id = int((await fetch(urls, 'json'))[0][0]['tid'])
+                response = (await fetch(urls, 'json'))[0][0]
+                text_id = int(response['tid'])
+                cur_wpm = float(response['wpm'])
             except:
                 await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -173,15 +176,27 @@ class TextStats(commands.Cog):
             return
         conn.close()
 
+        if cur_wpm > best:
+            color, description = 754944, f"**Improved by {round(cur_wpm - best, 2)} WPM**"
+        else:
+            color, description = MAIN_COLOR, ''
+
         if not count:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .missing_information(f"**{player}** has not completed the text yet"))
             return
 
-        embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
-                              color = discord.Color(MAIN_COLOR),
-                              url = Urls().text(text_id))
+        if description:
+            embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
+                                  color = discord.Color(color),
+                                  url = Urls().text(text_id),
+                                  description = description)
+        else:
+            embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
+                                  color = discord.Color(color),
+                                  url = Urls().text(text_id))
+
         embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.add_field(name = 'Quote', value = text, inline = False)
         embed.add_field(name = 'Speeds',

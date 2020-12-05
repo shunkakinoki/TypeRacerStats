@@ -19,7 +19,7 @@ async def get_registered(player, universe, start, end):
         return api_response + await get_registered(player, universe,
                                                    start, float(api_response[-1]['t']) - 0.01)
 
-async def fetch_data(player, universe, start = 1204243200, end = time.time()):
+async def fetch_data(player, universe, start, end):
     registered_races = await get_registered(player, universe, start, end)
     if not registered_races:
         return None
