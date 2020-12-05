@@ -238,7 +238,7 @@ class Graphs(commands.Cog):
         conn.close()
 
         length = len(data_x)
-        if length < 5000:
+        if length < 7500:
             sma = length // 15
         else:
             sma = 500
