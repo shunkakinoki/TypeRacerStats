@@ -101,7 +101,7 @@ class Graphs(commands.Cog):
             for user in args:
                 title_text += f"{user} vs. "
                 user_data = c.execute(f"SELECT wpm FROM t_{user}")
-                temp = [i[0] for i in user_data.fetchall()]
+                temp = [i[0] for i in user_data]
                 data.append(temp)
         except sqlite3.OperationalError:
             conn.close()
@@ -141,12 +141,23 @@ class Graphs(commands.Cog):
             return
         today = time.time()
 
+        opt = 0
+        if len(args) > 1:
+            try:
+                args[0].index('.')
+                opt = float(args[0])
+                if opt <= 1.25 or opt > time.time() / 1_000_000_000:
+                    raise ValueError
+                args = args[1:]
+            except ValueError:
+                pass
+
         for player in args:
             if escape_sequence(player):
                 await ctx.send(content = f"<@{user_id}>",
-                               embed = Error(ctx, ctx.message)
-                                      .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                      "doesn't exist")))
+                            embed = Error(ctx, ctx.message)
+                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist")))
                 return
 
         conn = sqlite3.connect(DATABASE_PATH)
@@ -154,9 +165,12 @@ class Graphs(commands.Cog):
         data_x, data_y = [], []
         try:
             for user in args:
-                user_data = c.execute(f"SELECT t, gn FROM t_{user}")
+                if opt:
+                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt * 1_000_000_000}")
+                else:
+                    user_data = c.execute(f"SELECT t, gn FROM t_{user}")
                 temp_x, temp_y = [], []
-                for i in user_data.fetchall():
+                for i in user_data:
                     temp_x.append(i[0])
                     temp_y.append(i[1])
                 data_x.append(temp_x)
@@ -170,9 +184,20 @@ class Graphs(commands.Cog):
         conn.close()
 
         ax = plt.subplots()[1]
-        ax.plot(data_x[0] + [today], data_y[0] + [data_y[0][-1]], label = args[0])
-        for i in range(1, len(args)):
-            ax.plot(data_x[i] + [today], data_y[i] + [data_y[i][-1]], label = args[i])
+        count = 0
+        for i in range(0, len(args)):
+            try:
+                ax.plot(data_x[i] + [today], data_y[i] + [data_y[i][-1]], label = args[i])
+                count += 1
+            except IndexError:
+                pass
+
+        if not count:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information('No users had races specified time interval'))
+            return
+
         ax.set_title('Races Over Time')
         ax.set_xlabel('Date (UNIX Timestamp)')
         ax.set_ylabel('Races')

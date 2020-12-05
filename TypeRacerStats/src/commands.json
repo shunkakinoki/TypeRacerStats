@@ -535,12 +535,16 @@
             "description": "Returns WPM histogram for the given user",
             "speed": "fast",
             "usage": {
-                "general": "[user] <user_2> ... <user_10>",
+                "general": "<time> [user] <user_2> ... <user_10>",
                 "example": "keegant",
                 "alt_example": [
                     {
                         "usage": "keegant e6f4e37l deroche1 wordracer888 mark40511 chimchimchim jessegarcia lucean oneguardsam pentalon",
                         "notes": "Up to 10 users can be graphed"
+                    },
+                    {
+                        "usage": "1.5 despot e6f4e37l",
+                        "notes": "Only graphs races that were completed after `time`e9 (UNIX timestamp); `time` must be greater than 1.25 and less than the time it's called"
                     }
                 ]
             },

@@ -94,7 +94,6 @@ class GetData(commands.Cog):
             data = await fetch_data(player, 'play', last_race_timestamp + 0.01, time.time())
         except UnboundLocalError:
             data = await fetch_data(player, 'play', 1204243200, time.time())
-        print(data)
         c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
         conn.commit()
         conn.close()
