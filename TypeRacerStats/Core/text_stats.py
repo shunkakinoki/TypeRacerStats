@@ -177,7 +177,7 @@ class TextStats(commands.Cog):
         conn.close()
 
         if cur_wpm > best:
-            color, description = 754944, f"**Improved by {round(cur_wpm - best, 2)} WPM**"
+            color, description = 754944, f"**Improved by {round(cur_wpm - best, 2)} WPM (to {round(cur_wpm, 2)} WPM)**"
         else:
             color, description = MAIN_COLOR, ''
 

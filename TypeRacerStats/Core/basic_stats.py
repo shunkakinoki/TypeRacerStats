@@ -301,7 +301,7 @@ class BasicStats(commands.Cog):
 
         embed = discord.Embed(title = f"Text Top 10 Statistics for {player}",
                               color = discord.Color(MAIN_COLOR),
-                              description = f"**{f'{total}'}** text top 10s")
+                              description = f"**{f'{total:,}'}** text top 10s")
         embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.set_footer(text = f"Text top 10 data was last updated {seconds_to_text(time.time() - last_updated)} ago")
         embed.add_field(name = "Breakdown", value = breakdown, inline = False)
