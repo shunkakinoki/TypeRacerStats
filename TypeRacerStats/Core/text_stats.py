@@ -201,7 +201,7 @@ class TextStats(commands.Cog):
         embed.add_field(name = 'Quote', value = text, inline = False)
         embed.add_field(name = 'Speeds',
                         value = (f"**Times:** {f'{count:,}'}\n"
-                                 f"**Average:** {f'{round(sum_ / count, 2):,}'}\n"
+                                 f"**Average:** {f'{round(sum_ / count, 2):,}'} WPM\n"
                                  f"**Fastest:** {f'{best:,}'} WPM "
                                  f"(Race #{f'{best_gn:,}'}) [:cinema:]"
                                  f"({Urls().result(player, best_gn, 'play')})\n"

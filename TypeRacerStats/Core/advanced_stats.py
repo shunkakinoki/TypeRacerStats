@@ -79,9 +79,9 @@ class AdvancedStats(commands.Cog):
         for i, race in enumerate(user_data):
             value = f"{texts[str(race[2])]} [:cinema:]({Urls().result(player, race[0], 'play')})"
             if category == 'points':
-                name = f"{i + 1}. {race[4]} {category} (Race #{race[0]})"
+                name = f"{i + 1}. {race[4]} {category} (Race #{f'{race[0]:,}'})"
             else:
-                name = f"{i + 1}. {race[3]} {category} (Race #{race[0]})"
+                name = f"{i + 1}. {race[3]} {category} (Race #{f'{race[0]:,}'})"
             embed.add_field(name = name,
                             value = value,
                             inline = False)

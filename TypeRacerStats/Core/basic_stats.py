@@ -546,7 +546,7 @@ class BasicStats(commands.Cog):
         embed = discord.Embed(title = f"Daily Competition ({args[0]})",
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Universe:** {href_universe(universe)}",
-                              url = urls[0])
+                              url = Urls().competition('day', category, '', universe))
         embed.add_field(name = datetime.datetime.utcnow().date().strftime("%B %d, %Y"),
                         value = value)
         await ctx.send(embed = embed)

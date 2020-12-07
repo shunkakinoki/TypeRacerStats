@@ -63,7 +63,7 @@ class Graphs(commands.Cog):
         ax.set_xlabel('WPM')
         ax.set_ylabel('Frequency')
         plt.grid(True)
-        ax.set_title(f"{player}'s WPM Histogram'")
+        ax.set_title(f"{player}'s WPM Histogram")
         file_name = f"{player} WPM.png"
         plt.savefig(file_name)
         wpm_picture = discord.File(file_name, filename = file_name)
