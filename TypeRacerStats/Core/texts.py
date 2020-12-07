@@ -198,7 +198,7 @@ class Texts(commands.Cog):
 
         tid = args[0]
         urls = [Urls().text(tid)]
-        text = await fetch(urls, 'text', scrape_text)
+        text = await fetch(urls, 'read', scrape_text)
         if text[0]:
             value_1 = f"\"{text[0]}\""
             value_2 = f" [{TR_INFO}]({urls[0]})"

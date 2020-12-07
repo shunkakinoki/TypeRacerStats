@@ -89,7 +89,7 @@ async def maintain_top_tens():
                 except KeyError:
                     temp = {}
                     for j in range(1, 11):
-                        if j == 1:
+                        if j == i:
                             temp.update({j: 1})
                         else:
                             temp.update({j: 0})
