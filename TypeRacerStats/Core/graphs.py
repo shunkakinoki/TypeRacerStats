@@ -15,6 +15,7 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Graphs(commands.Cog):
@@ -303,6 +304,7 @@ class Graphs(commands.Cog):
     @commands.command(aliases = get_aliases('adjustedgraph'))
     async def adjustedgraph(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
 

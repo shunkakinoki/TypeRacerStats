@@ -13,6 +13,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_large
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class TextStats(commands.Cog):
@@ -23,6 +24,7 @@ class TextStats(commands.Cog):
     @commands.command(aliases = get_aliases('textbests'))
     async def textbests(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -101,6 +103,7 @@ class TextStats(commands.Cog):
     @commands.command(aliases = get_aliases('personalbest'))
     async def personalbest(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0:
             args = check_account(user_id)(args)
@@ -216,6 +219,7 @@ class TextStats(commands.Cog):
     @commands.command(aliases = get_aliases('unraced'))
     async def unraced(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0 or (len(args) == 1 and len(args[0]) < 4):
             args = check_account(user_id)(args)
@@ -322,6 +326,7 @@ class TextStats(commands.Cog):
     @commands.command(aliases = get_aliases('textsunder'))
     async def textsunder(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) < 2 or len(args) > 3:
             await ctx.send(content = f"<@{user_id}>",
@@ -426,6 +431,7 @@ class TextStats(commands.Cog):
     @commands.command(aliases = get_aliases('textslessequal'))
     async def textslessequal(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) < 2 or len(args) > 3:
             await ctx.send(content = f"<@{user_id}>",

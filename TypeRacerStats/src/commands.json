@@ -37,15 +37,27 @@
             "linked": false
         },
         {
-            "name": "donate",
-            "description": "Returns links to help support the project",
+            "name": "support",
+            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot\n",
             "speed": "fast",
             "usage": {
                 "general": "",
                 "example": "",
                 "alt_example": []
             },
-            "aliases": ["support"],
+            "aliases": ["donate"],
+            "linked": false
+        },
+        {
+            "name": "perks",
+            "description": "Returns commands that only work for supporters",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": [],
             "linked": false
         }
     ],
@@ -628,6 +640,20 @@
                 "alt_example": []
             },
             "aliases": ["sinfo"],
+            "linked": false
+        }
+    ],
+    "supporter": [
+        {
+            "name": "setcolor",
+            "description": "Sets custom embed color",
+            "speed": "fast",
+            "usage": {
+                "general": "<hex_value>",
+                "example": "6f4e37",
+                "alt_example": []
+            },
+            "aliases": ["sc"],
             "linked": false
         }
     ]

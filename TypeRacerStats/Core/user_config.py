@@ -10,6 +10,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe
 from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes
 from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class UserConfig(commands.Cog):
@@ -37,6 +38,8 @@ class UserConfig(commands.Cog):
     @commands.command(aliases = get_aliases('register'))
     async def register(self, ctx, *args):
         user_id = str(ctx.message.author.id)
+        MAIN_COLOR = get_supporter(user_id)
+
         invalid = False
 
         if len(args) != 1:
@@ -78,6 +81,8 @@ class UserConfig(commands.Cog):
     @commands.command(aliases = get_aliases('setuniverse'))
     async def setuniverse(self, ctx, *args):
         user_id = str(ctx.message.author.id)
+        MAIN_COLOR = get_supporter(user_id)
+
         invalid = False
 
         if len(args) > 1:
@@ -123,6 +128,8 @@ class UserConfig(commands.Cog):
     @commands.command(aliases = get_aliases('toggledessle'))
     async def toggledessle(self, ctx, *args):
         user_id = str(ctx.message.author.id)
+        MAIN_COLOR = get_supporter(user_id)
+
         invalid = False
 
         if len(args) != 0:

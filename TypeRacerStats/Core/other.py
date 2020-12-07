@@ -6,6 +6,7 @@ sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.supporter import get_supporter
 
 class Other(commands.Cog):
     def __init__(self, bot):
@@ -14,6 +15,7 @@ class Other(commands.Cog):
     @commands.command(aliases = get_aliases('unixreference'))
     async def unixreference(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) > 1:
             await ctx.send(content = f"<@{user_id}>",
@@ -61,6 +63,7 @@ class Other(commands.Cog):
     @commands.command(aliases = get_aliases('serverinfo'))
     async def serverinfo(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 0:
             await ctx.send(content = f"<@{user_id}>",

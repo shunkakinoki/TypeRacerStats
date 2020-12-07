@@ -100,7 +100,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-fastestcompletion [user] [num_races]` | <details><summary>View</summary>![32]</details> | Returns the fastest a user completed `num_races` races and its breakdown. ![li] | `fc` |
 | `-boxplot [user] <user_2> ... <user_4>` | <details><summary>View</summary>![33]</details> | Returns WPM boxplot of given user(s). Outliers are removed. ![li] | `bp` |
 | `-histogram [user]` | <details><summary>View</summary>![34]</details> | Returns WPM boxplot of given user. ![li] | `hg` |
-| `-raceline [user] <user_2> ... <user_10>` | <details><summary>View</summary>![35]</details> | Returns races over time graph for given user(s). ![li] | `rl` |
+| `-raceline <time> [user] <user_2> ... <user_10>` | <details><summary>View</summary>![35]</details> | Returns races over time graph for given user(s); optional `time` parameter returns graph with only the races completed after it. ![li] | `rl` |
 | `-improvement [user] <time/races>` | <details><summary>View</summary>![36]</details> | Returns WPM over specified category for given user. ![li] | `imp` |
 </details>
 
@@ -171,3 +171,12 @@ The bot can be invited using [this link](https://discord.com/api/oauth2/authoriz
 
 ## Support
 If you want to contribute towards hosting fees, refer to the following [link](https://www.paypal.me/e3e2).
+
+Each month of hosting costs 6 USD, so the perks tiers are incremented by 6 each:
+- **Tier 1 ($0.01 - $5.99):** Name listed on `info` command
+- **Tier 2 ($6.00 - $11.99):** Set custom embed color with `setcolor`
+- **Tier 3 ($12.00+):** Custom command added to the bot
+
+<details>
+<summary>Supporter commands coming soon!</summary>
+</details>

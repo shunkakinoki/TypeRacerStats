@@ -9,6 +9,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import compute_realspeed, find_registered, raw_typinglog_scraper, rs_typinglog_scraper
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class RealSpeed(commands.Cog):
@@ -20,6 +21,7 @@ class RealSpeed(commands.Cog):
     @commands.command(aliases = get_aliases('realspeed') + ['lastrace'] + get_aliases('lastrace') + ['raw'] + get_aliases('raw'))
     async def realspeed(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         desslejusted, universe = account['desslejusted'], account['universe']
         race_api_response = None
@@ -178,6 +180,7 @@ class RealSpeed(commands.Cog):
     @commands.command(aliases = get_aliases('realspeedaverage'))
     async def realspeedaverage(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         desslejusted, universe = account['desslejusted'], account['universe']
         race_api_response = None

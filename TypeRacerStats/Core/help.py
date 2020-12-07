@@ -15,14 +15,14 @@ class Help(commands.Cog):
         self.info_embed = None
         self.invite_embed = None
         self.donate_embed = None
+        self.perks_embed = None
+        with open(os.path.dirname(__file__) + '/../src/commands.json', 'r') as jsonfile:
+            self.bot_commands = json.load(jsonfile)
 
     def create_embeds(self, bot, message):
         command_prefix = get_prefix(bot, message)
 
-        with open(os.path.dirname(__file__) + '/../src/commands.json', 'r') as jsonfile:
-            bot_commands = json.load(jsonfile)
-
-        for command in [command for category in bot_commands.values() for command in category]:
+        for command in [command for category in self.bot_commands.values() for command in category]:
             name = command['name']
             for alias in command['aliases']:
                 self.normalized_commands.update({alias: name})
@@ -36,19 +36,19 @@ class Help(commands.Cog):
                                                         "`< >` represent optional parameters"))
         self.main_embed.set_thumbnail(url = HELP_IMG)
         self.main_embed.add_field(name = 'Info Commands',
-                                  value = value_formatter(bot_commands['info'], command_prefix),
+                                  value = value_formatter(self.bot_commands['info'], command_prefix),
                                   inline = False)
         self.main_embed.add_field(name = 'Configuration Commands',
-                                  value = value_formatter(bot_commands['configuration'], command_prefix),
+                                  value = value_formatter(self.bot_commands['configuration'], command_prefix),
                                   inline = False)
         self.main_embed.add_field(name = 'Basic Commands',
-                                  value = value_formatter(bot_commands['basic'], command_prefix),
+                                  value = value_formatter(self.bot_commands['basic'], command_prefix),
                                   inline = False)
         self.main_embed.add_field(name = f"Advanced Commands (all require `{command_prefix}getdata`)",
-                                  value = value_formatter(bot_commands['advanced'], command_prefix),
+                                  value = value_formatter(self.bot_commands['advanced'], command_prefix),
                                   inline = False)
         self.main_embed.add_field(name = 'Other Commands',
-                                  value = value_formatter(bot_commands['other'], command_prefix),
+                                  value = value_formatter(self.bot_commands['other'], command_prefix),
                                   inline = False)
         self.main_embed.set_footer(text = f"Run {command_prefix}help [command] to learn more")
 
@@ -76,7 +76,7 @@ class Help(commands.Cog):
         people_count = sum([i.member_count for i in guilds])
 
         self.invite_embed = discord.Embed(title = "TypeRacerStats Invite Link",
-                                          color = discord.Color(0),
+                                          color = HELP_BLACK,
                                           description = '[**Invite Link**](https://discord.com/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot)')
         self.invite_embed.add_field(name = 'Stats',
                                     value = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers")
@@ -87,8 +87,28 @@ class Help(commands.Cog):
         description += '[**Support on PayPal ❤️**](https://www.paypal.me/e3e2)'
 
         self.donate_embed = discord.Embed(title = "TypeRacerStats Donation/Support",
-                                          color = discord.Color(0),
+                                          color = HELP_BLACK,
                                           description = description)
+        self.donate_embed.add_field(name = 'Perks (USD)',
+                                    value = ('**Tier 1: $0.01 - $5.99**\n'
+                                             'Name listed on `info` command\n\n'
+                                             '**Tier 2: $6.00 - $11.99**\n'
+                                             'Set custom embed color with `setcolor`\n\n'
+                                             '**Tier 3: $12.00+**\n'
+                                             'Custom command added to the bot'))
+        self.donate_embed.set_footer(text = 'One month of hosting costs 6 USD')
+
+    def create_perks_embed(self, bot, message):
+        command_prefix = get_prefix(bot, message)
+
+        value = value_formatter(self.bot_commands['supporter'], command_prefix)
+
+        self.perks_embed = discord.Embed(title = "Supporter Commands",
+                                          color = HELP_BLACK,
+                                          description = 'These commands only work for those that have supported the project. Refer to the `support` command for more information.')
+        self.perks_embed.set_thumbnail(url = HELP_IMG)
+        self.perks_embed.add_field(name = 'Commands',
+                                    value = value)
 
     @commands.command(aliases = get_aliases('help'))
     async def help(self, ctx, *args):
@@ -118,12 +138,19 @@ class Help(commands.Cog):
         if len(args) != 0: return
         await ctx.send(embed = self.invite_embed)
 
-    @commands.command(aliases = get_aliases('donate'))
-    async def donate(self, ctx, *args):
+    @commands.command(aliases = get_aliases('support'))
+    async def support(self, ctx, *args):
         self.create_donate_embed()
 
         if len(args) != 0: return
         await ctx.send(embed = self.donate_embed)
+
+    @commands.command(aliases = get_aliases('perks'))
+    async def perks(self, ctx, *args):
+        self.create_perks_embed(ctx, ctx.message)
+
+        if len(args) != 0: return
+        await ctx.send(embed = self.perks_embed)
 
 def value_formatter(command_list, command_prefix):
     value = ''

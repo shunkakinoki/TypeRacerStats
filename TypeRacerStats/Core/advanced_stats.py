@@ -10,6 +10,7 @@ from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.texts import load_texts_large
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
@@ -23,6 +24,7 @@ class AdvancedStats(commands.Cog):
     @commands.command(aliases = get_aliases('top') + get_aliases('worst') + ['worst'])
     async def top(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 1: args = check_account(user_id)(args)
 
@@ -93,6 +95,7 @@ class AdvancedStats(commands.Cog):
     @commands.command(aliases = get_aliases('racedetails'))
     async def racedetails(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 

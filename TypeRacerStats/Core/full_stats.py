@@ -11,6 +11,7 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, num_to_text, seconds_to_text
 from TypeRacerStats.Core.Common.texts import load_texts_json
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class FullStats(commands.Cog):
@@ -21,6 +22,7 @@ class FullStats(commands.Cog):
     @commands.command(aliases = get_aliases('racesover'))
     async def racesover(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 3:
             await ctx.send(content = f"<@{user_id}>",
@@ -92,6 +94,7 @@ class FullStats(commands.Cog):
     @commands.command(aliases = get_aliases('milestone'))
     async def milestone(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 3:
             await ctx.send(content = f"<@{user_id}>",
@@ -180,6 +183,7 @@ class FullStats(commands.Cog):
     @commands.command(aliases = get_aliases('marathon'))
     async def marathon(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -292,6 +296,7 @@ class FullStats(commands.Cog):
     @commands.command(aliases = get_aliases('sessionstats'))
     async def sessionstats(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -367,6 +372,7 @@ class FullStats(commands.Cog):
     @commands.command(aliases = get_aliases('fastestcompletion'))
     async def fastestcompletion(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 

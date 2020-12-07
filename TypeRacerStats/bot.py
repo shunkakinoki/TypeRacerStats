@@ -41,6 +41,12 @@ async def on_command_error(ctx, error):
                        embed = Error(ctx, ctx.message)
                                .cooldown((f"Maximum number of `{ctx.invoked_with}`"
                                           ' request(s) are running\nTry again later')))
+        return
+    if isinstance(error, commands.CheckFailure):
+        await ctx.send(content = f"<@{ctx.message.author.id}>",
+                       embed = Error(ctx, ctx.message)
+                               .lacking_permissions('You lack the perms for that command'))
+        return
     else:
         ctx.command.reset_cooldown(ctx)
         raise error

@@ -14,6 +14,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_json
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class GetData(commands.Cog):
@@ -24,6 +25,7 @@ class GetData(commands.Cog):
     @commands.command(aliases = get_aliases('getdata'))
     async def getdata(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -111,6 +113,7 @@ class GetData(commands.Cog):
     @commands.command(aliases = get_aliases('today'))
     async def today(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 

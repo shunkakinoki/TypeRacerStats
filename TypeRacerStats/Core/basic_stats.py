@@ -16,6 +16,7 @@ from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class BasicStats(commands.Cog):
@@ -27,6 +28,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('stats'))
     async def stats(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
 
@@ -121,6 +123,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('lastonline'))
     async def lastonline(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
 
@@ -157,6 +160,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('medals'))
     async def medals(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -244,6 +248,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         is_admin = user_id in BOT_ADMIN_IDS
         send_json = is_admin and ctx.invoked_with[-1] == '*'
 
@@ -313,6 +318,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('leaderboard'))
     async def leaderboard(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         num_lb = 10
         error_one = Error(ctx, ctx.message) \
                     .parameters(f"{ctx.invoked_with} [races/points/textbests/textstyped/toptens] <num>")
@@ -458,6 +464,7 @@ class BasicStats(commands.Cog):
     @commands.command(aliases = get_aliases('competition'))
     async def competition(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
 

@@ -11,6 +11,7 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import scrape_text
+from TypeRacerStats.Core.Common.supporter import get_supporter
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Texts(commands.Cog):
@@ -20,6 +21,7 @@ class Texts(commands.Cog):
     @commands.command(aliases = get_aliases('search'))
     async def search(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0:
             await ctx.send(content = f"<@{user_id}>",
@@ -115,6 +117,7 @@ class Texts(commands.Cog):
     @commands.command(aliases = get_aliases('levenshtein'))
     async def levenshtein(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 0:
             await ctx.send(content = f"<@{user_id}>",
@@ -189,6 +192,7 @@ class Texts(commands.Cog):
     @commands.command(aliases = get_aliases('searchid'))
     async def searchid(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",
