@@ -173,9 +173,9 @@ class AdvancedStats(commands.Cog):
                         value = (f"**Total Races:** {f'{races:,}'}\n"
                                  f"**Average Daily Races:** {f'{round(races / num_days, 2):,}'}\n"
                                  f"**Total Words Typed:** {f'{words_typed:,}'}\n"
-                                 f"**Average Words Per Race:** {f'{round(words_typed / num_days, 2):,}'}\n"
+                                 f"**Average Words Per Race:** {f'{round(words_typed / races, 2):,}'}\n"
                                  f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
-                                 f"**Average Chars Per Race: **{f'{round(chars_typed / num_days, 2):,}'}\n"
+                                 f"**Average Chars Per Race: **{f'{round(chars_typed / races, 2):,}'}\n"
                                  f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
                                  f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"))
         embed.add_field(name = 'Points',
