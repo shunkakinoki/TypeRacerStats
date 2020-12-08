@@ -2,7 +2,7 @@ import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
 from TypeRacerStats.file_paths import UNIVERSES_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import load_accounts, update_accounts
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -39,6 +39,7 @@ class UserConfig(commands.Cog):
     async def register(self, ctx, *args):
         user_id = str(ctx.message.author.id)
         MAIN_COLOR = get_supporter(user_id)
+        show_user_count = ctx.invoked_with[-1] == '*' and ctx.message.author.id in BOT_ADMIN_IDS
 
         invalid = False
 
@@ -72,9 +73,13 @@ class UserConfig(commands.Cog):
 
         update_accounts(accounts)
 
+        user_count = ''
+        if show_user_count:
+            user_count = f"\n{len(accounts)} users registered"
+
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (f"<@{user_id}> has been linked to [**{player}**]"
-                                                            f"({Urls().user(player, 'play')})")))
+                                                            f"({Urls().user(player, 'play')}){user_count}")))
         return
 
     @commands.cooldown(1, 1, commands.BucketType.default)

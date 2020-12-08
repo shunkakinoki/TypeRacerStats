@@ -83,7 +83,7 @@
                 "example": "keegant",
                 "alt_example": []
             },
-            "aliases": ["link"],
+            "aliases": ["link", "link*"],
             "linked": false
         },
         {

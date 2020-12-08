@@ -34,7 +34,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | Name | Example | Function | Aliases |
 |:-----|:-------:|----------|---------|
 | `-changeprefix [prefix]` | <details><summary>View</summary>![5]</details> | Changes the bot's prefix on the server. | `cp` |
-| `-register [typeracer_username]` | <details><summary>View</summary>![6]</details> | Links Discord account to TypeRacer account. ![mu] | `link` |
+| `-register [typeracer_username]` | <details><summary>View</summary>![6]</details> | Links Discord account to TypeRacer account. ![mu] | `link`, `link*` |
 | `-setuniverse [universe]` | <details><summary>View</summary>![7]</details> | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
 | `-toggledessle` | <details><summary>View</summary>![8]</details> | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
 </details>
