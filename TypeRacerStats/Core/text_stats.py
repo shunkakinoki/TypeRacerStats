@@ -93,7 +93,7 @@ class TextStats(commands.Cog):
                 bucket_spacer = 1 + math.floor(math.log10(max_bucket)) - math.floor(math.log10(bucket))
                 count_spacer = 1 + max_count_spacer - len(f'{count_:,}')
                 count_spacer_ = 1 + max_count_spacer - len(f'{count - count_:,}')
-                breakdown_text += f"<{bucket * 10}{' ' * bucket_spacer}WPM> "
+                breakdown_text += f"<{bucket * 10}+{' ' * bucket_spacer}WPM> "
                 breakdown_text += f"{f'{count_:,}'}{' ' * count_spacer}[{f'{round(100 * count_ / count, 2):6.2f}'}%] "
                 breakdown_text += f"({f'{count - count_:,}'}{' ' * count_spacer_}left)\n"
 
