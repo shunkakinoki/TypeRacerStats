@@ -91,11 +91,11 @@ class TextStats(commands.Cog):
             max_count_spacer = len(f'{breakdown_dict[min_bucket]:,}')
             for bucket, count_ in breakdown_dict.items():
                 bucket_spacer = 1 + math.floor(math.log10(max_bucket)) - math.floor(math.log10(bucket))
-                count_spacer = 1 + max_count_spacer - len(f'{count_:,}')
-                count_spacer_ = 1 + max_count_spacer - len(f'{count - count_:,}')
+                count_spacer = max_count_spacer - len(f'{count_:,}')
+                count_spacer_ = max_count_spacer - len(f'{count - count_:,}')
                 breakdown_text += f"<{bucket * 10}+{' ' * bucket_spacer}WPM> "
-                breakdown_text += f"{f'{count_:,}'}{' ' * count_spacer}[{f'{round(100 * count_ / count, 2):6.2f}'}%] "
-                breakdown_text += f"({f'{count - count_:,}'}{' ' * count_spacer_}left)\n"
+                breakdown_text += f"{' ' * count_spacer}{f'{count_:,}'} [{f'{round(100 * count_ / count, 2):6.2f}'}%] "
+                breakdown_text += f"({' ' * count_spacer_}{f'{count - count_:,}'} left)\n"
 
         embed = discord.Embed(title = f"{player}'s Text Bests",
                               color = discord.Color(MAIN_COLOR))
