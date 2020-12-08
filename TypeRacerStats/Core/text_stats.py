@@ -122,7 +122,7 @@ class TextStats(commands.Cog):
                                     "doesn't exist")))
             return
 
-        cur_wpm = -1
+        cur_wpm = 0
         if len(args) == 2:
             text_id = int(args[1])
         else:
@@ -190,6 +190,17 @@ class TextStats(commands.Cog):
                                    .missing_information(f"**{player}** has not completed the text yet"))
             return
 
+        value = f"**Times:** {f'{count:,}'}\n"
+        if cur_wpm:
+            value += f"**Last Race:** {f'{cur_wpm:,}'} WPM\n"
+        value += (f"**Average:** {f'{round(sum_ / count, 2):,}'} WPM\n"
+                  f"**Fastest:** {f'{best:,}'} WPM "
+                  f"(Race #{f'{best_gn:,}'}) [:cinema:]"
+                  f"({Urls().result(player, best_gn, 'play')})\n"
+                  f"**Slowest:** {f'{worst:,}'} WPM "
+                  f"(Race #{f'{worst_gn:,}'}) [:cinema:]"
+                  f"({Urls().result(player, worst_gn, 'play')})\n")
+
         if description:
             embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
                                   color = discord.Color(color),
@@ -203,14 +214,7 @@ class TextStats(commands.Cog):
         embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.add_field(name = 'Quote', value = text, inline = False)
         embed.add_field(name = 'Speeds',
-                        value = (f"**Times:** {f'{count:,}'}\n"
-                                 f"**Average:** {f'{round(sum_ / count, 2):,}'} WPM\n"
-                                 f"**Fastest:** {f'{best:,}'} WPM "
-                                 f"(Race #{f'{best_gn:,}'}) [:cinema:]"
-                                 f"({Urls().result(player, best_gn, 'play')})\n"
-                                 f"**Slowest:** {f'{worst:,}'} WPM "
-                                 f"(Race #{f'{worst_gn:,}'}) [:cinema:]"
-                                 f"({Urls().result(player, worst_gn, 'play')})\n"))
+                        value = value)
 
         await ctx.send(embed = embed)
         return
