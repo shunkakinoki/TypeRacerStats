@@ -31,9 +31,13 @@ class Help(commands.Cog):
 
         self.main_embed = discord.Embed(title = 'Help Page',
                                         color = discord.Color(HELP_BLACK),
-                                        description = (f"**Run `{command_prefix}help [command]` to learn more**\n"
-                                                        "`[ ]` represent required paramaters\n"
-                                                        "`< >` represent optional parameters"))
+                                        description = ('[`Invite`](https://www.google.com/) - '
+                                                       '[`top.gg`](https://top.gg/bot/742267194443956334) - '
+                                                       '[`GitHub`](https://github.com/e6f4e37l/TypeRacerStats) - '
+                                                       '[`PayPal`](https://www.paypal.me/e3e2)\n\n'
+                                                       f"**Run `{command_prefix}help [command]` to learn more**\n"
+                                                       "`[ ]` represent required paramaters\n"
+                                                       "`< >` represent optional parameters"))
         self.main_embed.set_thumbnail(url = HELP_IMG)
         self.main_embed.add_field(name = 'Info Commands',
                                   value = value_formatter(self.bot_commands['info'], command_prefix),
@@ -155,8 +159,8 @@ class Help(commands.Cog):
 def value_formatter(command_list, command_prefix):
     value = ''
     for command in command_list:
-        value += f"`{command_prefix}{command['name']} {command['usage']['general']}`\n"
-    return value[:-1]
+        value += f"`{command_prefix}{command['name']}`, "
+    return value[:-2]
 
 def embed_constructor(command, command_prefix):
     call = f"{command_prefix}{command['name']}"
