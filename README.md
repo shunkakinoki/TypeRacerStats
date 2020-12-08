@@ -89,6 +89,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-worst [user] [wpm/points]` | <details><summary>View</summary>![22]</details> | Returns user's worst 10 races sorted by specified cateogry. ![li] | `bottom` |
 | `-racedetails [user]` | <details><summary>View</summary>![23]</details> | Returns detailed breakdown of user's races. ![li] | `rd` |
 | `-textbests [user]` | <details><summary>View</summary>![24]</details> | Returns user's top 5 texts, worst 5 texts, and text bests average (average of best in each text). ![li] | `tb` |
+| `-breakdown [user]` | <details><summary>View</summary>![43]</details> | Returns detailed breakdown of text bests. ![li] | `bd` |
 | `-personalbest [user] <text_ID>` | <details><summary>View</summary>![25]</details>| Returns user's average, best, and worst on specified `text_id`. Defaults to last-raced text if none provided. ![li] | `pb` |
 | `-unraced [user] <length>` | <details><summary>View</summary>![26]</details> | Returns 5 randomly unraced texts under `length` characters. ![li] | `ur` |
 | `-textsunder [user] [wpm] <length>` | <details><summary>View</summary>![26]</details> | Returns 5 randomly raced texts under `wpm` wpm and `length` characters. ![li] | `tu` |
@@ -120,6 +121,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [34]: https://i.gyazo.com/4ca36e72ee226a9fad83dc2f8708410e.gif
 [35]: https://i.gyazo.com/4044245afb72e666cbad0d88a78d968e.gif
 [36]: https://i.gyazo.com/79d467b13a1717a4db59d80a064c2199.gif
+[43]: https://i.gyazo.com/e28465a5f4b362feb926db64cccfb2e7.gif
 
 ### Other
 <details>
