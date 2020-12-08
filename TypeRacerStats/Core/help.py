@@ -159,7 +159,7 @@ class Help(commands.Cog):
 def value_formatter(command_list, command_prefix):
     value = ''
     for command in command_list:
-        value += f"`{command_prefix}{command['name']}`, "
+        value += f"`{command['name']}`, "
     return value[:-2]
 
 def embed_constructor(command, command_prefix):
