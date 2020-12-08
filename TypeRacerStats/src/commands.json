@@ -371,6 +371,18 @@
             "linked": true
         },
         {
+            "name": "breakdown",
+            "description": "Returns detailed breakdown of text bests",
+            "speed": "fast",
+            "usage": {
+                "general": "[user]",
+                "example": "e3e2",
+                "alt_example": []
+            },
+            "aliases": ["bd"],
+            "linked": true
+        },
+        {
             "name": "personalbest",
             "description": "Returns statistics on given user on a given text",
             "speed": "fast",

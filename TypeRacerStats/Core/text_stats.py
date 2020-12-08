@@ -1,4 +1,5 @@
 import csv
+import math
 import random
 import sqlite3
 import sys
@@ -21,10 +22,12 @@ class TextStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.command(aliases = get_aliases('textbests'))
+    @commands.command(aliases = get_aliases('textbests') + ['breakdown'] + get_aliases('breakdown'))
     async def textbests(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
+        tb = ctx.invoked_with in ['textbests'] + get_aliases('textbests')
+        bd = ctx.invoked_with in ['breakdown'] + get_aliases('breakdown')
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -47,9 +50,22 @@ class TextStats(commands.Cog):
         c = conn.cursor()
         try:
             user_data = c.execute(f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm").fetchall()
+            min_bucket = int(user_data[0][2] // 10)
+            max_bucket = int(user_data[-1][2] // 10) if user_data[-1][2] // 10 <= 30 else 30
+
+            if bd:
+                breakdown_dict = {}
+                for i in range(min_bucket, max_bucket + 1):
+                    breakdown_dict.update({i: 0})
+
             for row in user_data:
                 count += 1
                 sum_ += row[2]
+                if bd:
+                    bucket = int(row[2] // 10) if row[2] // 10 <= 30 else 30
+                    for i in range(min_bucket, bucket + 1):
+                        breakdown_dict[i] += 1
+
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
@@ -58,17 +74,28 @@ class TextStats(commands.Cog):
             return
         conn.close()
 
-        texts_data = load_texts_large()
+        if tb:
+            texts_data = load_texts_large()
 
-        if len(user_data) < 10:
-            worst = []
-            if len(user_data) < 5:
-                top = user_data[::-1]
+            if len(user_data) < 10:
+                worst = []
+                if len(user_data) < 5:
+                    top = user_data[::-1]
+                else:
+                    top = user_data[-5:][::-1]
             else:
+                worst = user_data[0:5]
                 top = user_data[-5:][::-1]
         else:
-            worst = user_data[0:5]
-            top = user_data[-5:][::-1]
+            breakdown_text = ''
+            max_count_spacer = len(f'{breakdown_dict[min_bucket]:,}')
+            for bucket, count_ in breakdown_dict.items():
+                bucket_spacer = 1 + math.floor(math.log10(max_bucket)) - math.floor(math.log10(bucket))
+                count_spacer = 1 + max_count_spacer - len(f'{count_:,}')
+                count_spacer_ = 1 + max_count_spacer - len(f'{count - count_:,}')
+                breakdown_text += f"<{bucket * 10}{' ' * bucket_spacer}WPM> "
+                breakdown_text += f"{f'{count_:,}'}{' ' * count_spacer}[{f'{round(100 * count_ / count, 2):6.2f}'}%] "
+                breakdown_text += f"({f'{count - count_:,}'}{' ' * count_spacer_}left)\n"
 
         embed = discord.Embed(title = f"{player}'s Text Bests",
                               color = discord.Color(MAIN_COLOR))
@@ -78,23 +105,27 @@ class TextStats(commands.Cog):
                         value = (f"**Texts:** {f'{count:,}'}\n"
                                  f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'} ("
                                  f"{f'{round(count * (5 - (sum_ / count) % 5), 2):,}'} total WPM gain "
-                                 f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"))
-
-        value = ''
-        for i, text in enumerate(top):
-            value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
-        embed.add_field(name = f"Top {i + 1} Texts",
-                        value = value,
+                                 f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"),
                         inline = False)
 
-        value = ''
-        for i, text in enumerate(worst):
-            value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-            value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
-        embed.add_field(name = f"Worst {i + 1} Texts",
-                        value = value,
-                        inline = False)
+        if tb:
+            value = ''
+            for i, text in enumerate(top):
+                value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
+                value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
+            embed.add_field(name = f"Top {i + 1} Texts",
+                            value = value,
+                            inline = False)
+
+            value = ''
+            for i, text in enumerate(worst):
+                value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
+                value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
+            embed.add_field(name = f"Worst {i + 1} Texts",
+                            value = value,
+                            inline = False)
+        else:
+            embed.add_field(name = 'Breakdown', value = f"```css\n{breakdown_text}```", inline = False)
 
         await ctx.send(embed = embed)
         return
