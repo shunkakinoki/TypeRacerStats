@@ -108,5 +108,11 @@ class Supporter(commands.Cog):
         await ctx.send(embed = discord.Embed(title = 'Color updated', color = discord.Color(color)))
         return
 
+    @commands.command(aliases = get_aliases('echo'))
+    @commands.check(lambda ctx: str(ctx.message.author.id) in load_supporters()['supporters'])
+    async def echo(self, ctx, *args):
+        await ctx.send(' '.join(args))
+        return
+
 def setup(bot):
     bot.add_cog(Supporter(bot))

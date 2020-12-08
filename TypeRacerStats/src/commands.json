@@ -655,6 +655,18 @@
             },
             "aliases": ["sc"],
             "linked": false
+        },
+        {
+            "name": "echo",
+            "description": "Echoes message",
+            "speed": "fast",
+            "usage": {
+                "general": "[message]",
+                "example": "dessle has 2 200.0 WPM texts lmao",
+                "alt_example": []
+            },
+            "aliases": ["e"],
+            "linked": false
         }
     ]
 }
