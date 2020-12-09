@@ -58,6 +58,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-raw [user] <race_num>` or `-raw [url]` | <details><summary>View</summary>![14]</details> | Returns realspeeds and _raw_ speed (speed with correction time omitted) for given race. ![mu] ![li] | None |
 | `-lastrace [user] <race_num>` or `-lastrace [url]` | <details><summary>View</summary>![15]</details> | Returns all users' realspeeds ranked by unlagged for given race. ![mu] ![li] | `lr`, `last` |
 | `-adjustedgraph [user] <race_num>` or `-adjustedgraph [url]` | <details><summary>View</summary>![42]</details> | Returns specified race's adjusted WPM over time. ![mu] ![li] | `ag` |
+| `-matchgraph [user] <race_num>` or `-matchgraph [url]` | <details><summary>View</summary>![43]</details> | Returns specified race's unlagged WPM over time for everyone in the race. ![mu] ![li] | `mg` |
 | `-leaderboard [category] <amount>` | <details><summary>View</summary>![16]</details> | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`. | `lb` |
 | `-competition <category>` | <details><summary>View</summary>![17]</details> | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu] | `comp` |
 | `-lastonline [user]` | <details><summary>View</summary>![18]</details> | Returns the last time a user played. ![mu] ![li] | `lo`, `ls`, `lastseen` |
@@ -78,6 +79,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [19]: https://i.gyazo.com/baae841b5b8be620a294fd33fdf36669.gif
 [20]: https://i.gyazo.com/320321451eefcff121f21683b3e5caa6.gif
 [42]: https://i.gyazo.com/4f2ab33bdc58eb73d8880a3d49699dd3.gif
+[43]: https://i.gyazo.com/4f2ab33bdc58eb73d8880a3d49699dd3.gif
 
 ### Advanced (all require `-getdata`)
 <details>

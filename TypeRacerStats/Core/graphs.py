@@ -117,6 +117,7 @@ class Graphs(commands.Cog):
         ax = plt.subplots()[1]
         ax.boxplot(data, showfliers = False)
         ax.set_xticklabels(list(args))
+        ax.set_ylabel('WPM')
         ax.set_title(title_text)
         plt.grid(True)
         file_name = f"{title_text}.png"
@@ -301,12 +302,15 @@ class Graphs(commands.Cog):
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
-    @commands.command(aliases = get_aliases('adjustedgraph'))
+    @commands.command(aliases = get_aliases('adjustedgraph') + ['matchgraph'] + get_aliases('matchgraph'))
     async def adjustedgraph(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
+
+        ag = ctx.invoked_with in ['adjustedgraph'] + get_aliases('adjustedgraph')
+        mg = ctx.invoked_with in ['matchgraph'] + get_aliases('matchgraph')
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -348,21 +352,27 @@ class Graphs(commands.Cog):
                                        .incorrect_format('`race_num` must be a positive integer'))
                 return
 
+        def helper_scraper(soup):
+            escapes = ''.join([chr(char) for char in range(1, 32)])
+            try:
+                typinglog = re.sub('\\t\d', 'a',
+                            re.search(r'typingLog\s=\s"(.*?)";', response)
+                            .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+                return [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
+            except:
+                return None
         try:
             response = (await fetch(urls, 'text'))[0]
             if not response:
                 raise KeyError
-            escapes = ''.join([chr(char) for char in range(1, 32)])
             soup = BeautifulSoup(response, 'html.parser')
-            typinglog = re.sub('\\t\d', 'a',
-                            re.search(r'typingLog\s=\s"(.*?)";', response)
-                            .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
-            times = [int(c) for c in re.findall(r"\d+", typinglog[0])][3:]
+            times = helper_scraper(soup)
 
             race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
             player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
             race_details = soup.select("table[class='raceDetails']")[0].select('tr')
             universe = 'play'
+            opponents = []
             for detail in race_details:
                 cells = detail.select('td')
                 category = cells[0].text.strip()
@@ -370,6 +380,8 @@ class Graphs(commands.Cog):
                     race_number = int(cells[1].text.strip())
                 elif category == 'Universe':
                     universe = cells[1].text.strip()
+                elif category == 'Opponents':
+                    opponents = [i['href'] for i in cells[1].select('a')]
         except:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
@@ -384,21 +396,55 @@ class Graphs(commands.Cog):
         else:
             mult = 12000
 
-        data_y = []
-        total_time = 0
-        for i, time_ in enumerate(times):
-            total_time += time_
-            try:
-                data_y.append((i + 1) * mult / total_time)
-            except ZeroDivisionError:
-                pass
+        if ag:
+            times.pop(0)
+            data_y, total_time = [], 0
+            for i, time_ in enumerate(times):
+                total_time += time_
+                try:
+                    data_y.append((i + 1) * mult / total_time)
+                except ZeroDivisionError:
+                    pass
+        else:
+            data_y, names = [], []
+            for opponent in opponents:
+                try:
+                    urls = ["https://data.typeracer.com/pit/" + opponent]
+                    response = (await fetch(urls, 'text'))[0]
+                    if not response:
+                        raise KeyError
+                    soup = BeautifulSoup(response, 'html.parser')
+                    times = helper_scraper(soup)
+                    temp_y, total_time = [], 0
+                    for i, time_ in enumerate(times):
+                        total_time += time_
+                        try:
+                            temp_y.append((i + 1) * mult / total_time)
+                        except ZeroDivisionError:
+                            pass
+                    data_y.append(temp_y)
+                    names.append(opponent.split('|')[1][3:])
+                except:
+                    pass
 
-        title_1 = f"Adjusted WPM Over {player}'s {num_to_text(race_number)} Race"
-        title = f"{title_1}\nUniverse: {universe}"
+        if ag:
+            title_1 = f"Adjusted WPM Over {player}'s {num_to_text(race_number)} Race"
+            title = f"{title_1}\nUniverse: {universe}"
+        else:
+            title_1 = f"Unlagged WPM Over {player}'s {num_to_text(race_number)} Race"
+            title = f"{title_1}\nUniverse: {universe}"
+
         description = f"**Quote**\n\"{race_text[0:1008]}\""
 
         ax = plt.subplots()[1]
-        ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
+        if ag:
+            ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
+        else:
+            for i, temp_y in enumerate(data_y):
+                ax.plot([i for i in range(1, len(temp_y) + 1)], temp_y, label = names[i])
+            plt.tight_layout(rect=[0.02,0.02,0.75,0.92])
+            ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
+
         ax.set_title(title)
         ax.set_xlabel('Keystrokes')
         ax.set_ylabel('WPM')
