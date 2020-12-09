@@ -396,17 +396,21 @@ class Graphs(commands.Cog):
         else:
             mult = 12000
 
-        if ag:
-            times.pop(0)
-            data_y, total_time = [], 0
+        def wpm_helper(times):
+            temp, total_time = [], 0
             for i, time_ in enumerate(times):
                 total_time += time_
                 try:
-                    data_y.append((i + 1) * mult / total_time)
+                    temp.append((i + 1) * mult / total_time)
                 except ZeroDivisionError:
                     pass
+            return temp
+
+        if ag:
+            times.pop(0)
+            data_y = wpm_helper(times)
         else:
-            data_y, names = [], []
+            data_y, names = [wpm_helper(times)], [player]
             for opponent in opponents:
                 try:
                     urls = ["https://data.typeracer.com/pit/" + opponent]
@@ -415,14 +419,7 @@ class Graphs(commands.Cog):
                         raise KeyError
                     soup = BeautifulSoup(response, 'html.parser')
                     times = helper_scraper(soup)
-                    temp_y, total_time = [], 0
-                    for i, time_ in enumerate(times):
-                        total_time += time_
-                        try:
-                            temp_y.append((i + 1) * mult / total_time)
-                        except ZeroDivisionError:
-                            pass
-                    data_y.append(temp_y)
+                    data_y.append(wpm_helper(times))
                     names.append(opponent.split('|')[1][3:])
                 except:
                     pass
