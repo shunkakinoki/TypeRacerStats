@@ -1,4 +1,5 @@
 import csv
+import random
 import sqlite3
 import sys
 import time
@@ -233,6 +234,61 @@ class Supporter(commands.Cog):
         if value_:
             embed.add_field(name = 'Races', value = value_, inline = False)
         embed.set_footer(text = "snowmelt#1745's custom command")
+
+        await ctx.send(embed = embed)
+        return
+
+    @commands.command(aliases = get_aliases('kayos'))
+    async def kayos(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) == 0:
+            args = (3,)
+
+        if len(args) != 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} <typo_count>"))
+            return
+
+        try:
+            typo_count = float(args[0])
+            if typo_count < 0 or typo_count > 100:
+                raise ValueError
+        except ValueError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('`typo_proportion` must be a positive number between 0 and 100'))
+
+        text, ghost = '', ''
+        with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            tid, text, ghost = tuple(random.choice(list(reader)))
+
+        typos = 'thequickbrownfoxjumpedoverthelazydog!? <>_=1234567890/*-'
+        text_ = ''
+        for i in range(0, len(text)):
+            if random.random() * 100 <= typo_count:
+                text_ += f"{random.choice(typos)}"
+            else:
+                text_ += text[i]
+
+        value_1 = f"\"{text_}\" "
+        value_2 = (f"[{TR_INFO}]({Urls().text(tid)}) "
+                    f"[{TR_GHOST}]({ghost})")
+        value = value_1 + value_2
+        if len(value) > 1024:
+            value_1 = value_1[0:1019 - len(value_2)]
+            value = value_1 + "…\"" + value_2
+
+        embed = discord.Embed(title = f"Random Text With ≈{typo_count}% Random Typos",
+                              color = discord.Color(MAIN_COLOR))
+        embed.add_field(name = f"Text ID: {tid}",
+                        value = value,
+                        inline = False)
+        embed.set_footer(text = "KayOS#6686's custom command")
 
         await ctx.send(embed = embed)
         return

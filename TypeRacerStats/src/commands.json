@@ -716,6 +716,18 @@
             },
             "aliases": ["cog"],
             "linked": false
+        },
+        {
+            "name": "kayos",
+            "description": "Returns a random text with random number of random typos",
+            "speed": "fast",
+            "usage": {
+                "general": "<typo_count>",
+                "example": "3",
+                "alt_example": []
+            },
+            "aliases": [],
+            "linked": false
         }
     ]
 }
