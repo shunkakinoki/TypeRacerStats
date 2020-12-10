@@ -1,11 +1,12 @@
+import csv
 import sqlite3
 import sys
 import time
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR
-from TypeRacerStats.file_paths import DATABASE_PATH
+from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
+from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
@@ -180,6 +181,27 @@ class Supporter(commands.Cog):
                                    .not_downloaded())
             return
 
+        text, ghost = '', ''
+        with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            for row in reader:
+                if int(row[0]) == tid:
+                    text, ghost = row[1], row[2]
+        if not text or not ghost:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format(f"{tid} is not a valid text ID"))
+            return
+
+        value_1 = f"\"{text}\" "
+        value_2 = (f"[{TR_INFO}]({Urls().text(tid)}) "
+                    f"[{TR_GHOST}]({ghost})")
+        value = value_1 + value_2
+        if len(value) > 1024:
+            value_1 = value_1[0:1019 - len(value_2)]
+            value = value_1 + "…\"" + value_2
+
         data = await fetch_data(player, 'play', last_race_timestamp + 0.01, time.time())
 
         if data:
@@ -193,18 +215,23 @@ class Supporter(commands.Cog):
                             WHERE tid = {tid}""").fetchall()
         conn.close()
 
-        if not data:
-            await ctx.send(embed = discord.Embed(title = '0 completions in last 24 hours'))
-            return
-
-        description = ''
+        if len(data) < 10:
+            description = 'Next save available **now**'
+        else:
+            description = f"Next save available in **{seconds_to_text(86400 + data[0][1] - time.time())}**"
+        value_ = ''
         for i, race in enumerate(data):
-            description += (f"[{i + 1}. {seconds_to_text(time.time() - race[1])} ago "
-                            f"({race[3]} WPM)]({Urls().result(player, race[0], 'play')})\n")
+            value_ += (f"{i + 1}. {seconds_to_text(time.time() - race[1])} ago "
+                       f"({race[3]} WPM)\n")
 
         embed = discord.Embed(title = f"{player}'s Text #{tid} Statistics in Last 24 Hours",
                               color = discord.Color(MAIN_COLOR),
-                              description = description[:-1])
+                              description = description)
+        embed.add_field(name = f"Text ID: {tid}",
+                        value = value,
+                        inline = False)
+        if value_:
+            embed.add_field(name = 'Races', value = value_, inline = False)
         embed.set_footer(text = "snowmelt#1745's custom command")
 
         await ctx.send(embed = embed)
