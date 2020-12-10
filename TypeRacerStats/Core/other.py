@@ -108,6 +108,9 @@ class Other(commands.Cog):
         artists = list(works.keys())
         if len(args) == 1:
             artist = args[0].lower()
+            if artist == '*':
+                await ctx.send(file = discord.File(ART_JSON, f"typeracer_art.json"))
+                return
             if artist not in artists:
                 artists_ = ''
                 for artist_ in artists:
