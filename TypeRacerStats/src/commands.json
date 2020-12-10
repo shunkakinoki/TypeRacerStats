@@ -673,6 +673,23 @@
             },
             "aliases": ["sinfo"],
             "linked": false
+        },
+        {
+            "name": "art",
+            "description": "Returns 1 randomly picked work of art :smiley_cat:",
+            "speed": "fast",
+            "usage": {
+                "general": "<artist>",
+                "example": "",
+                "alt_example": [
+                    {
+                        "usage": "dessle",
+                        "notes": "Returns 1 randomly selected work from an artist"
+                    }
+                ]
+            },
+            "aliases": [],
+            "linked": false
         }
     ],
     "supporter": [

@@ -1,12 +1,16 @@
 import datetime
+import json
+import random
 import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.file_paths import ART_JSON
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.urls import Urls
 
 class Other(commands.Cog):
     def __init__(self, bot):
@@ -83,6 +87,58 @@ class Other(commands.Cog):
                                  f"**Text Channels:** {f'{len(ctx.guild.text_channels):,}'}\n"
                                  f"**Roles:** {f'{len(ctx.guild.roles):,}'}"))
         embed.set_image(url = ctx.guild.banner_url)
+
+        await ctx.send(embed = embed)
+        return
+
+    @commands.command(aliases = get_aliases('art'))
+    async def art(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) > 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} <artist>"))
+            return
+
+        with open(ART_JSON, 'r') as jsonfile:
+            works = json.load(jsonfile)
+
+        artists = list(works.keys())
+        if len(args) == 1:
+            artist = args[0].lower()
+            if artist not in artists:
+                artists_ = ''
+                for artist_ in artists:
+                    artists_ += f"`{artist_}`, "
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"Must provide a valid artist: {artists_[:-2]}"))
+                return
+            works, trid = works[artist]['art'], works[artist]['trid']
+            work = random.choice(works)
+        else:
+            works_ = []
+            for key, value in works.items():
+                for art_work in value['art']:
+                    works_.append({
+                        'artist': key,
+                        'trid': value['trid'],
+                        'title': art_work['title'],
+                        'url': art_work['url']
+                    })
+            work = random.choice(works_)
+            artist, trid = work['artist'], work['trid']
+
+        title = work['title'] if work['title'] else "Untitled"
+
+        embed = discord.Embed(title = title,
+                              color = discord.Color(MAIN_COLOR))
+        embed.set_author(name = artist,
+                         url = Urls().user(trid, 'play'),
+                         icon_url = Urls().thumbnail(trid))
+        embed.set_image(url = work['url'])
 
         await ctx.send(embed = embed)
         return
