@@ -8,7 +8,7 @@ import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account, account_information
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -410,7 +410,8 @@ class Graphs(commands.Cog):
             times.pop(0)
             data_y = wpm_helper(times)
         else:
-            data_y, names = [wpm_helper(times)], [player]
+            unl = wpm_helper(times)
+            data = {player: [unl, unl[-1], times[0], replay_url.split('https://data.typeracer.com/pit/')[1]]}
             for opponent in opponents:
                 try:
                     urls = ["https://data.typeracer.com/pit/" + opponent]
@@ -419,10 +420,11 @@ class Graphs(commands.Cog):
                         raise KeyError
                     soup = BeautifulSoup(response, 'html.parser')
                     times = helper_scraper(soup)
-                    data_y.append(wpm_helper(times))
-                    names.append(opponent.split('|')[1][3:])
+                    unl = wpm_helper(times)
+                    data.update({opponent.split('|')[1][3:]: [unl, unl[-1], times[0], opponent]})
                 except:
                     pass
+            data = {k: v for k, v in sorted(data.items(), key = lambda x: x[1][1], reverse = True)}
 
         if ag:
             title_1 = f"Adjusted WPM Over {player}'s {num_to_text(race_number)} Race"
@@ -437,8 +439,13 @@ class Graphs(commands.Cog):
         if ag:
             ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
         else:
-            for i, temp_y in enumerate(data_y):
-                ax.plot([i for i in range(1, len(temp_y) + 1)], temp_y, label = names[i])
+            value, i = '', 0
+            for name, data_y in data.items():
+                ax.plot([i for i in range(1, len(data_y[0]) + 1)], data_y[0], label = name)
+                value += (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
+                          f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
+                i += 1
+            print(value)
             plt.tight_layout(rect=[0.02,0.02,0.75,0.92])
             ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
 
@@ -453,6 +460,8 @@ class Graphs(commands.Cog):
         file_ = discord.File(file_name, filename = 'image.png')
         embed = discord.Embed(title = title_1, color = discord.Color(MAIN_COLOR), description = description, url = replay_url)
         embed.set_image(url = 'attachment://image.png')
+        if mg:
+            embed.add_field(name = 'Ranks (ranked by unlagged WPM)', value = value[:-1])
         os.remove(file_name)
 
         await ctx.send(file = file_, embed = embed)
