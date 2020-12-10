@@ -267,11 +267,17 @@ class Supporter(commands.Cog):
             next(reader)
             tid, text, ghost = tuple(random.choice(list(reader)))
 
-        typos = 'thequickbrownfoxjumpedoverthelazydog!? <>_=1234567890/*-'
+        typos, count = 'abcdefghijklmnopqrstuvwxyz!? <>_=1234567890/*-', 0
         text_ = ''
         for i in range(0, len(text)):
             if random.random() * 100 <= typo_count:
-                text_ += f"{random.choice(typos)}"
+                random_ = random.choice(typos)
+                if random_ == '_' or random_ == '*':
+                    text_ += f"\{random_}"
+                else:
+                    text_ += random_
+                if random_ != text[i]:
+                    count += 1
             else:
                 text_ += text[i]
 
@@ -284,7 +290,8 @@ class Supporter(commands.Cog):
             value = value_1 + "…\"" + value_2
 
         embed = discord.Embed(title = f"Random Text With ≈{typo_count}% Random Typos",
-                              color = discord.Color(MAIN_COLOR))
+                              color = discord.Color(MAIN_COLOR),
+                              description = f"{f'{count:,}'} typos generated")
         embed.add_field(name = f"Text ID: {tid}",
                         value = value,
                         inline = False)
