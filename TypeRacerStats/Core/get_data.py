@@ -204,13 +204,13 @@ class GetData(commands.Cog):
 
         conn.commit()
         data = c.execute(f"SELECT * FROM {file_name}").fetchall()
+        conn.close()
         if not data:
             embed.add_field(name = 'Average Speed', value = '—')
             embed.add_field(name = 'Races', value = '0')
             embed.add_field(name = 'Points', value = '0')
             await ctx.send(embed=embed)
             return
-        conn.close()
 
         texts_data = load_texts_json()
         races, wpm, points, seconds_played, chars_typed, words_typed = (0,) * 6

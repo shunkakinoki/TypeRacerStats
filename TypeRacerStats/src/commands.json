@@ -699,6 +699,23 @@
             },
             "aliases": ["e"],
             "linked": false
+        },
+        {
+            "name": "charlieog",
+            "description": "Returns time(s) of last completion of specified text ID in the last 24 hours",
+            "speed": "fast",
+            "usage": {
+                "general": "[player] <text_id>",
+                "example": "charlieog 3621293",
+                "alt_example": [
+                    {
+                        "usage": "[player]",
+                        "notes": "`text_id` defaults to `3621293` if none is provided"
+                    }
+                ]
+            },
+            "aliases": ["cog"],
+            "linked": false
         }
     ]
 }
