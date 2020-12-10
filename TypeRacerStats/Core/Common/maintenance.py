@@ -33,7 +33,7 @@ async def maintain_players():
     for player in players:
         print(f"Maintaining: {player}")
         last_race = c.execute(f"SELECT t FROM t_{player} ORDER BY gn DESC LIMIT 1").fetchone()[0]
-        data = await fetch_data(player, 'play', last_race + 0.01)
+        data = await fetch_data(player, 'play', last_race + 0.01, time.time())
         if data:
             c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
             conn.commit()
