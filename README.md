@@ -179,9 +179,10 @@ The bot can be invited using [this link](https://discord.com/api/oauth2/authoriz
 If you want to contribute towards hosting fees, refer to the following [link](https://www.paypal.me/e3e2).
 
 Each month of hosting costs 6 USD, so the perks tiers are incremented by 6 each:
-- **Tier 1 ($0.01 - $5.99):** Name listed on `info` command
+- **Tier 1 ($0.01 - $5.99):** Name listed on `info` command and access to `echo` command
 - **Tier 2 ($6.00 - $11.99):** Set custom embed color with `setcolor`
-- **Tier 3 ($12.00+):** Custom command added to the bot
+- **Tier 3 ($12.00 - $17.99):** Custom command added to the bot
+-  **Tier 4 ($18.00+):** Access to commands via bot DM
 
 <details>
 <summary>Supporter commands coming soon!</summary>
