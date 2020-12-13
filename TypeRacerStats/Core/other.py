@@ -6,7 +6,7 @@ import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.file_paths import ART_JSON
+from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.supporter import get_supporter
@@ -144,6 +144,40 @@ class Other(commands.Cog):
         embed.set_image(url = work['url'])
 
         await ctx.send(embed = embed)
+        return
+
+    @commands.command(aliases = get_aliases('clip'))
+    async def clip(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) != 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [clip]"))
+            return
+
+        with open(CLIPS_JSON, 'r') as jsonfile:
+            clips = json.load(jsonfile)
+
+        if len(args) == 1:
+            clip = args[0].lower()
+            if clip == '*':
+                await ctx.send(file = discord.File(CLIPS_JSON, f"clips.json"))
+                return
+            try:
+                clip_url = clips[clip]
+            except KeyError:
+                calls = list(clips.keys())
+                calls_ = ''
+                for clip_ in calls:
+                    calls_ += f"`{clip_}`, "
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"Must provide a valid clip: {calls_[:-2]}"))
+                return
+
+        await ctx.send(clip_url)
         return
 
 def setup(bot):

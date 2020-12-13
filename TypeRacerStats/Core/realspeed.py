@@ -252,7 +252,7 @@ class RealSpeed(commands.Cog):
 
         urls = []
         for i in range(first_race, last_race + 1):
-            replay_url = Urls().result(args[0], i, universe)
+            replay_url = Urls().result(player, i, universe)
             urls.append(replay_url)
 
         responses = await fetch(urls, 'text', rs_typinglog_scraper)

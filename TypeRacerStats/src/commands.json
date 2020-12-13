@@ -107,7 +107,7 @@
                 "example": "",
                 "alt_example": []
             },
-            "aliases": ["tg"],
+            "aliases": ["td"],
             "linked": true
         }
     ],
@@ -301,7 +301,7 @@
                 "example": "races",
                 "alt_example": []
             },
-            "aliases": ["comp"],
+            "aliases": ["comp", "c"],
             "linked": false
         },
         {
@@ -399,7 +399,7 @@
                 "example": "e3e2",
                 "alt_example": []
             },
-            "aliases": ["bd"],
+            "aliases": ["bd", "bd*"],
             "linked": true
         },
         {
@@ -687,6 +687,18 @@
                         "notes": "Returns 1 randomly selected work from an artist"
                     }
                 ]
+            },
+            "aliases": [],
+            "linked": false
+        },
+        {
+            "name": "clip",
+            "description": "Returns specified clip",
+            "speed": "fast",
+            "usage": {
+                "general": "[clip]",
+                "example": "",
+                "alt_example": []
             },
             "aliases": [],
             "linked": false

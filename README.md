@@ -36,7 +36,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-changeprefix [prefix]` | <details><summary>View</summary>![5]</details> | Changes the bot's prefix on the server. | `cp` |
 | `-register [typeracer_username]` | <details><summary>View</summary>![6]</details> | Links Discord account to TypeRacer account. ![mu] | `link`, `link*` |
 | `-setuniverse [universe]` | <details><summary>View</summary>![7]</details> | Links Discord account to provided TypeRacer universe; defaults to `play` universe. ![mu] ![li] | `su` |
-| `-toggledessle` | <details><summary>View</summary>![8]</details> | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `tg` |
+| `-toggledessle` | <details><summary>View</summary>![8]</details> | Toggles Desslejusted option for `realspeed`, `lastrace`, `realspeedaverage`, and `raw`. ![li] | `td` |
 </details>
 
 [5]: https://i.gyazo.com/9275dda7a232b24f7e9acd162b6b43a2.gif
@@ -60,7 +60,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-adjustedgraph [user] <race_num>` or `-adjustedgraph [url]` | <details><summary>View</summary>![42]</details> | Returns specified race's adjusted WPM over time. ![mu] ![li] | `ag` |
 | `-matchgraph [user] <race_num>` or `-matchgraph [url]` | <details><summary>View</summary>![43]</details> | Returns specified race's unlagged WPM over time for everyone in the race. ![mu] ![li] | `mg` |
 | `-leaderboard [category] <amount>` | <details><summary>View</summary>![16]</details> | Returns a leaderboard for given category: `races/points/textstyped/textbests/toptens`. | `lb` |
-| `-competition <category>` | <details><summary>View</summary>![17]</details> | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu] | `comp` |
+| `-competition <category>` | <details><summary>View</summary>![17]</details> | Returns the daily competition for specified category: `points/races/wpm`; defaults to `points` ![mu] | `comp`, `c` |
 | `-lastonline [user]` | <details><summary>View</summary>![18]</details> | Returns the last time a user played. ![mu] ![li] | `lo`, `ls`, `lastseen` |
 | `-medals [user]` | <details><summary>View</summary>![19]</details> | Returns the medals a user has. ![li] | None |
 | `-toptens [user]` | <details><summary>View</summary>![20]</details> | Returns the number of text top 10s a user holds. ![li]<br/>![ba] can request JSON breakdowns with `10*`. | `10`, `10*`, `toptens*` |

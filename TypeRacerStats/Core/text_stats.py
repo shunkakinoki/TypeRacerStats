@@ -54,17 +54,23 @@ class TextStats(commands.Cog):
             max_bucket = int(user_data[-1][2] // 10) if user_data[-1][2] // 10 <= 30 else 30
 
             if bd:
-                breakdown_dict = {}
+                breakdown_dict, textbest_dict = {}, {}
                 for i in range(min_bucket, max_bucket + 1):
                     breakdown_dict.update({i: 0})
+                    textbest_dict.update({i: {'count': 0, 'sum': 0}})
 
             for row in user_data:
                 count += 1
                 sum_ += row[2]
                 if bd:
                     bucket = int(row[2] // 10) if row[2] // 10 <= 30 else 30
-                    for i in range(min_bucket, bucket + 1):
-                        breakdown_dict[i] += 1
+                    if ctx.invoked_with[-1] == '*':
+                        breakdown_dict[bucket] += 1
+                        textbest_dict[bucket]['sum'] += row[2]
+                        textbest_dict[bucket]['count'] += 1
+                    else:
+                        for i in range(min_bucket, bucket + 1):
+                            breakdown_dict[i] += 1
 
         except sqlite3.OperationalError:
             conn.close()
@@ -88,14 +94,21 @@ class TextStats(commands.Cog):
                 top = user_data[-5:][::-1]
         else:
             breakdown_text = ''
-            max_count_spacer = len(f'{breakdown_dict[min_bucket]:,}')
+            max_count_spacer = len(f'{max(breakdown_dict.values()):,}')
             for bucket, count_ in breakdown_dict.items():
                 bucket_spacer = 1 + math.floor(math.log10(max_bucket)) - math.floor(math.log10(bucket))
                 count_spacer = max_count_spacer - len(f'{count_:,}')
                 count_spacer_ = max_count_spacer - len(f'{count - count_:,}')
-                breakdown_text += f"<{bucket * 10}+{' ' * bucket_spacer}WPM> "
+                breakdown_text += f"{{{bucket * 10}+{' ' * bucket_spacer}WPM}} "
                 breakdown_text += f"{' ' * count_spacer}{f'{count_:,}'} [{f'{round(100 * count_ / count, 2):6.2f}'}%] "
-                breakdown_text += f"({' ' * count_spacer_}{f'{count - count_:,}'} left)\n"
+                if ctx.invoked_with[-1] == '*':
+                    try:
+                        average = f"{round(textbest_dict[bucket]['sum'] / textbest_dict[bucket]['count'], 2):6.2f}"
+                    except ZeroDivisionError:
+                        average = "  ——  "
+                    breakdown_text += f"{{{average} WPM}}\n"
+                else:
+                    breakdown_text += f"({' ' * count_spacer_}{f'{count - count_:,}'} left)\n"
 
         embed = discord.Embed(title = f"{player}'s Text Bests",
                               color = discord.Color(MAIN_COLOR))
