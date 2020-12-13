@@ -11,7 +11,7 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, num_to_text, seconds_to_text
 from TypeRacerStats.Core.Common.texts import load_texts_json
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class FullStats(commands.Cog):
@@ -19,6 +19,7 @@ class FullStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('racesover'))
     async def racesover(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -91,6 +92,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('milestone'))
     async def milestone(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -180,6 +182,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('marathon'))
     async def marathon(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -293,6 +296,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('sessionstats'))
     async def sessionstats(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -369,6 +373,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('fastestcompletion'))
     async def fastestcompletion(self, ctx, *args):
         user_id = ctx.message.author.id

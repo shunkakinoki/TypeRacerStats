@@ -14,7 +14,7 @@ from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.supporter import load_supporters, get_supporter, update_supporters
+from TypeRacerStats.Core.Common.supporter import load_supporters, get_supporter, update_supporters, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Supporter(commands.Cog):
@@ -24,7 +24,7 @@ class Supporter(commands.Cog):
     @commands.command(aliases = ['as'])
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
     async def add_supporter(self, ctx, *args):
-        if len(args) != 1: return
+        if len(args) != 2: return
 
         try:
             int(args[0])
@@ -36,19 +36,34 @@ class Supporter(commands.Cog):
                                    .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
             return
 
+        try:
+            tier = int(args[1])
+            if tier < 1 or tier > 4:
+                raise ValueError
+        except ValueError:
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format(f"Tier level must be between 1 and 4"))
+            return
+
         supporters = load_supporters()
 
-        if args[0] in supporters['supporters']:
+        if args[0] in list(supporters.keys()):
             await ctx.send(content = f"<@{ctx.message.author.id}>",
                            embed = Error(ctx, ctx.message)
                                    .missing_information(f"<@{args[0]}> already in system"))
             return
 
-        supporters['supporters'].append(args[0])
+        supporters.update({
+            args[0]: {
+                'color': MAIN_COLOR,
+                'tier': tier
+            }
+        })
 
         update_supporters(supporters)
 
-        await ctx.send(embed = discord.Embed(description = f"<@{args[0]}> added to supporters list", color = discord.Color(0)))
+        await ctx.send(embed = discord.Embed(description = f"**Tier {tier}** supporter <@{args[0]}> added to the list", color = discord.Color(0)))
         return
 
     @commands.command(aliases = ['ds'])
@@ -68,16 +83,14 @@ class Supporter(commands.Cog):
 
         supporters = load_supporters()
 
-        if not args[0] in supporters['supporters']:
+        if not args[0] in list(supporters.keys()):
             await ctx.send(content = f"<@{ctx.message.author.id}>",
                            embed = Error(ctx, ctx.message)
-                                   .missing_information(f"**{args[0]}** is not in the system"))
+                                   .missing_information(f"<@{args[0]}> is not in the system"))
             return
 
-        supporters['supporters'].remove(args[0])
-
         try:
-            del supporters[str(args[0])]
+            del supporters[args[0]]
         except KeyError:
             pass
 
@@ -86,8 +99,54 @@ class Supporter(commands.Cog):
         await ctx.send(embed = discord.Embed(description = f"<@{args[0]}> removed from supporters list", color = discord.Color(0)))
         return
 
+    @commands.command(aliases = ['us'])
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    async def upgrade_supporter(self, ctx, *args):
+        if len(args) != 2: return
+
+        try:
+            int(args[0])
+            if len(args[0]) != 18:
+                raise ValueError
+        except ValueError:
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
+            return
+
+        try:
+            tier = int(args[1])
+            if tier < 1 or tier > 4:
+                raise ValueError
+        except ValueError:
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format(f"Tier level must be between 1 and 4"))
+            return
+
+        supporters = load_supporters()
+
+        if not args[0] in list(supporters.keys()):
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information(f"<@{args[0]}> is not in the system"))
+            return
+
+        supporters.update({
+            args[0]: {
+                'color': supporters[str(args[0])]['color'],
+                'tier': tier
+            }
+        })
+
+        update_supporters(supporters)
+
+        await ctx.send(embed = discord.Embed(description = f"<@{args[0]}> upgraded to **Tier {tier}**", color = discord.Color(0)))
+        return
+
     @commands.command(aliases = get_aliases('setcolor'))
-    @commands.check(lambda ctx: str(ctx.message.author.id) in load_supporters()['supporters'])
+    @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 2)
     async def setcolor(self, ctx, *args):
         if len(args) > 1:
             await ctx.send(content = f"<@{ctx.message.author.id}>",
@@ -112,7 +171,9 @@ class Supporter(commands.Cog):
 
         supporters = load_supporters()
 
-        supporters.update({str(ctx.message.author.id): color})
+        supporters[str(ctx.message.author.id)].update({
+            'color': color
+        })
 
         update_supporters(supporters)
 
@@ -120,11 +181,13 @@ class Supporter(commands.Cog):
         return
 
     @commands.command(aliases = get_aliases('echo'))
-    @commands.check(lambda ctx: str(ctx.message.author.id) in load_supporters()['supporters'])
+    @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 1)
     async def echo(self, ctx, *args):
         await ctx.send(' '.join(args))
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('charlieog'))
     async def charlieog(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -238,6 +301,7 @@ class Supporter(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('kayos'))
     async def kayos(self, ctx, *args):
         user_id = ctx.message.author.id

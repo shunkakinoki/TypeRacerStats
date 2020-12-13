@@ -95,11 +95,13 @@ class Help(commands.Cog):
                                           description = description)
         self.donate_embed.add_field(name = 'Perks (USD)',
                                     value = ('**Tier 1: $0.01 - $5.99**\n'
-                                             'Name listed on `info` command\n\n'
+                                             'Name listed on `info` command and access to `echo` command\n\n'
                                              '**Tier 2: $6.00 - $11.99**\n'
                                              'Set custom embed color with `setcolor`\n\n'
-                                             '**Tier 3: $12.00+**\n'
-                                             'Custom command added to the bot'))
+                                             '**Tier 3: $12.00 - $17.99**\n'
+                                             'Custom command added to the bot\n\n'
+                                             '**Tier 4: $18.00+**\n'
+                                             'Access to commands via bot DM'))
         self.donate_embed.set_footer(text = 'One month of hosting costs 6 USD')
 
     def create_perks_embed(self, bot, message):

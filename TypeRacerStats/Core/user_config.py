@@ -10,7 +10,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe
 from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes
 from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class UserConfig(commands.Cog):
@@ -35,6 +35,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 3, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('register'))
     async def register(self, ctx, *args):
         user_id = str(ctx.message.author.id)
@@ -83,6 +84,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 1, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('setuniverse'))
     async def setuniverse(self, ctx, *args):
         user_id = str(ctx.message.author.id)
@@ -130,6 +132,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 1, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('toggledessle'))
     async def toggledessle(self, ctx, *args):
         user_id = str(ctx.message.author.id)

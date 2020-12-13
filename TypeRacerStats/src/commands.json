@@ -38,7 +38,7 @@
         },
         {
             "name": "support",
-            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot\n",
+            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command and access to `echo` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot\n\n**Tier 4: $18.00+**\nAccess to commands via bot DM",
             "speed": "fast",
             "usage": {
                 "general": "",
@@ -707,7 +707,7 @@
     "supporter": [
         {
             "name": "setcolor",
-            "description": "Sets custom embed color",
+            "description": "Sets custom embed color\n**Tier 2 Command**",
             "speed": "fast",
             "usage": {
                 "general": "<hex_value>",
@@ -719,7 +719,7 @@
         },
         {
             "name": "echo",
-            "description": "Echoes message",
+            "description": "Echoes message\n**Tier 1 Command**",
             "speed": "fast",
             "usage": {
                 "general": "[message]",

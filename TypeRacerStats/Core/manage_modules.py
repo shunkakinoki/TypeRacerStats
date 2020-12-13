@@ -36,7 +36,7 @@ class ManageModules(commands.Cog):
                                              description = f"**{extension}** module reloaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id == 697048255254495312)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
     async def droptable(self, ctx, *args):
         user_id = ctx.message.author.id
 

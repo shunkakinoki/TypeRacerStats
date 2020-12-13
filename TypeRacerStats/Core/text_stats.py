@@ -14,7 +14,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_large
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class TextStats(commands.Cog):
@@ -22,6 +22,7 @@ class TextStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('textbests') + ['breakdown'] + get_aliases('breakdown'))
     async def textbests(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -144,6 +145,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 50, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('personalbest'))
     async def personalbest(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -264,6 +266,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('unraced'))
     async def unraced(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -371,6 +374,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('textsunder'))
     async def textsunder(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -476,6 +480,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('textslessequal'))
     async def textslessequal(self, ctx, *args):
         user_id = ctx.message.author.id

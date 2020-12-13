@@ -14,7 +14,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_json
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class GetData(commands.Cog):
@@ -22,6 +22,7 @@ class GetData(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(1, 7200, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('getdata'))
     async def getdata(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -110,6 +111,7 @@ class GetData(commands.Cog):
         return
 
     @commands.cooldown(5, 7200, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('today'))
     async def today(self, ctx, *args):
         user_id = ctx.message.author.id

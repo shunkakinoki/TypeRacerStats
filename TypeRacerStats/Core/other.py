@@ -9,13 +9,14 @@ from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('unixreference'))
     async def unixreference(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -64,6 +65,7 @@ class Other(commands.Cog):
                                        .incorrect_format('`timestamp` must be an integer or scientific notation (e.g. 1.0365e9)'))
                 return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('serverinfo'))
     async def serverinfo(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -91,6 +93,7 @@ class Other(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('art'))
     async def art(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -146,6 +149,7 @@ class Other(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('clip'))
     async def clip(self, ctx, *args):
         user_id = ctx.message.author.id

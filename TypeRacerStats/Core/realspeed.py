@@ -9,7 +9,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import compute_realspeed, find_registered, raw_typinglog_scraper, rs_typinglog_scraper
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class RealSpeed(commands.Cog):
@@ -18,6 +18,7 @@ class RealSpeed(commands.Cog):
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('realspeed') + ['lastrace'] + get_aliases('lastrace') + ['raw'] + get_aliases('raw'))
     async def realspeed(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -177,6 +178,7 @@ class RealSpeed(commands.Cog):
 
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.cooldown(10, 600, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('realspeedaverage'))
     async def realspeedaverage(self, ctx, *args):
         user_id = ctx.message.author.id

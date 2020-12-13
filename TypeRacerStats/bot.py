@@ -4,6 +4,7 @@ import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_TOKEN, DEFAULT_COMMAND_PREFIX, MAINTAIN
+from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.maintenance import drop_temporary_tables, maintain_players, maintain_top_tens
 from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes

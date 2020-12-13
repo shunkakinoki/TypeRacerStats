@@ -10,7 +10,7 @@ from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.texts import load_texts_large
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
@@ -21,6 +21,7 @@ class AdvancedStats(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.cooldown(20, 100, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('top') + get_aliases('worst') + ['worst'])
     async def top(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -92,6 +93,7 @@ class AdvancedStats(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.cooldown(20, 100, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('racedetails'))
     async def racedetails(self, ctx, *args):
         user_id = ctx.message.author.id

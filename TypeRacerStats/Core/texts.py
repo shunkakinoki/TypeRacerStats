@@ -11,13 +11,14 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import scrape_text
-from TypeRacerStats.Core.Common.supporter import get_supporter
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Texts(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('search'))
     async def search(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -114,6 +115,7 @@ class Texts(commands.Cog):
         return
 
     @commands.cooldown(3, 25, commands.BucketType.user)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('levenshtein'))
     async def levenshtein(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -189,6 +191,7 @@ class Texts(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('searchid'))
     async def searchid(self, ctx, *args):
         user_id = ctx.message.author.id
