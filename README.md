@@ -1,6 +1,6 @@
 <h1 align = 'center'>TypeRacerStats</h1>
 
-**TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/) and was made with the [**Discord.py API**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in [`requirements.txt`](https://github.com/e6f4e37l/TypeRacerStats/blob/main/requirements.txt)). It comes with over 40 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
+**TypeRacerStats** is a [**Discord**](https://discord.com/) bot partnered with with [**TypeRacer**](http://typeracer.com/) and was made with the [**Discord.py API wrapper**](https://pypi.org/project/discord.py/), TypeRacer APIs, [**TypeRacerData**](http://typeracerdata.com/) APIs, [**SQLite**](https://www.sqlite.org/index.html), and various Python libraries (can be found in [`requirements.txt`](https://github.com/e6f4e37l/TypeRacerStats/blob/main/requirements.txt)). It comes with over 40 commands to provide extensive statistics and features for users. Many of them are designed to help with improvement on the site. Run `-help` or refer to the **commands** section below.
 
 
 ## Commands
