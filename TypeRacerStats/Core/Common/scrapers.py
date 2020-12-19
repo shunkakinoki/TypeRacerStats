@@ -107,52 +107,19 @@ def raw_typinglog_scraper(response):
                 opponents = [i['href'] for i in cells[1].select('a')]
 
         try:
-            keystrokes = typinglog[1]
-            keystrokes = keystrokes[keystrokes.index(',') + 1:]
-            keystrokes = keystrokes[keystrokes.index(',') + 1:]
-            parsed_keystrokes, cur_dig, cur_str = [], '', ''
-            for i in keystrokes:
-                if i.isdigit():
-                    cur_dig += i
-                    if not(cur_str): continue
-                    parsed_keystrokes.append(cur_str)
-                    cur_str = ''
+            actions = re.findall("\d+,(?:\d+[\+\-$].?)+,", typinglog[1])
+            raw_actions, raw = [], []
+            for action in actions:
+                if action[-3] == "+":
+                    raw_actions.append(action)
                 else:
-                    cur_str += i
-                    if not(cur_dig): continue
-                    parsed_keystrokes.append(int(cur_dig))
-                    cur_dig = ''
-            parsed_keystrokes.append(cur_str)
-            actions = []
-            num_count = 0
-            cur_action = []
-            for i in parsed_keystrokes:
-                if num_count == 1 and type(i) == int:
-                    num_count += 1
-                    continue
-                if num_count == 2 and type(i) == int:
-                    num_count = 0
-                    cur_action[0] = i
-                elif type(i) == int:
-                    if num_count == 0:
-                        cur_action.append(i)
-                    num_count += 1
-                elif i[0] == "+" or i[0] == "-":
-                    num_count = 0
-                    cur_action.append(i[0])
-                    actions.append(cur_action)
-                    cur_action = []
-            for i, action in enumerate(actions):
-                if len(action) == 3:
-                    actions[i] = [action[0], action[2]]
-            raw = []
-            for i in actions:
-                if i[1] == "+":
-                    raw.append(i[0])
-                else:
-                    raw.pop()
+                    for _ in range(0, len(re.findall("\d+-.?", action))):
+                        raw_actions.pop()
+            for raw_action in raw_actions:
+                raw.append(int(raw_action.split(',')[0]))
         except:
             raw = times
+
         return {'player': player,
                 'timestamp': timestamp,
                 'race_number': race_number,
