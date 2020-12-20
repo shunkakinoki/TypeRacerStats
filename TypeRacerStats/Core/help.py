@@ -1,8 +1,10 @@
+import csv
 import json
 import os
+import time
 import discord
 from discord.ext import commands
-from TypeRacerStats.config import HELP_BLACK, HELP_IMG, SPEED_INDICATORS
+from TypeRacerStats.config import BOT_OWNER_IDS, HELP_BLACK, HELP_IMG, SPEED_INDICATORS
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.prefixes import get_prefix
 
@@ -157,6 +159,35 @@ class Help(commands.Cog):
 
         if len(args) != 0: return
         await ctx.send(embed = self.perks_embed)
+
+    @commands.command(aliases = ['servers'])
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and not ctx.guild)
+    async def listservers(self, ctx):
+        guilds = sorted(self.bot.guilds, key = lambda x: x.member_count, reverse = True)
+        guilds_data = [['Name', "Member Count", 'Guild ID']]
+        people_count, server_count = 0, 0
+        for guild in guilds:
+            guilds_data.append([guild.name, guild.member_count, guild.id])
+            people_count += guild.member_count
+            server_count += 1
+
+        with open('servers.csv', 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerows(guilds_data)
+
+        embed = discord.Embed(title = 'List of Servers TypeRacerStats is in',
+                              color = discord.Color(0),
+                              description = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers")
+        for i, guild in enumerate(guilds[0:20]):
+            embed.add_field(name = guild.name,
+                            value = (f"{i + 1}. {f'{guild.member_count:,}'} members "
+                                     f"({round(100 * guild.member_count / people_count, 2)}%)"),
+                            inline = False)
+
+        await ctx.send(embed = embed,
+                       file = discord.File('servers.csv', f"server_list_{time.time()}.csv"))
+        os.remove('servers.csv')
+        return
 
 def value_formatter(command_list, command_prefix):
     value = ''
