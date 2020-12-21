@@ -53,14 +53,19 @@ def graph_color(ax, information, boxplot, *patches):
 
     (bg, graph_bg, axis, line, text, grid) = information.values()
     legend = ax.get_legend()
+    black = True
 
     if bg != None:
         ax.figure.set_facecolor(to_rgba(bg))
 
     if graph_bg != None:
         ax.set_facecolor(to_rgba(graph_bg))
+
         if legend:
             legend.get_frame().set_facecolor(to_rgba(graph_bg))
+
+        if sum(to_rgba(graph_bg)) <= 1.5:
+            black = False
 
     if axis != None:
         ax.spines['bottom'].set_color(to_rgba(axis))
@@ -95,6 +100,11 @@ def graph_color(ax, information, boxplot, *patches):
                 text_.set_color(text_color)
 
     if grid != None:
-        ax.grid(color = to_rgba(grid))
+        ax.grid(b = True, color = to_rgba(grid))
+
+    if ax.collections:
+        color_ = (0, 0, 0) if black else (1, 1, 1)
+        for collection in ax.collections:
+            collection.set_color(color_)
 
 escape_sequence = lambda x: bool(re.findall('[^a-z^0-9^_]', x.lower()))

@@ -194,6 +194,7 @@ class Supporter(commands.Cog):
     async def setgraphcolor(self, ctx, *args):
         supporters = load_supporters()
         user_id = str(ctx.message.author.id)
+        color = 0
 
         if len(args) == 0:
             supporters[user_id]['graph_color'] = {
@@ -249,7 +250,7 @@ class Supporter(commands.Cog):
         plt.close()
 
         file_ = discord.File(file_name, filename = 'image.png')
-        embed = discord.Embed(title = 'Color Updated', color = discord.Color(0))
+        embed = discord.Embed(title = 'Color Updated', color = discord.Color(color))
         embed.set_image(url = 'attachment://image.png')
         os.remove(file_name)
 

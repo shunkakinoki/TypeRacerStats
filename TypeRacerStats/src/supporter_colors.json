@@ -3,12 +3,12 @@
         "color": 16777215,
         "tier": 4,
         "graph_color": {
-            "bg": 16711680,
-            "graph_bg": null,
+            "bg": null,
+            "graph_bg": 0,
             "axis": null,
-            "line": 16711680,
+            "line": null,
             "text": null,
-            "grid": null
+            "grid": 16766720
         }
     },
     "155481579005804544": {
