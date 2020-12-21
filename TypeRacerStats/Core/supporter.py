@@ -1,4 +1,5 @@
 import csv
+import json
 import os
 import random
 import sqlite3
@@ -9,7 +10,7 @@ from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
-from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
+from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
@@ -168,11 +169,15 @@ class Supporter(commands.Cog):
                 if color < 0 or color > 16777216:
                     raise ValueError
             except ValueError:
-                await ctx.send(content = f"<@{ctx.message.author.id}>",
-                               embed = Error(ctx, ctx.message)
-                                       .incorrect_format((f"[**{args[0]}** is not a valid hex_value]"
-                                                          '(https://www.w3schools.com/colors/colors_picker.asp)')))
-                return
+                try:
+                    colors = get_colors()
+                    color = colors[args[0].lower()]
+                except KeyError:
+                    await ctx.send(content = f"<@{ctx.message.author.id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .incorrect_format((f"[**{args[0]}** is not a valid hex_value]"
+                                                               '(https://www.w3schools.com/colors/colors_picker.asp)')))
+                    return
 
         supporters = load_supporters()
 
@@ -217,11 +222,15 @@ class Supporter(commands.Cog):
                     if color < 0 or color > 16777216:
                         raise ValueError
                 except ValueError:
-                    await ctx.send(content = f"<@{ctx.message.author.id}>",
-                                   embed = Error(ctx, ctx.message)
-                                           .incorrect_format((f"[**{args[1]}** is not a valid hex_value]"
-                                                              '(https://www.w3schools.com/colors/colors_picker.asp)')))
-                    return
+                    try:
+                        colors = get_colors()
+                        color = colors[args[1].lower()]
+                    except KeyError:
+                        await ctx.send(content = f"<@{ctx.message.author.id}>",
+                                       embed = Error(ctx, ctx.message)
+                                               .incorrect_format((f"[**{args[1]}** is not a valid hex_value]"
+                                                                   '(https://www.w3schools.com/colors/colors_picker.asp)')))
+                        return
                 supporters[user_id]['graph_color'][category] = color
 
         update_supporters(supporters)
@@ -430,6 +439,12 @@ class Supporter(commands.Cog):
 
         await ctx.send(embed = embed)
         return
+
+def get_colors():
+    with open(CSS_COLORS, 'r') as jsonfile:
+        css_colors = json.load(jsonfile)
+
+    return css_colors
 
 def setup(bot):
     bot.add_cog(Supporter(bot))

@@ -1,9 +1,9 @@
 {
     "697048255254495312": {
-        "color": 3565567,
+        "color": 16777215,
         "tier": 4,
         "graph_color": {
-            "bg": null,
+            "bg": 16711680,
             "graph_bg": null,
             "axis": null,
             "line": 16711680,
@@ -16,11 +16,11 @@
         "tier": 4,
         "graph_color": {
             "bg": 0,
-            "graph_bg": null,
+            "graph_bg": 0,
             "axis": 16777215,
-            "line": 16051950,
-            "text": null,
-            "grid": null
+            "line": 65280,
+            "text": 16777215,
+            "grid": 3355443
         }
     }
 }

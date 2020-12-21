@@ -716,6 +716,10 @@
                     {
                         "usage": "",
                         "notes": "Providing nothing resets to default color"
+                    },
+                    {
+                        "usage": "black",
+                        "notes": "CSS colors can be inputted"
                     }
                 ]
             },
@@ -733,6 +737,10 @@
                     {
                         "usage": "",
                         "notes": "Providing nothing resets to default colors"
+                    },
+                    {
+                        "usage": "graphbg black",
+                        "notes": "CSS colors can be inputted"
                     }
                 ]
             },
