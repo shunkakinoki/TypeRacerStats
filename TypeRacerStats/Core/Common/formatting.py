@@ -48,4 +48,53 @@ def num_to_text(n):
 def href_universe(universe):
     return f"[`{universe}`](https://play.typeracer.com/?universe={universe})"
 
+def graph_color(ax, information, boxplot, *patches):
+    to_rgba = lambda x: (x // 65536 / 255, ((x % 65536) // 256) / 255, x % 256 / 255)
+
+    (bg, graph_bg, axis, line, text, grid) = information.values()
+    legend = ax.get_legend()
+
+    if bg != None:
+        ax.figure.set_facecolor(to_rgba(bg))
+
+    if graph_bg != None:
+        ax.set_facecolor(to_rgba(graph_bg))
+        if legend:
+            legend.get_frame().set_facecolor(to_rgba(graph_bg))
+
+    if axis != None:
+        ax.spines['bottom'].set_color(to_rgba(axis))
+        ax.spines['top'].set_color(to_rgba(axis))
+        ax.spines['left'].set_color(to_rgba(axis))
+        ax.spines['right'].set_color(to_rgba(axis))
+
+    if line != None:
+        line_color = to_rgba(line)
+        if ax.get_lines():
+            if boxplot:
+                for line_ in ax.get_lines()[0:5]:
+                    line_.set_color(line_color)
+            else:
+                ax.get_lines()[0].set_color(line_color)
+        elif len(patches) > 0:
+            for patch in patches[0]:
+                patch.set_facecolor(line_color)
+
+        if legend:
+            legend.get_lines()[0].set_color(line_color)
+
+    if text != None:
+        text_color = to_rgba(text)
+        ax.set_title(label = ax.get_title(), color = text_color)
+        ax.xaxis.label.set_color(text_color)
+        ax.yaxis.label.set_color(text_color)
+        ax.tick_params(colors = text_color)
+
+        if legend:
+            for text_ in legend.get_texts():
+                text_.set_color(text_color)
+
+    if grid != None:
+        ax.grid(color = to_rgba(grid))
+
 escape_sequence = lambda x: bool(re.findall('[^a-z^0-9^_]', x.lower()))

@@ -101,7 +101,7 @@ class Help(commands.Cog):
                                              '**Tier 2: $6.00 - $11.99**\n'
                                              'Set custom embed color with `setcolor`\n\n'
                                              '**Tier 3: $12.00 - $17.99**\n'
-                                             'Custom command added to the bot\n\n'
+                                             'Custom command added to the bot and set custom colors for graphs with `setgraphcolor`\n\n'
                                              '**Tier 4: $18.00+**\n'
                                              'Access to commands via bot DM'))
         self.donate_embed.set_footer(text = 'One month of hosting costs 6 USD')

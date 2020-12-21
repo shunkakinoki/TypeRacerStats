@@ -13,9 +13,9 @@ from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_account, account_information
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import escape_sequence, href_universe, num_to_text
+from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
 from TypeRacerStats.Core.Common.urls import Urls
 
 class Graphs(commands.Cog):
@@ -57,17 +57,22 @@ class Graphs(commands.Cog):
 
         ax = plt.subplots()[1]
         max_, min_ = max(data), min(data)
+
         if int(max_ - min_) // 10 == 0:
-            ax.hist(data, bins = 1)
+            patches = ax.hist(data, bins = 1)[2]
         else:
-            ax.hist(data, bins = int(max_ - min_) // 10)
+            patches = ax.hist(data, bins = int(max_ - min_) // 10)[2]
 
         ax.set_xlabel('WPM')
         ax.set_ylabel('Frequency')
         plt.grid(True)
         ax.set_title(f"{player}'s WPM Histogram")
         file_name = f"{player} WPM.png"
-        plt.savefig(file_name)
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False, patches)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
+        races_over_time_picture = discord.File(file_name, filename = file_name)
         wpm_picture = discord.File(file_name, filename = file_name)
         await ctx.send(file = wpm_picture)
         os.remove(file_name)
@@ -123,7 +128,10 @@ class Graphs(commands.Cog):
         ax.set_title(title_text)
         plt.grid(True)
         file_name = f"{title_text}.png"
-        plt.savefig(file_name)
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, True)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         wpm_picture = discord.File(file_name, filename = file_name)
 
         await ctx.send(file = wpm_picture)
@@ -213,10 +221,15 @@ class Graphs(commands.Cog):
         ax.set_xlabel('Date (UNIX Timestamp)')
         ax.set_ylabel('Races')
         plt.grid(True)
-        plt.tight_layout(rect=[0,0,0.75,1])
-        ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
+
+        if len(data_y) > 1:
+            plt.tight_layout(rect=[0,0,0.75,1])
+            ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
         file_name = 'Races Over Time.png'
-        plt.savefig(file_name)
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         races_over_time_picture = discord.File(file_name, filename = file_name)
 
         await ctx.send(file = races_over_time_picture)
@@ -296,7 +309,10 @@ class Graphs(commands.Cog):
         ax.set_ylabel('WPM')
         plt.grid(True)
         file_name = f"WPM Over {category}.png"
-        plt.savefig(file_name)
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         races_over_time_picture = discord.File(file_name, filename = file_name)
 
         await ctx.send(file = races_over_time_picture)
@@ -450,16 +466,19 @@ class Graphs(commands.Cog):
                 value += (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
                           f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
                 i += 1
-            print(value)
-            plt.tight_layout(rect=[0.02,0.02,0.75,0.92])
-            ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
+            if len(data) > 1:
+                plt.tight_layout(rect=[0.02,0.02,0.75,0.92])
+                ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
 
         ax.set_title(title)
         ax.set_xlabel('Keystrokes')
         ax.set_ylabel('WPM')
         plt.grid(True)
         file_name = 'WPM Over Race.png'
-        plt.savefig(file_name)
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         plt.close()
 
         file_ = discord.File(file_name, filename = 'image.png')

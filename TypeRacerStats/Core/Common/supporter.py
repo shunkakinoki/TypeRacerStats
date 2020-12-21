@@ -21,6 +21,23 @@ def get_supporter(id_):
     except KeyError:
         return MAIN_COLOR
 
+def get_graph_colors(id_):
+    try:
+        supporter = load_supporters()[str(id_)]
+        if int(supporter['tier']) >= 3:
+            return supporter['graph_color']
+        else:
+            return MAIN_COLOR
+    except KeyError:
+        return {
+                'bg': None,
+                'graph_bg': None,
+                'axis': None,
+                'line': None,
+                'text': None,
+                'grid': None
+            }
+
 def check_dm_perms(ctx, tier):
     if ctx.message.guild:
         return True

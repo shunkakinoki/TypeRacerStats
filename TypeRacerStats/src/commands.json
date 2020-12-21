@@ -38,7 +38,7 @@
         },
         {
             "name": "support",
-            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command and access to `echo` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot\n\n**Tier 4: $18.00+**\nAccess to commands via bot DM",
+            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command and access to `echo` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot and set custom colors for graphs with `setgraphcolor`\n\n**Tier 4: $18.00+**\nAccess to commands via bot DM",
             "speed": "fast",
             "usage": {
                 "general": "",
@@ -712,9 +712,31 @@
             "usage": {
                 "general": "<hex_value>",
                 "example": "6f4e37",
-                "alt_example": []
+                "alt_example": [
+                    {
+                        "usage": "",
+                        "notes": "Providing nothing resets to default color"
+                    }
+                ]
             },
             "aliases": ["sc"],
+            "linked": false
+        },
+        {
+            "name": "setgraphcolor",
+            "description": "Sets custom colors for graph\n**Tier 3 Command**",
+            "speed": "fast",
+            "usage": {
+                "general": "[bg/graph_bg/axis/line/text/grid] [hex_value]",
+                "example": "graphbg 6f4e37",
+                "alt_example": [
+                    {
+                        "usage": "",
+                        "notes": "Providing nothing resets to default colors"
+                    }
+                ]
+            },
+            "aliases": ["sgc"],
             "linked": false
         },
         {

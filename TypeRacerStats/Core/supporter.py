@@ -1,10 +1,12 @@
 import csv
+import os
 import random
 import sqlite3
 import sys
 import time
 import discord
 from discord.ext import commands
+import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
@@ -12,7 +14,7 @@ from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
+from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.supporter import load_supporters, get_supporter, update_supporters, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
@@ -57,7 +59,15 @@ class Supporter(commands.Cog):
         supporters.update({
             args[0]: {
                 'color': MAIN_COLOR,
-                'tier': tier
+                'tier': tier,
+                'graph_color': {
+                    'bg': None,
+                    'graph_bg': None,
+                    'axis': None,
+                    'line': None,
+                    'text': None,
+                    'grid': None
+                }
             }
         })
 
@@ -132,12 +142,7 @@ class Supporter(commands.Cog):
                                    .missing_information(f"<@{args[0]}> is not in the system"))
             return
 
-        supporters.update({
-            args[0]: {
-                'color': supporters[str(args[0])]['color'],
-                'tier': tier
-            }
-        })
+        supporters[args[0]]['tier'] = tier
 
         update_supporters(supporters)
 
@@ -164,20 +169,82 @@ class Supporter(commands.Cog):
                     raise ValueError
             except ValueError:
                 await ctx.send(content = f"<@{ctx.message.author.id}>",
-                            embed = Error(ctx, ctx.message)
-                                    .incorrect_format((f"[**{args[0]}** is not a valid hex_value]"
-                                                        '(https://www.w3schools.com/colors/colors_picker.asp)')))
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format((f"[**{args[0]}** is not a valid hex_value]"
+                                                          '(https://www.w3schools.com/colors/colors_picker.asp)')))
                 return
 
         supporters = load_supporters()
 
-        supporters[str(ctx.message.author.id)].update({
-            'color': color
-        })
+        supporters[str(ctx.message.author.id)]['color'] = color
 
         update_supporters(supporters)
 
         await ctx.send(embed = discord.Embed(title = 'Color updated', color = discord.Color(color)))
+        return
+
+    @commands.command(aliases = get_aliases('setgraphcolor'))
+    @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 3)
+    async def setgraphcolor(self, ctx, *args):
+        supporters = load_supporters()
+        user_id = str(ctx.message.author.id)
+
+        if len(args) == 0:
+            supporters[user_id]['graph_color'] = {
+                'bg': None,
+                'graph_bg': None,
+                'axis': None,
+                'line': None,
+                'text': None,
+                'grid': None
+            }
+
+        else:
+            category = args[0].lower()
+            if not category in ['bg', 'graph_bg', 'axis', 'line', 'text', 'grid']:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(('Must provide a valid category: '
+                                                          '`[bg/graph_bg/axis/line/text/grid]`')))
+                return
+
+            if len(args) == 1:
+                supporters[user_id]['graph_color'][category] = None
+            else:
+                try:
+                    color = int(f"0x{args[1]}", 16)
+                    if color < 0 or color > 16777216:
+                        raise ValueError
+                except ValueError:
+                    await ctx.send(content = f"<@{ctx.message.author.id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .incorrect_format((f"[**{args[1]}** is not a valid hex_value]"
+                                                              '(https://www.w3schools.com/colors/colors_picker.asp)')))
+                    return
+                supporters[user_id]['graph_color'][category] = color
+
+        update_supporters(supporters)
+
+        ax = plt.subplots()[1]
+        ax.plot([1, 2, 3, 4, 5], [1, 4, 9, 16, 25])
+
+        ax.set_title('Sample Graph')
+        ax.set_xlabel('x-axis')
+        ax.set_ylabel('y-axis')
+
+        plt.grid(True)
+        file_name = 'Sample Graph.png'
+        graph_color(ax, supporters[user_id]['graph_color'], False)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
+        plt.close()
+
+        file_ = discord.File(file_name, filename = 'image.png')
+        embed = discord.Embed(title = 'Color Updated', color = discord.Color(0))
+        embed.set_image(url = 'attachment://image.png')
+        os.remove(file_name)
+
+        await ctx.send(file = file_, embed = embed)
         return
 
     @commands.command(aliases = get_aliases('echo'))
