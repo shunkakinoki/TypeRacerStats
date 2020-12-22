@@ -1,3 +1,4 @@
+import datetime
 import os
 import sqlite3
 import re
@@ -7,6 +8,7 @@ from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
@@ -157,9 +159,9 @@ class Graphs(commands.Cog):
         opt = 0
         if len(args) > 1:
             try:
-                args[0].index('.')
-                opt = float(args[0])
-                if opt <= 1.25 or opt > time.time() / 1_000_000_000:
+                args[0].index('-')
+                opt = (datetime.datetime.strptime(args[0], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                if opt <= 1_250_000_000 or opt > time.time():
                     raise ValueError
                 args = args[1:]
             except ValueError:
@@ -180,14 +182,14 @@ class Graphs(commands.Cog):
             for user in args:
                 temp_x, temp_y, first_gn = [], [], 1
                 if opt:
-                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt * 1_000_000_000}")
+                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt}")
                     first_t, first_gn = user_data.fetchone()
-                    temp_x.append(first_t)
+                    temp_x.append(datetime.datetime.fromtimestamp(first_t))
                     temp_y.append(1)
                 else:
                     user_data = c.execute(f"SELECT t, gn FROM t_{user}")
                 for i in user_data:
-                    temp_x.append(i[0])
+                    temp_x.append(datetime.datetime.fromtimestamp(i[0]))
                     temp_y.append(i[1] - first_gn + 1)
                 data_x.append(temp_x)
                 data_y.append(temp_y)
@@ -203,7 +205,14 @@ class Graphs(commands.Cog):
         count = 0
         for i in range(0, len(args)):
             try:
-                ax.plot(data_x[i] + [today], data_y[i] + [data_y[i][-1]], label = args[i])
+                if opt:
+                    ax.plot([datetime.datetime.fromtimestamp(opt)] + data_x[i] + [datetime.datetime.fromtimestamp(today)],
+                            [0] + data_y[i] + [data_y[i][-1]],
+                            label = args[i])
+                else:
+                    ax.plot(data_x[i] + [datetime.datetime.fromtimestamp(today)],
+                            data_y[i] + [data_y[i][-1]],
+                            label = args[i])
                 count += 1
             except IndexError:
                 pass
@@ -214,11 +223,16 @@ class Graphs(commands.Cog):
                                    .missing_information('No users had races specified time interval'))
             return
 
-        title = 'Races Over Time'
+        title = f"{args[0].lower()}'s " if len(args) == 1 else ''
+        title += 'Races Over Time'
         if opt:
-            title += f"\n(Since {opt}e9 UNIX Timestamp)"
+            title += f"""\n(Since {datetime.datetime.fromtimestamp(opt) 
+                                   .strftime("%B %-d, %Y")})"""
         ax.set_title(title)
-        ax.set_xlabel('Date (UNIX Timestamp)')
+        ax.set_xlabel('Date')
+        ax.set_xticks(ax.get_xticks()[::2])
+        formatter = mdates.DateFormatter("%b. %-d, '%y")
+        ax.xaxis.set_major_formatter(formatter)
         ax.set_ylabel('Races')
         plt.grid(True)
 
@@ -277,7 +291,10 @@ class Graphs(commands.Cog):
         try:
             player_data = c.execute(f"SELECT wpm, {q_category} FROM t_{player} ORDER by {q_category}")
             for row in player_data:
-                data_x.append(row[1])
+                if q_category == 't':
+                    data_x.append(datetime.datetime.fromtimestamp(row[1]))
+                else:
+                    data_x.append(row[1])
                 data_y.append(row[0])
         except sqlite3.OperationalError:
             conn.close()
@@ -302,7 +319,10 @@ class Graphs(commands.Cog):
         ax.set_title(f"{player}'s WPM Over {category}\n(Moving Average of {sma} Races)")
 
         if q_category == 't':
-            ax.set_xlabel('Date (UNIX Timestamp)')
+            ax.set_xlabel('Date')
+            ax.set_xticks(ax.get_xticks()[::2])
+            formatter = mdates.DateFormatter("%b. %-d '%y")
+            ax.xaxis.set_major_formatter(formatter)
         else:
             ax.set_xlabel('Race #')
 

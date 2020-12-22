@@ -4,11 +4,11 @@
         "tier": 4,
         "graph_color": {
             "bg": null,
-            "graph_bg": 0,
+            "graph_bg": null,
             "axis": null,
             "line": null,
-            "text": null,
-            "grid": 16766720
+            "text": 16711680,
+            "grid": null
         }
     },
     "155481579005804544": {

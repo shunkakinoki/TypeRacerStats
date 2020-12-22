@@ -587,8 +587,8 @@
                         "notes": "Up to 10 users can be graphed"
                     },
                     {
-                        "usage": "1.5 despot e6f4e37l",
-                        "notes": "Only graphs races that were completed after `time`e9 (UNIX timestamp); `time` must be greater than 1.25 and less than the time it's called"
+                        "usage": "2020-01-01 despot e6f4e37l",
+                        "notes": "Only graphs races that were completed after date in the form YYYY-MM-DD; date must be after 2007 and before the time it's called"
                     }
                 ]
             },
@@ -732,14 +732,14 @@
             "speed": "fast",
             "usage": {
                 "general": "[bg/graph_bg/axis/line/text/grid] [hex_value]",
-                "example": "graphbg 6f4e37",
+                "example": "graph_bg 6f4e37",
                 "alt_example": [
                     {
                         "usage": "",
                         "notes": "Providing nothing resets to default colors"
                     },
                     {
-                        "usage": "graphbg black",
+                        "usage": "graph_bg black",
                         "notes": "CSS colors can be inputted"
                     }
                 ]
