@@ -71,7 +71,10 @@ class GetData(commands.Cog):
                                        .missing_information(f"{player} has no races"))
                 return
             else:
-                c.execute(f"CREATE TABLE t_{player} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
+                if races_remaining > 10000 and not user_id in BOT_ADMIN_IDS:
+                    pass
+                else:
+                    c.execute(f"CREATE TABLE t_{player} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
         if races_remaining > 10000 and not user_id in BOT_ADMIN_IDS:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
