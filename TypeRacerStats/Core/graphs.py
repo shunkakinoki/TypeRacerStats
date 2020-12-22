@@ -183,7 +183,10 @@ class Graphs(commands.Cog):
                 temp_x, temp_y, first_gn = [], [], 1
                 if opt:
                     user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt}")
-                    first_t, first_gn = user_data.fetchone()
+                    try:
+                        first_t, first_gn = user_data.fetchone()
+                    except TypeError:
+                        continue
                     temp_x.append(datetime.datetime.fromtimestamp(first_t))
                     temp_y.append(1)
                 else:
