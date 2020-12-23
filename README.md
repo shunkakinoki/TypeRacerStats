@@ -147,8 +147,8 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [40]: https://i.gyazo.com/1877d7ab9da0ae4744abc3f1882477b5.gif
 [41]: https://i.gyazo.com/ef08e87d9584a2f9eaba14c6aa0c6ad6.gif
 [44]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
-[45]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
-[46]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
+[45]: https://i.gyazo.com/add3320d0b44cc9bf0ecda43864377f5.gif
+[46]: https://i.gyazo.com/62028184fa91ffa0186bbeed033d7c6b.gif
 
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00

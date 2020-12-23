@@ -224,7 +224,7 @@ class Other(commands.Cog):
             except ValueError:
                 await ctx.send(content = f"<@{user_id}>",
                                embed = Error(ctx, ctx.message)
-                                       .incorrect_format(f"**{id_}** is not a valid Discord ID"))
+                                       .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
                 return
 
             user_data = c.execute(f"""SELECT name, command, COUNT(command)
