@@ -87,6 +87,7 @@ def graph_color(ax, information, boxplot, *patches):
             else:
                 if cmap != None:
                     x, y = ax.get_lines()[0].get_data()
+                    label = ax.get_lines()[0].get_label()
                     ax.lines.pop(0)
 
                     if isinstance(x[0], datetime.date):
@@ -97,6 +98,9 @@ def graph_color(ax, information, boxplot, *patches):
                     lc = LineCollection(segments, cmap = cmap)
                     lc.set_array(y)
                     ax.add_collection(lc)
+
+                    if ax.get_lines():
+                        ax.plot([0], [0], label = label)
                 else:
                     ax.get_lines()[0].set_color(line_color)
         elif len(patches) > 0:

@@ -208,13 +208,15 @@ class Graphs(commands.Cog):
         count = 0
         for i in range(0, len(args)):
             try:
+                temp_x = reduce_list(data_x[i])
+                temp_y = reduce_list(data_y[i])
                 if opt:
-                    ax.plot([datetime.datetime.fromtimestamp(opt)] + data_x[i] + [datetime.datetime.fromtimestamp(today)],
-                            [0] + data_y[i] + [data_y[i][-1]],
+                    ax.plot([datetime.datetime.fromtimestamp(opt)] + temp_x + [datetime.datetime.fromtimestamp(today)],
+                            [0] + temp_y + [temp_y[-1]],
                             label = args[i])
                 else:
-                    ax.plot(data_x[i] + [datetime.datetime.fromtimestamp(today)],
-                            data_y[i] + [data_y[i][-1]],
+                    ax.plot(temp_x + [datetime.datetime.fromtimestamp(today)],
+                            temp_y + [temp_y[-1]],
                             label = args[i])
                 count += 1
             except IndexError:
@@ -315,6 +317,8 @@ class Graphs(commands.Cog):
         moving_y = [sum(data_y[0:sma]) / sma]
         moving_y += [sum(data_y[i - sma:i]) / sma for i in range(sma, length)]
         moving_x = [data_x[0]] + data_x[sma:]
+        moving_y = reduce_list(moving_y)
+        moving_x = reduce_list(moving_x)
 
         ax = plt.subplots()[1]
         ax.scatter(data_x, data_y, marker = '.', alpha = 0.1, color = '#000000')
@@ -513,6 +517,14 @@ class Graphs(commands.Cog):
 
         await ctx.send(file = file_, embed = embed)
         return
+
+def reduce_list(lst):
+    length = len(lst)
+
+    if length > 2000:
+        return lst[::length // 1000]
+    else:
+        return lst
 
 def setup(bot):
     bot.add_cog(Graphs(bot))
