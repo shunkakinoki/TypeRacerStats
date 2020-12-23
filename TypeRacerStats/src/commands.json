@@ -731,7 +731,7 @@
             "description": "Sets custom colors for graph\n**Tier 3 Command**",
             "speed": "fast",
             "usage": {
-                "general": "[bg/graph_bg/axis/line/text/grid] [hex_value]",
+                "general": "[bg/graph_bg/axis/line/text/grid/cmap] [hex_value]",
                 "example": "graph_bg 6f4e37",
                 "alt_example": [
                     {
@@ -741,6 +741,10 @@
                     {
                         "usage": "graph_bg black",
                         "notes": "CSS colors can be inputted"
+                    },
+                    {
+                        "usage": "cmap gist_rainbow",
+                        "notes": "[matplotlib color maps](https://matplotlib.org/3.1.0/tutorials/colors/colormaps.html) may be used"
                     }
                 ]
             },

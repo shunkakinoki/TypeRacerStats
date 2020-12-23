@@ -1,4 +1,9 @@
+import datetime
 import re
+import numpy as np
+from matplotlib.collections import LineCollection
+from matplotlib.dates import date2num
+from matplotlib.colors import Colormap
 
 def seconds_to_text(seconds, *args):
     if len(args) > 1: return
@@ -51,7 +56,7 @@ def href_universe(universe):
 def graph_color(ax, information, boxplot, *patches):
     to_rgba = lambda x: (x // 65536 / 255, ((x % 65536) // 256) / 255, x % 256 / 255)
 
-    (bg, graph_bg, axis, line, text, grid) = information.values()
+    (bg, graph_bg, axis, line, text, grid, cmap) = information.values()
     legend = ax.get_legend()
     black = True
 
@@ -80,7 +85,20 @@ def graph_color(ax, information, boxplot, *patches):
                 for line_ in ax.get_lines()[0:5]:
                     line_.set_color(line_color)
             else:
-                ax.get_lines()[0].set_color(line_color)
+                if cmap != None:
+                    x, y = ax.get_lines()[0].get_data()
+                    ax.lines.pop(0)
+
+                    if isinstance(x[0], datetime.date):
+                        x = date2num(list(x))
+                    points = np.array([x, y]).T.reshape(-1, 1, 2)
+
+                    segments = np.concatenate([points[:-1], points[1:]], axis = 1)
+                    lc = LineCollection(segments, cmap = cmap)
+                    lc.set_array(y)
+                    ax.add_collection(lc)
+                else:
+                    ax.get_lines()[0].set_color(line_color)
         elif len(patches) > 0:
             for patch in patches[0]:
                 patch.set_facecolor(line_color)
@@ -108,3 +126,4 @@ def graph_color(ax, information, boxplot, *patches):
             collection.set_color(color_)
 
 escape_sequence = lambda x: bool(re.findall('[^a-z^0-9^_]', x.lower()))
+

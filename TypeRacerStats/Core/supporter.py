@@ -10,7 +10,7 @@ from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
-from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS
+from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS, CMAPS
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
@@ -67,7 +67,8 @@ class Supporter(commands.Cog):
                     'axis': None,
                     'line': None,
                     'text': None,
-                    'grid': None
+                    'grid': None,
+                    'cmap': None
                 }
             }
         })
@@ -203,12 +204,13 @@ class Supporter(commands.Cog):
                 'axis': None,
                 'line': None,
                 'text': None,
-                'grid': None
+                'grid': None,
+                'cmap': None
             }
 
         else:
             category = args[0].lower()
-            if not category in ['bg', 'graph_bg', 'axis', 'line', 'text', 'grid']:
+            if not category in ['bg', 'graph_bg', 'axis', 'line', 'text', 'grid', 'cmap']:
                 await ctx.send(content = f"<@{user_id}>",
                                embed = Error(ctx, ctx.message)
                                        .incorrect_format(('Must provide a valid category: '
@@ -224,20 +226,28 @@ class Supporter(commands.Cog):
                         raise ValueError
                 except ValueError:
                     try:
-                        colors = get_colors()
-                        color = colors[args[1].lower()]
+                        if category == 'cmap':
+                            cmaps = get_cmaps()
+                            color = cmaps[args[1].lower()]
+                        else:
+                            colors = get_colors()
+                            color = colors[args[1].lower()]
                     except KeyError:
                         await ctx.send(content = f"<@{ctx.message.author.id}>",
                                        embed = Error(ctx, ctx.message)
-                                               .incorrect_format((f"[**{args[1]}** is not a valid hex_value]"
+                                               .incorrect_format((f"[**{args[1]}** is not a valid hex_value or cmap]"
                                                                    '(https://www.w3schools.com/colors/colors_picker.asp)')))
                         return
                 supporters[user_id]['graph_color'][category] = color
 
+                if isinstance(color, str):
+                    color = 0
+
         update_supporters(supporters)
 
         ax = plt.subplots()[1]
-        ax.plot([1, 2, 3, 4, 5], [1, 4, 9, 16, 25])
+        ax.plot([x for x in range(0, 50)],
+                [y ** 0.5 for y in range(0, 50)])
 
         ax.set_title('Sample Graph')
         ax.set_xlabel('x-axis')
@@ -446,6 +456,12 @@ def get_colors():
         css_colors = json.load(jsonfile)
 
     return css_colors
+
+def get_cmaps():
+    with open(CMAPS, 'r') as jsonfile:
+        cmaps = json.load(jsonfile)
+
+    return cmaps
 
 def setup(bot):
     bot.add_cog(Supporter(bot))
