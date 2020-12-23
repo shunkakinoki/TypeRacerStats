@@ -1,9 +1,11 @@
 import os
+import sqlite3
 import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_TOKEN, DEFAULT_COMMAND_PREFIX, MAINTAIN
+from TypeRacerStats.config import BOT_TOKEN, DEFAULT_COMMAND_PREFIX, MAINTAIN, TABLE_KEY
+from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.maintenance import drop_temporary_tables, maintain_players, maintain_top_tens
@@ -34,6 +36,34 @@ async def on_guild_remove(guild):
     prefixes = load_prefixes()
     prefixes.pop(str(guild.id))
     update_prefixes(prefixes)
+
+@bot.event
+async def on_command(ctx):
+    user_id = ctx.message.author.id
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    try:
+        user_data = c.execute(f"SELECT * FROM {TABLE_KEY} WHERE id = {user_id} LIMIT 1").fetchall()
+        if not user_data:
+            embed = discord.Embed(title = 'Hello!',
+                                  color = discord.Color(0),
+                                  description = ("You can get started by using the command `-help`\n\n"
+                                                 "To register your TypeRacer account to the bot, you\n"
+                                                 "can use `-link [typeracer_username]`; after linking,\n"
+                                                 "you don't have to type your username every time."))
+
+            await ctx.send(content = f"<@{user_id}>", embed = embed)
+    except sqlite3.OperationalError:
+        c.execute(f"CREATE TABLE {TABLE_KEY} (id integer, name, command)")
+
+    c.execute(f"INSERT INTO {TABLE_KEY} (id, name, command) VALUES (?, ?, ?)",
+              (user_id,
+              f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
+              ctx.invoked_with))
+    conn.commit()
+    conn.close()
+    return
 
 @bot.event
 async def on_command_error(ctx, error):

@@ -537,7 +537,7 @@ class TextStats(commands.Cog):
                                           GROUP BY tid
                                           ORDER BY COUNT(tid) DESC""").fetchall()
             else:
-                user_data = c.execute(f"""SELECT tid, COUNT(tid) 
+                user_data = c.execute(f"""SELECT tid, COUNT(tid
                                           FROM t_{player}
                                           GROUP BY tid
                                           HAVING COUNT(tid) >= {num}

@@ -1,14 +1,16 @@
 import datetime
 import json
 import random
+import sqlite3
 import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON
+from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS
+from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON, DATABASE_PATH
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -182,6 +184,78 @@ class Other(commands.Cog):
                 return
 
         await ctx.send(clip_url)
+        return
+
+    @commands.command(aliases = get_aliases('botleaderboard'))
+    async def botleaderboard(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+
+        if len(args) > 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} <discord_id>"))
+            return
+
+        if len(args) == 0:
+            user_data = c.execute(f"""SELECT name, COUNT(id)
+                                      FROM {TABLE_KEY}
+                                      GROUP BY id
+                                      ORDER BY COUNT(id) DESC LIMIT 10""").fetchall()
+            conn.close()
+
+            value = ''
+            for i, user in enumerate(list(user_data)):
+                value += f"{NUMBERS[i]} {user[0]} - {f'{user[1]:,}'}\n"
+            value = value[:-1]
+
+            embed = discord.Embed(title = 'Bot Usage Leaderboard',
+                                  color = discord.Color(MAIN_COLOR),
+                                  description = value)
+        else:
+            try:
+                if len(args[0]) > 18:
+                    raise ValueError
+                id_ = int(args[0])
+                if escape_sequence(args[0].lower()):
+                    raise ValueError
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"**{id_}** is not a valid Discord ID"))
+                return
+
+            user_data = c.execute(f"""SELECT name, command, COUNT(command)
+                                      FROM
+                                        (SELECT * FROM {TABLE_KEY} WHERE ID = {id_})
+                                      GROUP BY command
+                                      ORDER BY COUNT(command) DESC""").fetchall()
+            conn.close()
+
+            user_data= list(user_data)
+            if not user_data:
+                title = f"Bot Statistics for {id_}"
+            else:
+                title = f"Bot Statistics for {user_data[-1][0]}"
+
+            count, value = 0, ''
+            for i, cmd in enumerate(user_data):
+                count += cmd[2]
+                if i < 5:
+                    cmds = i + 1
+                    value += f"**{i + 1}.** `{cmd[1]}` - {f'{cmd[2]:,}'}\n"
+
+            embed = discord.Embed(title = title,
+                                  color = discord.Color(MAIN_COLOR),
+                                  description = f"**Used:** {f'{count:,}'} times")
+            if value:
+                embed.add_field(name = f"Top {cmds} Most Used",
+                                value = value)
+
+        embed.set_footer(text = 'Since December 24, 2020')
+        await ctx.send(embed = embed)
         return
 
 def setup(bot):

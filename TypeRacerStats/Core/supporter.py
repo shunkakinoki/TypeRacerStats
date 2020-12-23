@@ -31,7 +31,7 @@ class Supporter(commands.Cog):
 
         try:
             int(args[0])
-            if len(args[0]) != 18:
+            if len(args[0]) > 18:
                 raise ValueError
         except ValueError:
             await ctx.send(content = f"<@{ctx.message.author.id}>",
@@ -85,7 +85,7 @@ class Supporter(commands.Cog):
 
         try:
             int(args[0])
-            if len(args[0]) != 18:
+            if len(args[0]) > 18:
                 raise ValueError
         except ValueError:
             await ctx.send(content = f"<@{ctx.message.author.id}>",
@@ -118,7 +118,7 @@ class Supporter(commands.Cog):
 
         try:
             int(args[0])
-            if len(args[0]) != 18:
+            if len(args[0]) > 18:
                 raise ValueError
         except ValueError:
             await ctx.send(content = f"<@{ctx.message.author.id}>",

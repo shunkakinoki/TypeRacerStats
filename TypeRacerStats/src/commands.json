@@ -702,6 +702,23 @@
             },
             "aliases": [],
             "linked": false
+        },
+        {
+            "name": "botleaderboard",
+            "description": "Returns specified clip",
+            "speed": "fast",
+            "usage": {
+                "general": "<discord_id>",
+                "example": "",
+                "alt_example": [
+                    {
+                        "usage": "697048255254495312",
+                        "notes": "Gives bot stats on Discord ID; pinging will NOT work"
+                    }
+                ]
+            },
+            "aliases": ["blb", "botlb"],
+            "linked": false
         }
     ],
     "supporter": [

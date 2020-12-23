@@ -137,6 +137,8 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-unixreference <timestamp>` | <details><summary>View</summary>![40]</details> | Converts a provided UNIX timestamp to UTC time; scientific notation may be used. No parameters provided returns a conversion table. | `unix` |
 | `-serverinfo` | <details><summary>View</summary>![41]</details> | Returns basic information about the server the bot is in. | `sinfo` |
 | `-art <artist>` | <details><summary>View</summary>![44]</details> | Randomly returns a work of art 😺 | None |
+| `-clip [clip]` | <details><summary>View</summary>![45]</details> | Returns a specified clip | None |
+| `-botleaderboard <discord_id>` | <details><summary>View</summary>![46]</details> | Returns leaderboard of bot usage | `blb`, `botlb` |
 </details>
 
 [37]: https://i.gyazo.com/43f4e11b8a7ec6e7a3b1bdb99868d217.gif
@@ -145,6 +147,8 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [40]: https://i.gyazo.com/1877d7ab9da0ae4744abc3f1882477b5.gif
 [41]: https://i.gyazo.com/ef08e87d9584a2f9eaba14c6aa0c6ad6.gif
 [44]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
+[45]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
+[46]: https://i.gyazo.com/4f3dea37aff71d92359cb9a06787dc93.gif
 
 [mu]: https://img.shields.io/badge/-multiverse-d3d3d3
 [li]: https://img.shields.io/badge/-link-ffcc00
