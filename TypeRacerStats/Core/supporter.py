@@ -221,6 +221,9 @@ class Supporter(commands.Cog):
                 supporters[user_id]['graph_color'][category] = None
             else:
                 try:
+                    if category == 'cmap':
+                        raise ValueError
+
                     color = int(f"0x{args[1]}", 16)
                     if color < 0 or color > 16777216:
                         raise ValueError
@@ -239,6 +242,8 @@ class Supporter(commands.Cog):
                                                                    '(https://www.w3schools.com/colors/colors_picker.asp)')))
                         return
                 supporters[user_id]['graph_color'][category] = color
+                if category == 'cmap' and not supporters[user_id]['graph_color']['line']:
+                    supporters[user_id]['graph_color']['line'] = 0x447BAF
 
                 if isinstance(color, str):
                     color = 0

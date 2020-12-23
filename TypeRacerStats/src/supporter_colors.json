@@ -4,12 +4,12 @@
         "tier": 4,
         "graph_color": {
             "bg": null,
-            "graph_bg": 0,
-            "axis": 0,
-            "line": 255,
-            "text": 16711680,
+            "graph_bg": null,
+            "axis": null,
+            "line": 4488111,
+            "text": null,
             "grid": null,
-            "cmap": "flag"
+            "cmap": "rainbow"
         }
     },
     "155481579005804544": {
