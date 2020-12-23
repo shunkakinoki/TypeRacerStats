@@ -808,6 +808,18 @@
             },
             "aliases": [],
             "linked": false
+        },
+        {
+            "name": "dicey",
+            "description": "Answers your questions",
+            "speed": "fast",
+            "usage": {
+                "general": "[question]",
+                "example": "Will I hit 200 WPM today?",
+                "alt_example": []
+            },
+            "aliases": ["dicey,", "ask"],
+            "linked": false
         }
     ]
 }

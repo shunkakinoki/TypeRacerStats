@@ -456,6 +456,58 @@ class Supporter(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.command(aliases = get_aliases('dicey'))
+    async def dicey(self, ctx, *args):
+        question = ' '.join(args)
+
+        if not question:
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('You must ask a question!'))
+            return
+
+        affirmative = [
+            'It is certain.',
+            'It is decidedly so.',
+            'Without a doubt.',
+            'Yes – definitely.',
+            'You may rely on it.',
+            'As I see it, yes.',
+            'Most likely.',
+            'Outlook good.',
+            'Yes.',
+            'Signs point to yes.'
+        ]
+
+        uncertain = [
+            'Reply hazy, try again.',
+            'Ask again later.',
+            'Better not tell you now.',
+            'Cannot predict now.',
+            'Concentrate and ask again.'
+        ]
+
+        negative = [
+            'Don\'t count on it.',
+            'My reply is no.',
+            'My sources say no.',
+            'Outlook not so good.',
+            'Very doubtful.',
+            'No.',
+            'Definitely not.'
+        ]
+
+        category = random.randint(1, 100)
+        if category == 1:
+            await ctx.send(embed = discord.Embed(title = 'How am I supposed to know?'))
+        elif category <= 34:
+            await ctx.send(random.choice(affirmative))
+        elif category <= 67:
+            await ctx.send(random.choice(uncertain))
+        else:
+            await ctx.send(random.choice(negative))
+        return
+
 def get_colors():
     with open(CSS_COLORS, 'r') as jsonfile:
         css_colors = json.load(jsonfile)
