@@ -35,7 +35,8 @@ def get_graph_colors(id_):
                 'axis': None,
                 'line': None,
                 'text': None,
-                'grid': None
+                'grid': None,
+                'cmap': None
             }
 
 def check_dm_perms(ctx, tier):
