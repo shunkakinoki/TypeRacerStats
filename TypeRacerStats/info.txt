@@ -12,6 +12,6 @@ Discord Servers:::Check out the servers the bot is partnered with:\n[**TypeRacer
 
 Donation/Help:::[**Vote for TypeRacerStats on `top.gg`**](https://top.gg/bot/742267194443956334)\n**[PayPal](https://www.paypal.me/e3e2)**
 
-Supporters ❤️:::<@108328502591250432>, <@279844278455500800>, <@268255093533442049>, <@191227023140585472>, <@304373500196552715>, <@422937332040335361>
+Supporters ❤️:::<@108328502591250432>, <@279844278455500800>, <@268255093533442049>, <@191227023140585472>, <@304373500196552715>, <@422937332040335361>, <@227117012059422720>
 
 Note: This bot was developed for desktop usage, so some features' formatting may appear broken on mobile.

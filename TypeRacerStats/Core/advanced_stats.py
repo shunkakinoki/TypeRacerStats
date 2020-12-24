@@ -27,7 +27,9 @@ class AdvancedStats(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 1: args = check_account(user_id)(args)
+        if len(args) <= 1: args = check_account(user_id)(args)
+
+        if len(args) == 1: args += ('wpm',)
 
         if len(args) != 2:
             await ctx.send(content = f"<@{user_id}>",

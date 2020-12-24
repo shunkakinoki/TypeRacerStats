@@ -98,9 +98,6 @@ def graph_color(ax, information, boxplot, *patches):
                     lc = LineCollection(segments, cmap = cmap)
                     lc.set_array(y)
                     ax.add_collection(lc)
-
-                    if ax.get_lines():
-                        ax.plot([0], [0], label = label)
                 else:
                     ax.get_lines()[0].set_color(line_color)
         elif len(patches) > 0:

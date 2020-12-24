@@ -155,7 +155,7 @@
                     }
                 ]
             },
-            "aliases": ["day", "yesterday", "yd", "yday"],
+            "aliases": ["day", "yesterday", "yd", "yday", "d"],
             "linked": true
         },
         {

@@ -476,7 +476,15 @@ class Supporter(commands.Cog):
             'Most likely.',
             'Outlook good.',
             'Yes.',
-            'Signs point to yes.'
+            'Signs point to yes.',
+            'Absolutely',
+            'Of course.'
+            'For sure.'
+            'YES.',
+            'By all means, yes.',
+            'Yeah, I\'d say so.',
+            'Totally.',
+            'Clearly, yes.'
         ]
 
         uncertain = [
@@ -494,15 +502,24 @@ class Supporter(commands.Cog):
             'Outlook not so good.',
             'Very doubtful.',
             'No.',
-            'Definitely not.'
+            'Definitely not.',
+            'Certainly not.',
+            'No way.',
+            'Definitely not.',
+            'Of course not.',
+            'Nah.',
+            'Nope.',
+            'NO.',
+            'Are you stupid?',
+            'Obviously not.'
         ]
 
         category = random.randint(1, 100)
         if category == 1:
             await ctx.send(embed = discord.Embed(title = 'How am I supposed to know?'))
-        elif category <= 34:
+        elif category <= 41:
             await ctx.send(random.choice(affirmative))
-        elif category <= 67:
+        elif category <= 60:
             await ctx.send(random.choice(uncertain))
         else:
             await ctx.send(random.choice(negative))

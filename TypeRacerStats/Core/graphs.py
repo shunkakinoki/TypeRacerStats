@@ -261,7 +261,9 @@ class Graphs(commands.Cog):
     async def improvement(self, ctx, *args):
         user_id = ctx.message.author.id
 
-        if len(args) == 1: args = check_account(user_id)(args)
+        if len(args) <= 1: args = check_account(user_id)(args)
+
+        if len(args) == 1: args += ('races',)
 
         if len(args) != 2:
             await ctx.send(content = f"<@{user_id}>",
