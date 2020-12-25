@@ -367,8 +367,8 @@ class Supporter(commands.Cog):
         data = c.execute(f"""SELECT * FROM
                                     (SELECT *
                                     FROM {file_name}
-                                    WHERE t >= {time.time() - 86400})
-                            WHERE tid = {tid}""").fetchall()
+                                    WHERE t >= ?)
+                            WHERE tid = ?""", (time.time() - 86400, tid)).fetchall()
         conn.close()
 
         if len(data) < 10:

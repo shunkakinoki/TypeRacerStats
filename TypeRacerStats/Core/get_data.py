@@ -1,4 +1,6 @@
+import csv 
 import datetime
+import os
 import sqlite3
 import sys
 import time
@@ -120,7 +122,7 @@ class GetData(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 0: args = check_account(user_id)(args)
+        if len(args) == 0 or (len(args) == 1 and '-' in args[0]): args = check_account(user_id)(args)
 
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
 
@@ -214,7 +216,7 @@ class GetData(commands.Cog):
             embed.add_field(name = 'Average Speed', value = '—')
             embed.add_field(name = 'Races', value = '0')
             embed.add_field(name = 'Points', value = '0')
-            await ctx.send(embed=embed)
+            await ctx.send(embed = embed)
             return
 
         texts_data = load_texts_json()
@@ -245,6 +247,212 @@ class GetData(commands.Cog):
                                  f"**Total Time Spent Racing:** {seconds_to_text(seconds_played)}\n"
                                  f"**Average Time Per Race:** {seconds_to_text(seconds_played / races)}"),
                         inline = False)
+
+        await ctx.send(embed = embed)
+        return
+
+    @commands.cooldown(5, 7200, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.command(aliases = get_aliases('week') + ['month'] + get_aliases('month') + ['year'] + get_aliases('year'))
+    async def week(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        week = ctx.invoked_with in ['week'] + get_aliases('week')
+        month = ctx.invoked_with in ['month'] + get_aliases('month')
+        year = ctx.invoked_with in ['year'] + get_aliases('year')
+
+        if len(args) == 0: args = check_account(user_id)(args)
+
+        if len(args) == 0 or len(args) > 2:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters('[user] <date>'))
+            return
+
+        today = datetime.datetime.utcnow().date()
+        if len(args) == 2:
+            try:
+                parse_string = '%Y'
+                date_format = len(args[1].split('-'))
+                if date_format == 1:
+                    pass
+                elif date_format == 2:
+                    parse_string += '-%m'
+                elif date_format == 3:
+                    parse_string += '-%m-%d'
+                else:
+                    raise ValueError
+
+                today_temp = datetime.datetime.strptime(args[1], parse_string).date()
+                if today_temp > today:
+                    await ctx.send(content = f"<@{user_id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .incorrect_format('`date` must not exceed today'))
+                    return
+                today = today_temp
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format('`date` must be in the yyyy-mm-dd format'))
+                return
+
+        if week:
+            normalizer = today.isocalendar()[2]
+            start_time = today - datetime.timedelta(days = normalizer - 1)
+            end_time = today + datetime.timedelta(days = 7 - normalizer)
+        elif month:
+            start_time = today.replace(day = 1)
+            end_time = (today.replace(day = 1) + datetime.timedelta(days = 32)).replace(day = 1) - datetime.timedelta(days = 1)
+        elif year:
+            start_time = datetime.date(today.year, 1, 1)
+            end_time = datetime.date(today.year, 12, 31)
+
+        delta_start = start_time
+        delta = end_time - start_time
+        start_time = (start_time - datetime.date(1970, 1, 1)).total_seconds()
+        end_time = (end_time - datetime.date(1970, 1, 1)).total_seconds()
+        end_time += 86400
+
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                                         "doesn't exist")))
+            return
+
+        urls = [Urls().get_races(player, 'play', 1)]
+        try:
+            api_response = await fetch(urls, 'json')
+        except:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                    "doesn't exist or has no races")))
+            return
+
+        file_name = f"t_{player}"
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t DESC LIMIT 1")
+            last_race_timestamp = user_data.fetchone()[1]
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .not_downloaded())
+            return
+
+        data = await fetch_data(player, 'play', last_race_timestamp + 0.01, end_time)
+
+        if data:
+            c.executemany(f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", data)
+
+        conn.commit()
+        data = c.execute(f"""SELECT * FROM {file_name}
+                             WHERE t > ? AND t < ?""", (start_time, end_time,)).fetchall()
+        conn.close()
+
+        if week: title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %d, %Y')}—"
+                          f"{datetime.datetime.fromtimestamp(end_time).strftime('%B %d, %Y')})")
+        elif month: title = f"Monthly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %Y')})"
+        elif year: title = f"Yearly ({datetime.datetime.fromtimestamp(start_time).strftime('%Y')})"
+
+        title += f" Stats for {player}"
+        embed = discord.Embed(title = title,
+                              color = discord.Color(MAIN_COLOR),
+                              url = Urls().user(player, 'play'))
+        embed.set_thumbnail(url = Urls().thumbnail(player))
+
+        if not data:
+            embed.add_field(name = 'Average Speed', value = '—')
+            embed.add_field(name = 'Races', value = '0')
+            embed.add_field(name = 'Points', value = '0')
+            await ctx.send(embed = embed)
+            return
+
+        texts_length = load_texts_json()
+
+        csv_dict = {}
+        for i in range(delta.days + 1):
+            csv_dict.update({
+                (delta_start + datetime.timedelta(days = i)).isoformat(): {
+                    'races': 0,
+                    'words_typed': 0,
+                    'chars_typed': 0,
+                    'points': 0,
+                    'time_spent': 0
+                }
+            })
+
+        races, words_typed, chars_typed, points, retro, time_spent = (0,) * 6
+        for row in data:
+            date = datetime.datetime.fromtimestamp(row[1]).date().isoformat()
+            text_id = str(row[2])
+            races += 1
+            words_typed_ = texts_length[text_id]['word count']
+            chars_typed_ = texts_length[text_id]['length']
+            words_typed += words_typed_
+            chars_typed += chars_typed_
+            csv_dict[date]['races'] += 1
+            csv_dict[date]['words_typed'] += words_typed_
+            csv_dict[date]['chars_typed'] += chars_typed_
+            if row[4] == 0:
+                retro_ = row[3] / 60 * texts_length[text_id]['word count']
+                retro += retro_
+                csv_dict[date]['points'] += row[4]
+            else:
+                points += row[4]
+                csv_dict[date]['points'] += row[4]
+            try:
+                time_spent_ = 12 * texts_length[text_id]['length'] / row[3]
+                time_spent += time_spent_
+                csv_dict[date]['time_spent'] += time_spent_
+            except ZeroDivisionError:
+                races -= 1
+                csv_dict[date]['races'] -= 1
+                pass
+
+        today = time.time() if time.time() < end_time else end_time
+        num_days = (today - start_time) / 86400
+
+        embed.set_footer(text = ('(Retroactive points represent the total number of points '
+                                 'a user would have gained, before points were introduced '
+                                 'in 2017)'))
+
+        embed.add_field(name = 'Races',
+                        value = (f"**Total Races:** {f'{races:,}'}\n"
+                                 f"**Average Daily Races:** {f'{round(races / num_days, 2):,}'}\n"
+                                 f"**Total Words Typed:** {f'{words_typed:,}'}\n"
+                                 f"**Average Words Per Race:** {f'{round(words_typed / races, 2):,}'}\n"
+                                 f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
+                                 f"**Average Chars Per Race: **{f'{round(chars_typed / races, 2):,}'}\n"
+                                 f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
+                                 f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"))
+        embed.add_field(name = 'Points',
+                        value = (f"**Current Points:** {f'{round(points):,}'}\n"
+                                 f"**Average Daily Points:** {f'{round(points / num_days, 2):,}'}\n"
+                                 f"**Average Points Per Race:** {f'{round((points + retro) / races, 2):,}'}\n"
+                                 f"**Retroactive Points:** {f'{round(retro):,}'}\n"
+                                 f"**Total Points:** {f'{round(points + retro):,}'}"))
+
+        if ctx.invoked_with[-1] == '*':
+            csv_data = [['Day', 'Races', 'Words Typed', 'Chars. Typed', 'Points', 'Time Spent']]
+            for key, value in csv_dict.items():
+                values = [round(i, 2) for i in list(value.values())]
+                csv_data.append([key] + values)
+
+            with open('temporary.csv', 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(csv_data)
+
+            title_ = title.split(' (')
+            await ctx.send(file = discord.File('temporary.csv', f"{player}_{title_[0].lower()}_{title_[1].split(')')[0].lower()}.csv"),
+                           embed = embed)
+            os.remove('temporary.csv')
+            return
 
         await ctx.send(embed = embed)
         return

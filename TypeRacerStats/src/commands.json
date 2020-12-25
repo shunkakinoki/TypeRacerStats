@@ -606,6 +606,57 @@
             },
             "aliases": ["imp"],
             "linked": true
+        },
+        {
+            "name": "week",
+            "description": "Returns the given user's stats on a given week; defaults to current UTC week",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <yyyy-mm-dd>",
+                "example": "e6f4e37l",
+                "alt_example": [
+                    {
+                        "usage": "e6f4e37l 2020-11-05",
+                        "notes": "The week can be specified if a `date` is in the form YYYY-MM-YY; will return the week containing the day"
+                    }
+                ]
+            },
+            "aliases": ["w", "w*"],
+            "linked": true
+        },
+        {
+            "name": "month",
+            "description": "Returns the given user's stats on a given month; defaults to current UTC month",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <yyyy-mm>",
+                "example": "e6f4e37l",
+                "alt_example": [
+                    {
+                        "usage": "e6f4e37l 2020-11",
+                        "notes": "The month can be specified if a `date` is in the form YYYY-MM"
+                    }
+                ]
+            },
+            "aliases": ["m", "m*"],
+            "linked": true
+        },
+        {
+            "name": "year",
+            "description": "Returns the given user's stats on a given year; defaults to current UTC year",
+            "speed": "medium",
+            "usage": {
+                "general": "[user] <yyyy>",
+                "example": "e6f4e37l",
+                "alt_example": [
+                    {
+                        "usage": "e6f4e37l 2020",
+                        "notes": "The year can be specified if a `date` is in the form YYYY"
+                    }
+                ]
+            },
+            "aliases": ["y", "y*"],
+            "linked": true
         }
     ],
     "other": [
@@ -717,7 +768,7 @@
                     }
                 ]
             },
-            "aliases": ["blb", "botlb"],
+            "aliases": ["blb", "botlb", "blb*"],
             "linked": false
         }
     ],

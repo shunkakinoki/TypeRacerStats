@@ -193,11 +193,57 @@ class Other(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
+        if ctx.invoked_with[-1] == '*':
+            if len(args) == 0:
+                user_count = len(c.execute(f"SELECT DISTINCT id FROM {TABLE_KEY}").fetchall())
+                command_count = len(c.execute(f"SELECT * FROM {TABLE_KEY}").fetchall())
+
+                conn.close()
+                await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                                     description = f"**{f'{user_count:,}'}** users have used **{f'{command_count:,}'}** commands"))
+                return
+            elif len(args) == 1:
+                command = args[0].lower()
+                if command == '*':
+                    command = 'All Commands'
+                    user_data = c.execute(f"""SELECT command, COUNT(command)
+                                              FROM {TABLE_KEY}
+                                              GROUP BY command
+                                              ORDER BY COUNT(command) DESC LIMIT 10""").fetchall()
+                    user_data = [[f"`{i[0]}`", i[1]] for i in user_data]
+                else:
+                    user_data = c.execute(f"""SELECT name, COUNT(id)
+                                              FROM
+                                                (SELECT * FROM {TABLE_KEY} WHERE command = ?)
+                                              GROUP BY id
+                                              ORDER BY COUNT(id) DESC LIMIT 10""", (command,)).fetchall()
+                conn.close()
+
+            value = ''
+            for i, user in enumerate(user_data):
+                value += f"{NUMBERS[i]} {user[0]} - {f'{user[1]:,}'}\n"
+            value = value[:-1]
+
+            if not value:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"`{command}` is not a command or has never been used"))
+                return
+
+            embed = discord.Embed(title = f"Bot Usage Leaderboard (`{command}` command)",
+                                  color = discord.Color(MAIN_COLOR),
+                                  description = value)
+
+            embed.set_footer(text = 'Since December 24, 2020')
+            await ctx.send(embed = embed)
+            return
+
         if len(args) > 1:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} <discord_id>"))
             return
+
 
         if len(args) == 0:
             user_data = c.execute(f"""SELECT name, COUNT(id)
@@ -229,9 +275,9 @@ class Other(commands.Cog):
 
             user_data = c.execute(f"""SELECT name, command, COUNT(command)
                                       FROM
-                                        (SELECT * FROM {TABLE_KEY} WHERE ID = {id_})
+                                        (SELECT * FROM {TABLE_KEY} WHERE ID = ?)
                                       GROUP BY command
-                                      ORDER BY COUNT(command) DESC""").fetchall()
+                                      ORDER BY COUNT(command) DESC""", (id_,)).fetchall()
             conn.close()
 
             user_data= list(user_data)

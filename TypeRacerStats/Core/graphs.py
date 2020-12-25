@@ -182,7 +182,7 @@ class Graphs(commands.Cog):
             for user in args:
                 temp_x, temp_y, first_gn = [], [], 1
                 if opt:
-                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > {opt}")
+                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > ?", (opt,))
                     try:
                         first_t, first_gn = user_data.fetchone()
                     except TypeError:

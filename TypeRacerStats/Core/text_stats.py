@@ -209,7 +209,7 @@ class TextStats(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT gn, wpm FROM t_{player} WHERE tid = {text_id}")
+            user_data = c.execute(f"SELECT gn, wpm FROM t_{player} WHERE tid = ?", (text_id,))
             for row in user_data:
                 count += 1
                 sum_ += row[1]
@@ -527,21 +527,21 @@ class TextStats(commands.Cog):
             if category == 'wpm':
                 user_data = c.execute(f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
-                                          WHERE wpm >= {num}
+                                          WHERE wpm >= ?
                                           GROUP BY tid
-                                          ORDER BY COUNT(tid) DESC""").fetchall()
+                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
             elif category == 'points':
                 user_data = c.execute(f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
-                                          WHERE pts >= {num}
+                                          WHERE pts >= ?
                                           GROUP BY tid
-                                          ORDER BY COUNT(tid) DESC""").fetchall()
+                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
             else:
-                user_data = c.execute(f"""SELECT tid, COUNT(tid
+                user_data = c.execute(f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
                                           GROUP BY tid
-                                          HAVING COUNT(tid) >= {num}
-                                          ORDER BY COUNT(tid) DESC""").fetchall()
+                                          HAVING COUNT(tid) >= ?
+                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",

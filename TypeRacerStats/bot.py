@@ -60,7 +60,7 @@ async def on_command(ctx):
     c.execute(f"INSERT INTO {TABLE_KEY} (id, name, command) VALUES (?, ?, ?)",
               (user_id,
               f"{ctx.message.author.name}#{ctx.message.author.discriminator}",
-              ctx.invoked_with))
+              ctx.invoked_with.lower()))
     conn.commit()
     conn.close()
     return

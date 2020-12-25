@@ -136,9 +136,9 @@ class FullStats(commands.Cog):
         try:
             first_race = c.execute(f"SELECT t FROM t_{player} LIMIT 1").fetchone()[0]
             if args[2] == 'wpm':
-                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE wpm >= {num} ORDER BY t LIMIT 1").fetchone()
+                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE wpm >= ? ORDER BY t LIMIT 1", (num,)).fetchone()
             elif args[2] == 'races':
-                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE gn == {num}").fetchone()
+                achieved, race_num = c.execute(f"SELECT t, gn FROM t_{player} WHERE gn == ?", (num,)).fetchone()
             else:
                 user_data = c.execute(f"SELECT t, pts, gn FROM t_{player} ORDER BY t")
                 sum_, achieved = 0, 0

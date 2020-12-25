@@ -105,6 +105,9 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-histogram [user]` | <details><summary>View</summary>![34]</details> | Returns WPM boxplot of given user. ![li] | `hg` |
 | `-raceline <time> [user] <user_2> ... <user_10>` | <details><summary>View</summary>![35]</details> | Returns races over time graph for given user(s); optional `time` parameter returns graph with only the races completed after it. ![li] | `rl` |
 | `-improvement [user] <time/races>` | <details><summary>View</summary>![36]</details> | Returns WPM over specified category for given user. ![li] | `imp` |
+| `-week [user] <yyyy-mm-dd>` | <details><summary>View</summary>![47]</details> | Returns the given user's stats on a given week; defaults to current UTC week; `w*` is a special alias. ![li] | `w`, `w*` |
+| `-month [user] <yyyy-mm>` | <details><summary>View</summary>![48]</details> | Returns the given user's stats on a given month; defaults to current UTC month; `m*` is a special alias. ![li] | `m`, `m*` |
+| `-year [user] <yyyy>` | <details><summary>View</summary>![49]</details> | Returns the given user's stats on a given year; defaults to current UTC year; `y*` is a special alias.. ![li] | `y`, `y*` |
 </details>
 
 [21]: https://i.gyazo.com/ed78ac261df7c06800c3cb52d1143b5e.gif
@@ -124,6 +127,9 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [35]: https://i.gyazo.com/4044245afb72e666cbad0d88a78d968e.gif
 [36]: https://i.gyazo.com/79d467b13a1717a4db59d80a064c2199.gif
 [43]: https://i.gyazo.com/e28465a5f4b362feb926db64cccfb2e7.gif
+[47]: https://i.gyazo.com/fe4270981019936dda63f7459999327a.gif
+[48]: https://i.gyazo.com/4d64c035826f151f97cde0594a3a5e76.gif
+[49]: https://i.gyazo.com/35ccc3a1e5f1cba34b19f820a4d15247.gif
 
 ### Other
 <details>
