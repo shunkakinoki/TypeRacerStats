@@ -316,7 +316,7 @@ class RealSpeed(commands.Cog):
         if reverse_lag_count:
             color = 0xe0001a
             description += (f"{TR_WARNING} This interval contains "
-                            f"{reverse_lag_count} lagged score(s) {TR_WARNING}\n")
+                            f"{reverse_lag_count} reverse lagged score(s) {TR_WARNING}\n")
         else:
             color = MAIN_COLOR
 

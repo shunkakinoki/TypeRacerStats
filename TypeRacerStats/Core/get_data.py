@@ -356,7 +356,7 @@ class GetData(commands.Cog):
         conn.close()
 
         if week: title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %d, %Y')}—"
-                          f"{datetime.datetime.fromtimestamp(end_time).strftime('%B %d, %Y')})")
+                          f"{datetime.datetime.fromtimestamp(end_time - 86400).strftime('%B %d, %Y')})")
         elif month: title = f"Monthly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %Y')})"
         elif year: title = f"Yearly ({datetime.datetime.fromtimestamp(start_time).strftime('%Y')})"
 

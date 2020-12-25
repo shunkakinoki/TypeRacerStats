@@ -2,6 +2,7 @@ import csv
 import json
 import os
 import random
+import re
 import sqlite3
 import sys
 import time
@@ -275,9 +276,40 @@ class Supporter(commands.Cog):
     @commands.command(aliases = get_aliases('echo'))
     @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
                                 and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 1)
-    async def echo(self, ctx, *args):
-        await ctx.send(' '.join(args))
-        return
+    async def echo(self, ctx, *, args):
+        try:
+            colors = re.findall('"color":\s*0x[0-9abcdefABCDEF]{6},', args)
+            message = args
+            for color in colors:
+                message = message.replace(color, f"\"color\": {int(color[-9:-1], 16)},")
+            embed_data = json.loads(message)
+            embed = discord.Embed(**embed_data)
+            try:
+                for field in embed_data['fields']:
+                    embed.add_field(**field)
+            except KeyError:
+                pass
+            try:
+                embed.set_thumbnail(**embed_data['thumbnail'])
+            except KeyError:
+                pass
+            try:
+                embed.set_image(**embed_data['image'])
+            except KeyError:
+                pass
+            try:
+                embed.set_footer(**embed_data['footer'])
+            except KeyError:
+                pass
+            try:
+                embed.set_author(**embed_data['author'])
+            except KeyError:
+                pass
+            await ctx.send(embed = embed)
+            return
+        except:
+            await ctx.send(args)
+            return
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('charlieog'))
