@@ -19,6 +19,7 @@ from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, 
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
 from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.utility import reduce_list
 
 class Graphs(commands.Cog):
     def __init__(self, bot):
@@ -312,7 +313,13 @@ class Graphs(commands.Cog):
         conn.close()
 
         length = len(data_x)
-        if length < 7500:
+        if length < 15:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information(f"`{ctx.invoked_with}` requires 15≤ races to generate a graph"))
+            return
+
+        elif length < 7500:
             sma = length // 15
         else:
             sma = 500
@@ -519,14 +526,6 @@ class Graphs(commands.Cog):
 
         await ctx.send(file = file_, embed = embed)
         return
-
-def reduce_list(lst):
-    length = len(lst)
-
-    if length > 2000:
-        return lst[::length // 1000]
-    else:
-        return lst
 
 def setup(bot):
     bot.add_cog(Graphs(bot))

@@ -1,21 +1,24 @@
 import csv
 import math
+import os
 import random
 import sqlite3
 import sys
 import discord
 from discord.ext import commands
+import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
 from TypeRacerStats.Core.Common.accounts import check_account
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_large
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
 from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.utility import reduce_list
 
 class TextStats(commands.Cog):
     def __init__(self, bot):
@@ -209,7 +212,7 @@ class TextStats(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT gn, wpm FROM t_{player} WHERE tid = ?", (text_id,))
+            user_data = c.execute(f"SELECT gn, wpm FROM t_{player} WHERE tid = ?", (text_id,)).fetchall()
             for row in user_data:
                 count += 1
                 sum_ += row[1]
@@ -247,13 +250,14 @@ class TextStats(commands.Cog):
                   f"(Race #{f'{worst_gn:,}'}) [:cinema:]"
                   f"({Urls().result(player, worst_gn, 'play')})\n")
 
+        title = f"Quote #{text_id} Statistics for {player}"
         if description:
-            embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
+            embed = discord.Embed(title = title,
                                   color = discord.Color(color),
                                   url = Urls().text(text_id),
                                   description = description)
         else:
-            embed = discord.Embed(title = f"Quote #{text_id} Statistics for {player}",
+            embed = discord.Embed(title = title,
                                   color = discord.Color(color),
                                   url = Urls().text(text_id))
 
@@ -261,6 +265,47 @@ class TextStats(commands.Cog):
         embed.add_field(name = 'Quote', value = text, inline = False)
         embed.add_field(name = 'Speeds',
                         value = value)
+        
+        if ctx.invoked_with[-1] == '*':
+            ax = plt.subplots()[1]
+
+            data_y = [i[1] for i in user_data]
+            length = len(data_y)
+            data_x = [i + 1 for i in range(length)]
+
+            if length < 30:
+                ax.plot(data_x, data_y)
+            else:
+                ax.scatter(data_x, data_y, marker = '.', alpha = 0.1, color = '#000000')
+                if length < 500:
+                    sma = length // 10
+                else:
+                    sma = 50
+
+                moving_y = [sum(data_y[0:sma]) / sma]
+                moving_y += [sum(data_y[i - sma:i]) / sma for i in range(sma, length)]
+                moving_x = [data_x[0]] + data_x[sma:]
+                moving_y = reduce_list(moving_y)
+                moving_x = reduce_list(moving_x)
+                ax.plot(moving_x, moving_y, color = '#FF0000')
+                title += f"\n(Moving Average of {sma} Races)"
+
+            ax.set_title(title)
+            ax.set_xlabel('Attempt #')
+            ax.set_ylabel('WPM')
+            plt.grid(True)
+            file_name = f"{title}.png"
+
+            graph_colors = get_graph_colors(user_id)
+            graph_color(ax, graph_colors, False)
+            plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
+            plt.close()
+
+            file_ = discord.File(file_name, filename = 'image.png')
+            embed.set_image(url = 'attachment://image.png')
+            os.remove(file_name)
+            await ctx.send(file = file_, embed = embed)
+            return
 
         await ctx.send(embed = embed)
         return

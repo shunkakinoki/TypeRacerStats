@@ -416,7 +416,7 @@
                     }
                 ]
             },
-            "aliases": ["pb"],
+            "aliases": ["pb", "pb*"],
             "linked": true
         },
         {
