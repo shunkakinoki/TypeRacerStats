@@ -266,7 +266,7 @@ class TextStats(commands.Cog):
         embed.add_field(name = 'Speeds',
                         value = value)
         
-        if ctx.invoked_with[-1] == '*':
+        if ctx.invoked_with[-1] == '*' and len(user_data) > 1:
             ax = plt.subplots()[1]
 
             data_y = [i[1] for i in user_data]

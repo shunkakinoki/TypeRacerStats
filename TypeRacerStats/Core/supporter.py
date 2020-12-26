@@ -1,4 +1,5 @@
 import csv
+import datetime
 import json
 import os
 import random
@@ -488,6 +489,7 @@ class Supporter(commands.Cog):
         await ctx.send(embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('dicey'))
     async def dicey(self, ctx, *args):
         question = ' '.join(args)
@@ -556,6 +558,14 @@ class Supporter(commands.Cog):
         else:
             await ctx.send(random.choice(negative))
         return
+
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.command(aliases = get_aliases('eugene'))
+    async def eugene(self, ctx, *args):
+        if len(args) > 0:
+            return
+
+        await ctx.send(embed = discord.Embed(description = (datetime.datetime.utcnow() + datetime.timedelta(hours = 9)).strftime("%B %d, %Y, %I:%M:%S")))
 
 def get_colors():
     with open(CSS_COLORS, 'r') as jsonfile:
