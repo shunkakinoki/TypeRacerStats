@@ -562,6 +562,7 @@ class Supporter(commands.Cog):
     @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('eugene'))
     async def eugene(self, ctx, *args):
+        user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) > 0:
@@ -573,6 +574,7 @@ class Supporter(commands.Cog):
     @commands.command(aliases = get_aliases('dessle'))
     async def dessle(self, ctx, *args):
         user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
         dessle_enlighten = ctx.invoked_with in ['dessle', 'enlighten']
         dessle_invoked = ctx.message.author.id == 279844278455500800 #Dessle's Discord ID
 
