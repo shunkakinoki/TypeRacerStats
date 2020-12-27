@@ -11,9 +11,9 @@ import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_OWNER_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
+from TypeRacerStats.config import BOT_OWNER_IDS, BOT_ADMIN_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS, CMAPS
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, load_accounts, update_accounts
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -562,10 +562,89 @@ class Supporter(commands.Cog):
     @commands.check(lambda ctx: check_dm_perms(ctx, 4))
     @commands.command(aliases = get_aliases('eugene'))
     async def eugene(self, ctx, *args):
+        MAIN_COLOR = get_supporter(user_id)
+
         if len(args) > 0:
             return
 
-        await ctx.send(embed = discord.Embed(description = (datetime.datetime.utcnow() + datetime.timedelta(hours = 9)).strftime("%B %d, %Y, %I:%M:%S")))
+        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR), description = (datetime.datetime.utcnow() + datetime.timedelta(hours = 9)).strftime("%B %d, %Y, %I:%M:%S")))
+
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.command(aliases = get_aliases('dessle'))
+    async def dessle(self, ctx, *args):
+        user_id = ctx.message.author.id
+        dessle_enlighten = ctx.invoked_with in ['dessle', 'enlighten']
+        dessle_invoked = ctx.message.author.id == 279844278455500800 #Dessle's Discord ID
+
+        if (not dessle_invoked and len(args) > 0):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with}"))
+            return
+        elif dessle_invoked and dessle_enlighten and len(args) == 1:
+            try:
+                if len(args[0]) > 18:
+                    raise ValueError
+                id_ = int(args[0])
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
+                return
+
+            if id_ in BOT_OWNER_IDS + BOT_ADMIN_IDS:
+                raise commands.CheckFailure
+                return
+
+            accounts = load_accounts()
+            try:
+                accounts[str(id_)]['desslejusted'] = True
+                update_accounts(accounts)
+
+                embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                      description = f"<@{id_}> **has been ENLIGHTENED**")
+                await ctx.send(embed = embed)
+                return
+            except KeyError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"<@{id_}> has not yet been linked to the bot"))
+                return
+
+        if len(args) > 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with}"))
+            return
+
+        texts = []
+        with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
+            reader = csv.reader(csvfile)
+            next(reader)
+            for row in reader:
+                texts.append([row[0], row[1], row[2]])
+
+        embed = discord.Embed(title = '10 Random Texts',
+                              color = discord.Color(MAIN_COLOR))
+
+        for i in range(1, 11):
+            random_text = random.choice(texts)
+            texts.remove(random_text)
+
+            name = f"{i}. Race Text ID: {random_text[0]}"
+            text = f"\"{random_text[1]}\" "
+            if len(text) > 50:
+                text = f"\"{random_text[1][0:50]}…\" "
+
+            value = text
+            value += (f"[{TR_INFO}]({Urls().text(random_text[0])}) "
+                      f"[{TR_GHOST}]({random_text[2]})\n")
+
+            embed.add_field(name = name, value = value, inline = False)
+
+        embed.set_footer(text = "dessle#9999's custom command")
+        await ctx.send(embed = embed)
+        return
 
 def get_colors():
     with open(CSS_COLORS, 'r') as jsonfile:

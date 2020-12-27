@@ -883,6 +883,23 @@
             },
             "aliases": ["e5"],
             "linked": false
+        },
+        {
+            "name": "dessle",
+            "description": "Returns 5 randomly picked texts/slow ghosts",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": [
+                    {
+                        "usage": "[discord_id]",
+                        "notes": "**ONLY DESSLE** can use this. Thank you."
+                    }
+                ]
+            },
+            "aliases": ["mt", "des", "enlighten"],
+            "linked": false
         }
     ]
 }
