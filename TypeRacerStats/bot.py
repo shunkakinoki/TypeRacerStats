@@ -17,9 +17,15 @@ bot.remove_command('help')
 
 @bot.event
 async def on_ready():
+    global eugene
+
     await bot.wait_until_ready()
     await bot.change_presence(activity = discord.Game(name = f"{DEFAULT_COMMAND_PREFIX}help | by e6f4e37l#0785 and keegan#1689"))
     print('TypeRacerStats ready.')
+
+    eugene = await bot.fetch_user(697048255254495312)
+    await eugene.send(embed = discord.Embed(color = discord.Color(0), title = f"TypeRacerStats Ready."))
+
     if MAINTAIN:
         drop_temporary_tables.start()
         maintain_players.start()
@@ -27,12 +33,26 @@ async def on_ready():
 
 @bot.event
 async def on_guild_join(guild):
+    guilds = bot.guilds
+    server_count = len(guilds)
+    people_count = sum([i.member_count for i in guilds])
+    await eugene.send(embed = discord.Embed(color = discord.Color(0),
+                                            title = f"Joined \"{guild.name}\"",
+                                            description = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers"))
+
     prefixes = load_prefixes()
     prefixes.update({str(guild.id): DEFAULT_COMMAND_PREFIX})
     update_prefixes(prefixes)
 
 @bot.event
 async def on_guild_remove(guild):
+    guilds = bot.guilds
+    server_count = len(guilds)
+    people_count = sum([i.member_count for i in guilds])
+    await eugene.send(embed = discord.Embed(color = discord.Color(0),
+                                            title = f"Left \"{guild.name}\"",
+                                            description = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers"))
+
     prefixes = load_prefixes()
     prefixes.pop(str(guild.id))
     update_prefixes(prefixes)
