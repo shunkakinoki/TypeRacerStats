@@ -64,7 +64,7 @@ async def on_command(ctx):
     c = conn.cursor()
 
     try:
-        user_data = c.execute(f"SELECT * FROM {TABLE_KEY} WHERE id = {user_id} LIMIT 1").fetchall()
+        user_data = c.execute(f"SELECT * FROM {TABLE_KEY} WHERE id = ? LIMIT 1", (user_id,)).fetchall()
         if not user_data:
             embed = discord.Embed(title = 'Hello!',
                                   color = discord.Color(0),
@@ -108,7 +108,7 @@ async def on_command_completion(ctx):
 
 if __name__ == '__main__':
     for filename in os.listdir('TypeRacerStats/Core'):
-        if filename.endswith('.py') and filename != '__init__.py':
+        if filename.endswith('.py') and filename != '__init__.py' and filename != 'christmas_2020.py':
             bot.load_extension(f"Core.{filename[:-3]}")
 
 bot.run(BOT_TOKEN)

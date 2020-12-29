@@ -63,15 +63,15 @@
     ],
     "configuration": [
         {
-            "name": "changeprefix",
-            "description": "Changes bot's prefix on server; prefix must at most 14 characters in length\n**NOTE:** only server admins can run this",
+            "name": "setprefix",
+            "description": "Sets bot's prefix on server; prefix must at most 14 characters in length\n**NOTE:** only server admins can run this",
             "speed": "fast",
             "usage": {
                 "general": "[prefix]",
                 "example": "!",
                 "alt_example": []
             },
-            "aliases": ["cp"],
+            "aliases": ["sp"],
             "linked": false
         },
         {
