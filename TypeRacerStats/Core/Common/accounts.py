@@ -39,7 +39,10 @@ def check_banned_status(ctx):
     conn = sqlite3.connect(DATABASE_PATH)
     c = conn.cursor()
 
-    user_data = c.execute(f"SELECT * FROM {USERS_KEY} WHERE id = ?", (ctx.message.author.id,)).fetchall()
+    try:
+        user_data = c.execute(f"SELECT * FROM {USERS_KEY} WHERE id = ?", (ctx.message.author.id,)).fetchall()
+    except sqlite3.OperationalError:
+        c.execute(f"CREATE TABLE {USERS_KEY} (id integer PRIMARY KEY, banned BOOLEAN)")
 
     conn.close()
 
