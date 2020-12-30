@@ -4,7 +4,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
 from TypeRacerStats.file_paths import UNIVERSES_FILE_PATH
-from TypeRacerStats.Core.Common.accounts import load_accounts, update_accounts
+from TypeRacerStats.Core.Common.accounts import load_accounts, update_accounts, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe
@@ -19,7 +19,7 @@ class UserConfig(commands.Cog):
 
     @commands.cooldown(1, 1, commands.BucketType.default)
     @commands.command(aliases = get_aliases('changeprefix'))
-    @commands.check(lambda ctx: ctx.message.author.guild_permissions.administrator)
+    @commands.check(lambda ctx: ctx.message.author.guild_permissions.administrator and check_banned_status(ctx))
     async def changeprefix(self, ctx, prefix):
         if len(prefix) > 14:
             await ctx.send(f"<@{ctx.message.author.id}>",
@@ -35,7 +35,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 3, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('register'))
     async def register(self, ctx, *args):
         user_id = str(ctx.message.author.id)
@@ -84,7 +84,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 1, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('setuniverse'))
     async def setuniverse(self, ctx, *args):
         user_id = str(ctx.message.author.id)
@@ -132,7 +132,7 @@ class UserConfig(commands.Cog):
         return
 
     @commands.cooldown(1, 1, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('toggledessle'))
     async def toggledessle(self, ctx, *args):
         user_id = str(ctx.message.author.id)

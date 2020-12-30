@@ -10,6 +10,7 @@ from discord.ext import commands, tasks
 sys.path.insert(0, '')
 from TypeRacerStats.config import CHRISTMAS_KEY, NUMBERS, BOT_OWNER_IDS
 from TypeRacerStats.file_paths import DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.requests import fetch
 
 class Christmas_2020(commands.Cog):
@@ -104,6 +105,7 @@ class Christmas_2020(commands.Cog):
             embed.set_image(url = 'https://cdn.discordapp.com/emojis/793509718185607199.png?v=1')
             await request_message.edit(embed = embed)
 
+    @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases = ['clb', 'christmaslb'])
     async def christmasleaderboard(self, ctx):
         conn = sqlite3.connect(DATABASE_PATH)
@@ -126,7 +128,7 @@ class Christmas_2020(commands.Cog):
 
         await ctx.send(embed = embed)
 
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     @commands.command(aliases = ['uw'])
     async def updatewords(self, ctx):
         words = ((await fetch(['https://pastebin.com/raw/ynB6UtBP'], 'text'))[0].split('\n'))

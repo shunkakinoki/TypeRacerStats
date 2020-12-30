@@ -8,6 +8,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS
 from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON, DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence
@@ -18,7 +19,7 @@ class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('unixreference'))
     async def unixreference(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -67,7 +68,7 @@ class Other(commands.Cog):
                                        .incorrect_format('`timestamp` must be an integer or scientific notation (e.g. 1.0365e9)'))
                 return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('serverinfo'))
     async def serverinfo(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -95,7 +96,7 @@ class Other(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('art'))
     async def art(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -151,7 +152,7 @@ class Other(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('clip'))
     async def clip(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -186,6 +187,7 @@ class Other(commands.Cog):
         await ctx.send(clip_url)
         return
 
+    @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases = get_aliases('botleaderboard'))
     async def botleaderboard(self, ctx, *args):
         user_id = ctx.message.author.id

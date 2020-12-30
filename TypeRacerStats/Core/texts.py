@@ -7,6 +7,7 @@ import Levenshtein
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import TEXTS_FILE_PATH_CSV
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
@@ -18,7 +19,7 @@ class Texts(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('search'))
     async def search(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -115,7 +116,7 @@ class Texts(commands.Cog):
         return
 
     @commands.cooldown(3, 25, commands.BucketType.user)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('levenshtein'))
     async def levenshtein(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -191,7 +192,7 @@ class Texts(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('searchid'))
     async def searchid(self, ctx, *args):
         user_id = ctx.message.author.id

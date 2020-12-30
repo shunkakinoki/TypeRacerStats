@@ -10,7 +10,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH
-from TypeRacerStats.Core.Common.accounts import account_information, check_account
+from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -25,7 +25,7 @@ class BasicStats(commands.Cog):
 
     @commands.cooldown(4, 12, commands.BucketType.user)
     @commands.cooldown(50, 150, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('stats'))
     async def stats(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -121,7 +121,7 @@ class BasicStats(commands.Cog):
         await fetch([Urls().trd_import(player)], 'text')
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('lastonline'))
     async def lastonline(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -159,7 +159,7 @@ class BasicStats(commands.Cog):
 
     @commands.cooldown(4, 12, commands.BucketType.user)
     @commands.cooldown(50, 150, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('medals'))
     async def medals(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -248,7 +248,7 @@ class BasicStats(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -319,7 +319,7 @@ class BasicStats(commands.Cog):
         return
 
     @commands.cooldown(1, 20, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('leaderboard'))
     async def leaderboard(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -466,7 +466,7 @@ class BasicStats(commands.Cog):
         return
 
     @commands.cooldown(2, 25, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('competition'))
     async def competition(self, ctx, *args):
         user_id = ctx.message.author.id

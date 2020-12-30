@@ -6,7 +6,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
@@ -21,7 +21,7 @@ class AdvancedStats(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.cooldown(20, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('top') + get_aliases('worst') + ['worst'])
     async def top(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -95,7 +95,7 @@ class AdvancedStats(commands.Cog):
 
     @commands.cooldown(1, 5, commands.BucketType.user)
     @commands.cooldown(20, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('racedetails'))
     async def racedetails(self, ctx, *args):
         user_id = ctx.message.author.id

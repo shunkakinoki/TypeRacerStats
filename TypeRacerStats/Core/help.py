@@ -141,6 +141,7 @@ class Help(commands.Cog):
         if len(args) != 0: return
         await ctx.send(embed = self.info_embed)
 
+    @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases = get_aliases('invite'))
     async def invite(self, ctx, *args):
         self.create_invite_embed()
@@ -155,6 +156,7 @@ class Help(commands.Cog):
         if len(args) != 0: return
         await ctx.send(embed = self.donate_embed)
 
+    @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases = get_aliases('perks'))
     async def perks(self, ctx, *args):
         self.create_perks_embed(ctx, ctx.message)
@@ -163,7 +165,7 @@ class Help(commands.Cog):
         await ctx.send(embed = self.perks_embed)
 
     @commands.command(aliases = ['servers'])
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and not ctx.guild)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and not ctx.guild and check_banned_status(ctx))
     async def listservers(self, ctx):
         guilds = sorted(self.bot.guilds, key = lambda x: x.member_count, reverse = True)
         guilds_data = [['Name', "Member Count", 'Guild ID']]

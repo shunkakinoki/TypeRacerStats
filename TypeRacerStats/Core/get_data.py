@@ -9,7 +9,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH, TEMPORARY_DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -24,7 +24,7 @@ class GetData(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(1, 7200, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('getdata'))
     async def getdata(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -116,7 +116,7 @@ class GetData(commands.Cog):
         return
 
     @commands.cooldown(5, 7200, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('today'))
     async def today(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -252,7 +252,7 @@ class GetData(commands.Cog):
         return
 
     @commands.cooldown(5, 7200, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('week') + ['month'] + get_aliases('month') + ['year'] + get_aliases('year'))
     async def week(self, ctx, *args):
         user_id = ctx.message.author.id

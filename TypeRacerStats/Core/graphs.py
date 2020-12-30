@@ -12,7 +12,7 @@ import matplotlib.dates as mdates
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account, account_information
+from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
@@ -25,7 +25,7 @@ class Graphs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('histogram'))
     async def histogram(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -83,7 +83,7 @@ class Graphs(commands.Cog):
         return
 
     @commands.cooldown(3, 15, commands.BucketType.user)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('boxplot'))
     async def boxplot(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -143,7 +143,7 @@ class Graphs(commands.Cog):
         return
 
     @commands.cooldown(3, 25, commands.BucketType.user)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('raceline'))
     async def raceline(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -257,7 +257,7 @@ class Graphs(commands.Cog):
         plt.close()
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('improvement'))
     async def improvement(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -358,7 +358,7 @@ class Graphs(commands.Cog):
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('adjustedgraph') + ['matchgraph'] + get_aliases('matchgraph'))
     async def adjustedgraph(self, ctx, *args):
         user_id = ctx.message.author.id

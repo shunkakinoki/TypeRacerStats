@@ -1,3 +1,5 @@
+import csv
+import os
 import sqlite3
 import sys
 import discord
@@ -5,6 +7,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, BOT_ADMIN_IDS, USERS_KEY
 from TypeRacerStats.file_paths import DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence
 
@@ -12,10 +15,44 @@ class BotAdmin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases = ['perish', 'unban'])
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_ADMIN_IDS)
+    @commands.command(aliases = ['perish', 'unban', 'banned'])
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_ADMIN_IDS and check_banned_status(ctx))
     async def ban(self, ctx, *args):
         user_id = ctx.message.author.id
+
+        if ctx.invoked_with == 'banned':
+            conn = sqlite3.connect(DATABASE_PATH)
+            c = conn.cursor()
+
+            banned_users = c.execute(f"SELECT * FROM {USERS_KEY} WHERE banned = 1").fetchall()
+            conn.close()
+
+            description, banned = '', [['ID']]
+            for i, user in enumerate(banned_users):
+                id_ = user[0]
+
+                if i < 10:
+                    description += f"**{i + 1}.** <@{id_}>\n"
+                banned.append([id_])
+
+            description = description[:-1]
+            embed = discord.Embed(title = 'Banned Users',
+                                  color = discord.Color(0),
+                                  description = description)
+
+            if len(banned) > 10:
+                with open('banned_users.csv', 'w') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(banned)
+
+                file_ = discord.File('banned_users.csv', 'banned_users.csv')
+
+                await ctx.send(file = file_, embed = embed)
+                os.remove('banned_users.csv')
+                return
+
+            await ctx.send(embed = embed)
+            return
 
         if len(args) != 1:
             await ctx.send(content = f"<@{user_id}>",

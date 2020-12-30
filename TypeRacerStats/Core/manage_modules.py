@@ -6,6 +6,7 @@ import discord
 from discord.ext import commands
 from TypeRacerStats.config import BOT_OWNER_IDS, HELP_BLACK
 from TypeRacerStats.file_paths import DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.errors import Error
 
@@ -14,7 +15,7 @@ class ManageModules(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def load(self, ctx, extension):
         self.bot.load_extension(f"Core.{extension}")
 
@@ -22,7 +23,7 @@ class ManageModules(commands.Cog):
                                              description = f"**{extension}** module loaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def unload(self, ctx, extension):
         self.bot.unload_extension(f"Core.{extension}")
 
@@ -30,7 +31,7 @@ class ManageModules(commands.Cog):
                                              description = f"**{extension}** module unloaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def reload(self, ctx, extension):
         self.bot.unload_extension(f"Core.{extension}")
         self.bot.load_extension(f"Core.{extension}")
@@ -39,7 +40,7 @@ class ManageModules(commands.Cog):
                                              description = f"**{extension}** module reloaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def droptable(self, ctx, *args):
         user_id = ctx.message.author.id
 

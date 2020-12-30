@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, BOT_ADMIN_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS, CMAPS
-from TypeRacerStats.Core.Common.accounts import check_account, load_accounts, update_accounts
+from TypeRacerStats.Core.Common.accounts import check_account, load_accounts, update_accounts, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -27,7 +27,7 @@ class Supporter(commands.Cog):
         self.bot = bot
 
     @commands.command(aliases = ['as'])
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def add_supporter(self, ctx, *args):
         if len(args) != 2: return
 
@@ -81,7 +81,7 @@ class Supporter(commands.Cog):
         return
 
     @commands.command(aliases = ['ds'])
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def delete_supporter(self, ctx, *args):
         if len(args) != 1: return
 
@@ -114,7 +114,7 @@ class Supporter(commands.Cog):
         return
 
     @commands.command(aliases = ['us'])
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS)
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def upgrade_supporter(self, ctx, *args):
         if len(args) != 2: return
 
@@ -155,7 +155,7 @@ class Supporter(commands.Cog):
 
     @commands.command(aliases = get_aliases('setcolor'))
     @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
-                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 2)
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 2 and check_banned_status(ctx))
     async def setcolor(self, ctx, *args):
         if len(args) > 1:
             await ctx.send(content = f"<@{ctx.message.author.id}>",
@@ -193,7 +193,7 @@ class Supporter(commands.Cog):
 
     @commands.command(aliases = get_aliases('setgraphcolor'))
     @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
-                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 3)
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 3 and check_banned_status(ctx))
     async def setgraphcolor(self, ctx, *args):
         supporters = load_supporters()
         user_id = str(ctx.message.author.id)
@@ -276,7 +276,7 @@ class Supporter(commands.Cog):
 
     @commands.command(aliases = get_aliases('echo'))
     @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
-                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 1)
+                                and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 1 and check_banned_status(ctx))
     async def echo(self, ctx, *, args):
         try:
             colors = re.findall('"color":\s*0x[0-9abcdefABCDEF]{6},', args)
@@ -312,7 +312,7 @@ class Supporter(commands.Cog):
             await ctx.send(args)
             return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('charlieog'))
     async def charlieog(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -426,7 +426,7 @@ class Supporter(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('kayos'))
     async def kayos(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -489,7 +489,7 @@ class Supporter(commands.Cog):
         await ctx.send(embed = embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dicey'))
     async def dicey(self, ctx, *args):
         question = ' '.join(args)
@@ -559,7 +559,7 @@ class Supporter(commands.Cog):
             await ctx.send(random.choice(negative))
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('eugene'))
     async def eugene(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -570,7 +570,7 @@ class Supporter(commands.Cog):
 
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR), description = (datetime.datetime.utcnow() + datetime.timedelta(hours = 9)).strftime("%B %d, %Y, %I:%M:%S")))
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dessle'))
     async def dessle(self, ctx, *args):
         user_id = ctx.message.author.id

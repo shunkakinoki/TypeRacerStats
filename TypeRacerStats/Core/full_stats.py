@@ -6,7 +6,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, num_to_text, seconds_to_text
@@ -19,7 +19,7 @@ class FullStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('racesover'))
     async def racesover(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -92,7 +92,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('milestone'))
     async def milestone(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -182,7 +182,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('marathon'))
     async def marathon(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -296,7 +296,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('sessionstats'))
     async def sessionstats(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -373,7 +373,7 @@ class FullStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('fastestcompletion'))
     async def fastestcompletion(self, ctx, *args):
         user_id = ctx.message.author.id

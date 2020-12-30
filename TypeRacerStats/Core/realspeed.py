@@ -3,7 +3,7 @@ import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, BOT_OWNER_IDS, MAIN_COLOR, NUMBERS, TR_WARNING
-from TypeRacerStats.Core.Common.accounts import account_information, check_account
+from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe, num_to_text
@@ -18,7 +18,7 @@ class RealSpeed(commands.Cog):
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('realspeed') + ['lastrace'] + get_aliases('lastrace') + ['raw'] + get_aliases('raw'))
     async def realspeed(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -178,7 +178,7 @@ class RealSpeed(commands.Cog):
 
     @commands.cooldown(2, 60, commands.BucketType.user)
     @commands.cooldown(10, 600, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('realspeedaverage'))
     async def realspeedaverage(self, ctx, *args):
         user_id = ctx.message.author.id

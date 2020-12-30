@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
-from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color
@@ -25,7 +25,7 @@ class TextStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('textbests') + ['breakdown'] + get_aliases('breakdown'))
     async def textbests(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -148,7 +148,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 50, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('personalbest'))
     async def personalbest(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -311,7 +311,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('unraced'))
     async def unraced(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -419,7 +419,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('textsunder'))
     async def textsunder(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -525,7 +525,7 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4))
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('textslessequal'))
     async def textslessequal(self, ctx, *args):
         user_id = ctx.message.author.id
