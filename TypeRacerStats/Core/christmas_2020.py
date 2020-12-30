@@ -111,20 +111,23 @@ class Christmas_2020(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
-        user_data = c.execute(f"""SELECT name, SUM(cookies)
+        user_data = c.execute(f"""SELECT name, SUM(cookies), SUM(gifts)
                                   FROM {CHRISTMAS_KEY}
                                   GROUP BY id
-                                  ORDER BY SUM(cookies) DESC LIMIT 10""").fetchall()
+                                  ORDER BY SUM(cookies) DESC""").fetchall()
         conn.close()
 
         description = ''
-        for i, user in enumerate(user_data):
+        for i, user in enumerate(user_data[:10]):
             description += f"{NUMBERS[i]} {user[0]} - {f'{user[1]:,}'} :cookie:\n"
         description = description[:-1]
 
         embed = discord.Embed(title = ':star2: Santa\'s Best Elves :star2:',
                               color = discord.Color(0xFF0000),
                               description = description)
+        embed.set_footer(text = (f"{f'{len(user_data):,}'} elves collected "
+                                 f"{f'{sum([i[2] for i in user_data]):,}'} gifts and\n"
+                                 f"accumulated {f'{sum([i[1] for i in user_data]):,}'} cookies so far!"))
 
         await ctx.send(embed = embed)
 
