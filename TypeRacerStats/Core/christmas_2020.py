@@ -125,7 +125,9 @@ class Christmas_2020(commands.Cog):
         embed = discord.Embed(title = ':star2: Santa\'s Best Elves :star2:',
                               color = discord.Color(0xFF0000),
                               description = description)
-        embed.set_footer(text = (f"{f'{len(user_data):,}'} elves collected "
+
+        adjectives = ['made', 'crafted', 'fabricated', 'manifested']
+        embed.set_footer(text = (f"{f'{len(user_data):,}'} elves {random.choice(adjectives)} "
                                  f"{f'{sum([i[2] for i in user_data]):,}'} gifts and\n"
                                  f"accumulated {f'{sum([i[1] for i in user_data]):,}'} cookies so far!"))
 
