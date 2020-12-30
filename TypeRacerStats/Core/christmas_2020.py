@@ -1,4 +1,5 @@
 import asyncio
+import csv
 import os
 from PIL import Image, ImageDraw, ImageFont
 import random
@@ -130,6 +131,21 @@ class Christmas_2020(commands.Cog):
         embed.set_footer(text = (f"{f'{len(user_data):,}'} elves {random.choice(adjectives)} "
                                  f"{f'{sum([i[2] for i in user_data]):,}'} gifts and\n"
                                  f"accumulated {f'{sum([i[1] for i in user_data]):,}'} cookies so far!"))
+
+        if ctx.message.author.id in BOT_OWNER_IDS:
+            christmas_lb_data = [['name', 'cookies', 'gifts']]
+            for user in user_data:
+                christmas_lb_data.append(list(user))
+
+            with open('christmas_2020.csv', 'w') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerows(christmas_lb_data)
+
+            file_ = discord.File('christmas_2020.csv', 'christmas_2020.csv')
+
+            await ctx.send(file = file_, embed = embed)
+            os.remove('christmas_2020.csv')
+            return
 
         await ctx.send(embed = embed)
 
