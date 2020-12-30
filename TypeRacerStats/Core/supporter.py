@@ -512,8 +512,8 @@ class Supporter(commands.Cog):
             'Yes.',
             'Signs point to yes.',
             'Absolutely',
-            'Of course.'
-            'For sure.'
+            'Of course.',
+            'For sure.',
             'YES.',
             'By all means, yes.',
             'Yeah, I\'d say so.',

@@ -1,5 +1,9 @@
 import json
-from TypeRacerStats.file_paths import ACCOUNTS_FILE_PATH
+import sqlite3
+import sys
+sys.path.insert(0, '')
+from TypeRacerStats.config import USERS_KEY
+from TypeRacerStats.file_paths import ACCOUNTS_FILE_PATH, DATABASE_PATH
 
 def load_accounts():
     with open(ACCOUNTS_FILE_PATH, 'r') as jsonfile:
@@ -30,3 +34,13 @@ def account_information(discord_id):
         universe = 'play'
 
     return {'desslejusted': desslejusted, 'universe': universe}
+
+def check_banned_status(ctx):
+    conn = sqlite3.connect(DATABASE_PATH)
+    c = conn.cursor()
+
+    user_data = c.execute(f"SELECT * FROM {USERS_KEY} WHERE id = ?", (ctx.message.author.id,)).fetchall()
+
+    conn.close()
+
+    return True if not user_data else not user_data[0][1]

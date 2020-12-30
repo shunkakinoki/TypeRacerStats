@@ -5,6 +5,7 @@ import time
 import discord
 from discord.ext import commands
 from TypeRacerStats.config import BOT_OWNER_IDS, HELP_BLACK, HELP_IMG, SPEED_INDICATORS
+from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.prefixes import get_prefix
 
@@ -118,6 +119,7 @@ class Help(commands.Cog):
         self.perks_embed.add_field(name = 'Commands',
                                     value = value)
 
+    @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases = get_aliases('help'))
     async def help(self, ctx, *args):
         self.create_embeds(ctx, ctx.message)
