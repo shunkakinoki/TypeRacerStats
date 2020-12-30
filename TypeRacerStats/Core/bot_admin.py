@@ -12,7 +12,7 @@ class BotAdmin(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.command(aliases = ['perish'])
+    @commands.command(aliases = ['perish', 'unban'])
     @commands.check(lambda ctx: ctx.message.author.id in BOT_ADMIN_IDS)
     async def ban(self, ctx, *args):
         user_id = ctx.message.author.id
