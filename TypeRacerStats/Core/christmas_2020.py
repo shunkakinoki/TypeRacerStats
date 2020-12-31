@@ -42,7 +42,7 @@ class Christmas_2020(commands.Cog):
         img = Image.new('RGB', (1000, 1000), color = (47, 49, 54))
         draw = ImageDraw.Draw(img)
 
-        gifts = [random.choice(self.words) for _ in range(random.randint(5, 15))] #random.randint(3, 10)
+        gifts = [random.choice(self.words) for _ in range(random.randint(5, 20))] #random.randint(3, 10)
         text = ' '.join(gifts)
 
         cur_text, cur_width, total_height = '', 0, 0
