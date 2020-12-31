@@ -20,6 +20,7 @@ class Christmas_2020(commands.Cog):
         self.send_request.start()
         self.font = ImageFont.truetype('Arial.ttf', size = 48)
         self.words = ['filler']
+        self.multiplier = 1
 
     def cog_load(self):
         self.send_request.start()
@@ -78,7 +79,7 @@ class Christmas_2020(commands.Cog):
             user_id = msg.author.id
             time_taken = time.time() - start
             time_remaining = len(text) - time_taken
-            points = round(time_remaining * len(text) / 100) + 1
+            points = round(self.multiplier * time_remaining * len(text) / 100) + 1
 
             conn = sqlite3.connect(DATABASE_PATH)
             c = conn.cursor()
@@ -157,6 +158,24 @@ class Christmas_2020(commands.Cog):
         self.words = words_filtered
 
         await ctx.send(embed = discord.Embed(title = 'Christmas 2020 Word List Updated',
+                                             color = discord.Color(0)))
+
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.command(aliases = ['sm'])
+    async def setmultiplier(self, ctx, *args):
+        if len(args) != 1: return
+
+        try:
+            multiplier = int(args[0])
+            if multiplier <= 0 or multiplier > 20:
+                raise ValueError
+        except ValueError:
+            await ctx.send('keegan pls')
+            return
+
+        self.multiplier = multiplier
+
+        await ctx.send(embed = discord.Embed(title = f"Multiplier Updated to x{multiplier}",
                                              color = discord.Color(0)))
 
 def check(text):
