@@ -27,9 +27,9 @@ class Christmas_2020(commands.Cog):
     def cog_unload(self):
         self.send_request.cancel()
 
-    @tasks.loop(seconds = 180) #seconds = 180
+    @tasks.loop(seconds = 120) #seconds = 180
     async def send_request(self):
-        random_duration = random.randint(0, 120) #random.randint(0, 120)
+        random_duration = random.randint(0, 30) #random.randint(0, 120)
         await asyncio.sleep(random_duration)
 
         embed = discord.Embed(title = '<:santavalikor:793468488714944562> Santa Says: I need some toys!',
@@ -42,7 +42,7 @@ class Christmas_2020(commands.Cog):
         img = Image.new('RGB', (1000, 1000), color = (47, 49, 54))
         draw = ImageDraw.Draw(img)
 
-        gifts = [random.choice(self.words) for _ in range(random.randint(3, 10))]
+        gifts = [random.choice(self.words) for _ in range(random.randint(5, 15))] #random.randint(3, 10)
         text = ' '.join(gifts)
 
         cur_text, cur_width, total_height = '', 0, 0
@@ -78,7 +78,7 @@ class Christmas_2020(commands.Cog):
             user_id = msg.author.id
             time_taken = time.time() - start
             time_remaining = len(text) - time_taken
-            points = round(time_remaining * len(text) / 100)
+            points = round(time_remaining * len(text) / 100) + 1
 
             conn = sqlite3.connect(DATABASE_PATH)
             c = conn.cursor()
