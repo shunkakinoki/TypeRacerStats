@@ -68,6 +68,7 @@ class BotAdmin(commands.Cog):
             return 0
 
         try:
+            args = (args[0].strip('<@!').strip('>'),)
             if len(args[0]) > 18 or escape_sequence(args[0]):
                 raise ValueError
             discord_id = int(args[0])

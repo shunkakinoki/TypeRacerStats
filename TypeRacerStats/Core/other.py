@@ -263,6 +263,7 @@ class Other(commands.Cog):
                                   color = discord.Color(MAIN_COLOR),
                                   description = value)
         else:
+            args = (args[0].strip('<@!').strip('>'),)
             try:
                 if len(args[0]) > 18:
                     raise ValueError

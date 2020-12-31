@@ -568,7 +568,10 @@ class Supporter(commands.Cog):
         if len(args) > 0:
             return
 
-        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR), description = (datetime.datetime.utcnow() + datetime.timedelta(hours = 9)).strftime("%B %d, %Y, %I:%M:%S")))
+        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                             description = (datetime.datetime.utcnow() +\
+                                                            datetime.timedelta(hours = 9))
+                                                            .strftime("%B %d, %Y, %I:%M:%S %p")))
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dessle'))
@@ -584,6 +587,7 @@ class Supporter(commands.Cog):
                                    .parameters(f"{ctx.invoked_with}"))
             return
         elif dessle_invoked and dessle_enlighten and len(args) == 1:
+            args = (args[0].strip('<@!').strip('>'),)
             try:
                 if len(args[0]) > 18:
                     raise ValueError

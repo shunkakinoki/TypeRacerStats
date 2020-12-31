@@ -83,6 +83,11 @@ class BasicStats(commands.Cog):
                 if len(cells) < 2: continue
                 if cells[0].text.strip() == 'Racing Since':
                     date_joined = cells[1].text.strip()
+
+            rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
+            for row in rows:
+                cells = row.select('td')
+                if len(cells) < 2: continue
                 if cells[0].text.strip() == 'Awards':
                     medal_count = len(cells[1].select('a'))
         except:

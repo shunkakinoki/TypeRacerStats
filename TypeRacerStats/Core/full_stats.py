@@ -174,7 +174,7 @@ class FullStats(commands.Cog):
                               url = Urls().result(player, race_num, 'play'))
         embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.add_field(name = f"{player} achieved {f'{num:,}'} {category_2} on:",
-                        value = f"{datetime.datetime.fromtimestamp(achieved).strftime('%B %d, %Y, %I:%M:%S')} UTC")
+                        value = f"{datetime.datetime.fromtimestamp(achieved).strftime('%B %d, %Y, %I:%M:%S %p')} UTC")
         embed.add_field(name = 'It took:',
                         value = seconds_to_text(achieved - first_race))
 
@@ -269,7 +269,7 @@ class FullStats(commands.Cog):
                                        f"({seconds_to_text(session_length, True)} period)"),
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %d, %Y, %I:%M:%S')} | "
+        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %d, %Y, %I:%M:%S %p')} | "
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',
@@ -464,7 +464,7 @@ class FullStats(commands.Cog):
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Took:** {seconds_to_text(user_data[min_end][1] - user_data[min_start][1])}")
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %d, %Y, %I:%M:%S')} | "
+        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %d, %Y, %I:%M:%S %p')} | "
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',

@@ -383,36 +383,53 @@ class GetData(commands.Cog):
                     'words_typed': 0,
                     'chars_typed': 0,
                     'points': 0,
-                    'time_spent': 0
+                    'time_spent': 0,
+                    'average_wpm': 0,
+                    'best_wpm': 0,
+                    'worst_wpm': 0
                 }
             })
 
         races, words_typed, chars_typed, points, retro, time_spent = (0,) * 6
+        wpm_total, wpm_best, wpm_worst = (0,) * 3
         for row in data:
             date = datetime.datetime.fromtimestamp(row[1]).date().isoformat()
             text_id = str(row[2])
+            wpm = row[3]
             races += 1
             words_typed_ = texts_length[text_id]['word count']
             chars_typed_ = texts_length[text_id]['length']
             words_typed += words_typed_
             chars_typed += chars_typed_
-            csv_dict[date]['races'] += 1
-            csv_dict[date]['words_typed'] += words_typed_
-            csv_dict[date]['chars_typed'] += chars_typed_
+
+            wpm_total += wpm
+            if not wpm_best or wpm_best < wpm: wpm_best = wpm
+            if not wpm_worst or wpm_worst > wpm: wpm_worst = wpm
+
+            csv_day = csv_dict[date]
+            csv_day['races'] += 1
+            csv_day['words_typed'] += words_typed_
+            csv_day['chars_typed'] += chars_typed_
+            csv_day['average_wpm'] = (csv_day['average_wpm'] *\
+                                     (csv_day['races'] - 1) + wpm) /\
+                                     csv_day['races']
+            if not csv_day['best_wpm'] or csv_day['best_wpm'] < wpm: csv_day['best_wpm'] = wpm
+            if not csv_day['worst_wpm'] or csv_day['worst_wpm'] > wpm: csv_day['worst_wpm'] = wpm
+
             if row[4] == 0:
                 retro_ = row[3] / 60 * texts_length[text_id]['word count']
                 retro += retro_
-                csv_dict[date]['points'] += row[4]
+                csv_day['points'] += row[4]
             else:
                 points += row[4]
-                csv_dict[date]['points'] += row[4]
+                csv_day['points'] += row[4]
             try:
                 time_spent_ = 12 * texts_length[text_id]['length'] / row[3]
                 time_spent += time_spent_
-                csv_dict[date]['time_spent'] += time_spent_
+                csv_day['time_spent'] += time_spent_
             except ZeroDivisionError:
                 races -= 1
-                csv_dict[date]['races'] -= 1
+                csv_day['races'] -= 1
                 pass
 
         today = time.time() if time.time() < end_time else end_time
@@ -437,9 +454,14 @@ class GetData(commands.Cog):
                                  f"**Average Points Per Race:** {f'{round((points + retro) / races, 2):,}'}\n"
                                  f"**Retroactive Points:** {f'{round(retro):,}'}\n"
                                  f"**Total Points:** {f'{round(points + retro):,}'}"))
+        embed.add_field(name = 'Speed',
+                        value = (f"**Average (Lagged):** {f'{round(wpm_total / races, 2):,}'} WPM\n"
+                                 f"**Fastest Race:** {f'{wpm_best:,}'} WPM\n"
+                                 f"**Slowest Race:** {f'{wpm_worst:,}'} WPM"),
+                        inline = False)
 
         if ctx.invoked_with[-1] == '*':
-            csv_data = [['Day', 'Races', 'Words Typed', 'Chars. Typed', 'Points', 'Time Spent']]
+            csv_data = [['date'] + list(next(iter(csv_dict.values())).keys())]
             for key, value in csv_dict.items():
                 values = [round(i, 2) for i in list(value.values())]
                 csv_data.append([key] + values)
