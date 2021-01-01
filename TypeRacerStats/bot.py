@@ -23,7 +23,7 @@ async def on_ready():
     await bot.change_presence(activity = discord.Game(name = f"{DEFAULT_COMMAND_PREFIX}help | by e6f4e37l#0785 and keegan#1689"))
     print('TypeRacerStats ready.')
 
-    eugene = await bot.fetch_user(697048255254495312)
+    eugene = await bot.fetch_user(697048255254495312) #Eugene's Discord ID
     await eugene.send(embed = discord.Embed(color = discord.Color(0), title = f"TypeRacerStats Ready."))
 
     if MAINTAIN:

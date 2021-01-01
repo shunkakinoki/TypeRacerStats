@@ -166,7 +166,7 @@ class Christmas_2020(commands.Cog):
         if len(args) != 1: return
 
         try:
-            multiplier = int(args[0])
+            multiplier = float(args[0])
             if multiplier <= 0 or multiplier > 20:
                 raise ValueError
         except ValueError:

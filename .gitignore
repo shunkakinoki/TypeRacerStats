@@ -2,3 +2,4 @@
 *.pyc
 *typeracer.db
 *temp.db
+*TypeRacerStats/src/data/typeracer_records.json
