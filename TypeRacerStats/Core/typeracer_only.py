@@ -300,6 +300,7 @@ class TypeRacerOnly(commands.Cog):
 
         def helper_formatter(tally_dict, formatter, *args):
             rankings = dict()
+            args = args[0]
             for key, value in tally_dict.items():
                 try:
                     rankings[value].append(formatter(key))
@@ -316,8 +317,10 @@ class TypeRacerOnly(commands.Cog):
                 if len(args) == 1:
                     optional = ''
                 else:
-                    optional = args[1][ranking[1][0]]
-                print(ranking[1])
+                    try:
+                        optional = args[1][ranking[1][0]]
+                    except KeyError:
+                        optional = ''
                 value += f"{self.medals[i]} {' / '.join(ranking[1])} - {f'{round(ranking[0]):,}'}{optional}\n"
             return value
 
@@ -356,10 +359,10 @@ class TypeRacerOnly(commands.Cog):
                               value = helper_formatter(helper_sorter('races'), helper_flag, (True,)),
                               inline = False)
         races_embed.add_field(name = 'Highest Average Daily Races',
-                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, (True, races_daily_average_dict,)),
+                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, (True, races_daily_average_dict)),
                               inline = False)
         races_embed.add_field(name = 'Most Characters Typed',
-                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, (True, chars_typed_metadata_dict,)),
+                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, (True, chars_typed_metadata_dict)),
                               inline = False)
 
         for races_record in races_information:
@@ -373,7 +376,7 @@ class TypeRacerOnly(commands.Cog):
                                value = helper_formatter(helper_sorter('points'), helper_flag, (True,)),
                                inline = False)
         points_embed.add_field(name = 'Highest Average Daily Points',
-                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, (True, points_daily_average_dict,)),
+                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, (True, points_daily_average_dict)),
                                inline = False)
 
         for points_record in points_information:
@@ -385,7 +388,7 @@ class TypeRacerOnly(commands.Cog):
         medal_tally = {k: sum(v['medals'].values()) for k, v in all_time_data.items()}
 
         awards_embed.add_field(name = 'All-Time Leaders',
-                               value = helper_formatter(medal_tally, helper_flag, (True, medal_breakdown_dict,)),
+                               value = helper_formatter(medal_tally, helper_flag, (True, medal_breakdown_dict)),
                                inline = False)
 
         records_held_embed = discord.Embed(title = 'Records Held',
