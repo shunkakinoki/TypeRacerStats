@@ -309,15 +309,15 @@ class TypeRacerOnly(commands.Cog):
             rankings = [[k, v] for k, v in sorted(rankings.items(), key = lambda x: x[0], reverse = True)][0:3]
             value = ''
             for i, ranking in enumerate(rankings):
-                if i == 0:
+                if i == 0 and args[0]:
                     for user in ranking[1]:
-                        self.tally(user)
+                        self.tally(user.split(' ')[-1])
 
-                if len(args) == 0:
+                if len(args) == 1:
                     optional = ''
                 else:
-                    optional = args[0][ranking[1][0]]
-
+                    optional = args[1][ranking[1][0]]
+                print(ranking[1])
                 value += f"{self.medals[i]} {' / '.join(ranking[1])} - {f'{round(ranking[0]):,}'}{optional}\n"
             return value
 
@@ -353,13 +353,13 @@ class TypeRacerOnly(commands.Cog):
             })
 
         races_embed.add_field(name = 'All-Time Leaders',
-                              value = helper_formatter(helper_sorter('races'), helper_flag),
+                              value = helper_formatter(helper_sorter('races'), helper_flag, (True,)),
                               inline = False)
         races_embed.add_field(name = 'Highest Average Daily Races',
-                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, races_daily_average_dict),
+                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, (True, races_daily_average_dict,)),
                               inline = False)
         races_embed.add_field(name = 'Most Characters Typed',
-                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, chars_typed_metadata_dict),
+                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, (True, chars_typed_metadata_dict,)),
                               inline = False)
 
         for races_record in races_information:
@@ -370,10 +370,10 @@ class TypeRacerOnly(commands.Cog):
                                      color = discord.Color(0))
 
         points_embed.add_field(name = 'All-Time Leaders',
-                               value = helper_formatter(helper_sorter('points'), helper_flag),
+                               value = helper_formatter(helper_sorter('points'), helper_flag, (True,)),
                                inline = False)
         points_embed.add_field(name = 'Highest Average Daily Points',
-                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, points_daily_average_dict),
+                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, (True, points_daily_average_dict,)),
                                inline = False)
 
         for points_record in points_information:
@@ -385,7 +385,7 @@ class TypeRacerOnly(commands.Cog):
         medal_tally = {k: sum(v['medals'].values()) for k, v in all_time_data.items()}
 
         awards_embed.add_field(name = 'All-Time Leaders',
-                               value = helper_formatter(medal_tally, helper_flag, medal_breakdown_dict),
+                               value = helper_formatter(medal_tally, helper_flag, (True, medal_breakdown_dict,)),
                                inline = False)
 
         records_held_embed = discord.Embed(title = 'Records Held',
@@ -393,10 +393,10 @@ class TypeRacerOnly(commands.Cog):
 
         top_countries_list = [[k, v] for k, v in self.country_tally.items()]
         records_held_embed.add_field(name = 'Top Countries',
-                                     value = helper_formatter(self.country_tally, lambda x: x),
+                                     value = helper_formatter(self.country_tally, lambda x: x, (True,)),
                                      inline = False)
         records_held_embed.add_field(name = 'Top Users',
-                                     value = helper_formatter(self.user_tally, helper_flag),
+                                     value = helper_formatter(self.user_tally, helper_flag, (True,)),
                                      inline = False)
 
         last_updated_embed = discord.Embed(color = discord.Color(0),
