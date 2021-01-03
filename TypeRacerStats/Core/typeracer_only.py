@@ -1,9 +1,45 @@
+import asyncio
+import datetime
+import json
+import sqlite3
+import sys
+from bs4 import BeautifulSoup
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
+sys.path.insert(0, '')
+from TypeRacerStats.config import BOT_OWNER_IDS, BLANK_FLAG
+from TypeRacerStats.file_paths import DATABASE_PATH, TYPERACER_RECORDS_JSON
+from TypeRacerStats.Core.Common.accounts import check_banned_status
+from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.data import fetch_data
+from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.scrapers import rs_typinglog_scraper
+from TypeRacerStats.Core.Common.texts import load_texts_json
+from TypeRacerStats.Core.Common.urls import Urls
 
 class TypeRacerOnly(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.medals = [':first_place:', ':second_place:', ':third_place:']
+        self.records_information = dict()
+        self.accounts = dict()
+        self.countries = dict()
+        self.last_updated = ''
+        self.races_alltime = dict()
+        self.points_alltime = dict()
+        self.awards_alltime = dict()
+        self.country_tally = dict()
+        self.user_tally = dict()
+
+        self.update_init_variables()
+        self.update_records.start()
+
+    def cog_load(self):
+        self.update_records.start()
+
+    def cog_unload(self):
+        self.update_records.cancel()
 
     @commands.Cog.listener()
     async def on_message(self, message):
@@ -28,6 +64,389 @@ class TypeRacerOnly(commands.Cog):
                                            embed = embed)
 
         return
+
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.cooldown(5, 7200, commands.BucketType.default)
+    @commands.command(aliases = ['keegant', 'tr_records'])
+    async def keegan(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        actions = {
+            'setup': self.records_setup,
+            'update': self.records_update
+        }
+
+        if len(args) > 1:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} <action>"))
+            return
+
+        if len(args) == 0:
+            file_ = discord.File(TYPERACER_RECORDS_JSON, filename = f"typeracer_records_{self.last_updated.lower()}.json")
+            await ctx.send(file = file_)
+            return
+
+        action = args[0].lower()
+        try:
+            action = actions[action]
+        except KeyError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format(f"Must provide a valid action: `{'`, `'.join(actions.keys())}`"))
+            return
+
+        await action(ctx)
+        return
+
+    async def records_setup(self, ctx):
+        self.update_init_variables()
+        embeds = await self.construct_embeds()
+        for name, embed in embeds.items():
+            message = await ctx.send(embed = embed)
+            if name == 'faq':
+                self.records_information['information'].update({'message_id': message.id})
+            else:
+                self.records_information['all_records'][name].update({'message_id': message.id})
+            self.records_information.update({'channel_id': message.channel.id})
+            await asyncio.sleep(1)
+
+        with open(TYPERACER_RECORDS_JSON, 'w') as jsonfile:
+            json.dump(self.records_information, jsonfile, indent = 4)
+
+    async def records_update(self, ctx):
+        user_id = ctx.message.author.id
+
+        try:
+            updated_file_raw = ctx.message.attachments[0]
+        except IndexError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Please upload a file and comment the command call'))
+            return
+
+        try:
+            updated_file = json.loads(await updated_file_raw.read())
+        except json.JSONDecodeError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('The uploaded file is not a properly formatted JSON file'))
+            return
+
+        with open(TYPERACER_RECORDS_JSON, 'w') as jsonfile:
+            json.dump(updated_file, jsonfile, indent = 4)
+
+        self.update_init_variables()
+        try:
+            await self.edit_record_messages()
+        except NotImplementedError:
+            await ctx.send(content = f"<@{ctx.message.author.id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information(f"Must set-up the records with `{ctx.invoked_with} setup` first"))
+            return
+
+        await ctx.send(embed = discord.Embed(title = 'Records Updated', color = discord.Color(0)))
+        return
+
+    @tasks.loop(hours = 1)
+    async def update_records(self):
+        await self.edit_record_messages()
+
+    async def edit_record_messages(self):
+        try:
+            self.update_init_variables()
+
+            channel = await self.bot.fetch_channel(self.records_information['channel_id'])
+            embeds = await self.construct_embeds()
+            for name, embed in embeds.items():
+                if name == 'faq':
+                    message_id = self.records_information['information']['message_id']
+                else:
+                    message_id = self.records_information['all_records'][name]['message_id']
+                message = await channel.fetch_message(message_id)
+                await asyncio.sleep(1)
+                await message.edit(embed = embed)
+                await asyncio.sleep(1)
+        except:
+            raise NotImplementedError
+        return
+
+    def update_init_variables(self):
+        with open(TYPERACER_RECORDS_JSON, 'r') as jsonfile:
+            self.records_information = json.load(jsonfile)
+
+        for main, sub_accounts in self.records_information['accounts'].items():
+            for sub_account in sub_accounts:
+                self.accounts.update({sub_account: main})
+
+        self.countries = self.records_information['countries']
+        self.last_updated = datetime.datetime.utcnow().strftime('%B %-d, %Y, %X %p')
+        self.races_alltime = self.records_information['all_records']['races']['all_time']
+        self.points_alltime = self.records_information['all_records']['points']['all_time']
+        self.awards_alltime = self.records_information['all_records']['awards']['all_time']
+
+    async def construct_embeds(self):
+        self.last_updated = datetime.datetime.utcnow().strftime('%B %-d, %Y, %X %p')
+        self.country_tally = dict()
+        self.user_tally = dict()
+
+        faq_information = self.records_information['information']
+        faq_embed = discord.Embed(**faq_information)
+        for field in faq_information['fields']:
+            faq_embed.add_field(**field)
+        faq_embed.set_footer(**faq_information['footer'])
+
+        all_records_information = self.records_information['all_records']
+
+        speed_information = all_records_information['speed']['records']
+        speed_embed = discord.Embed(title = 'Speed Records',
+                                    color = discord.Color(0))
+        for speed_record in speed_information:
+            speed_embed.add_field(**self.record_field_constructor(speed_record, ' WPM'))
+
+        three_hundred_information = all_records_information['300_wpm_club']['records']
+        description, members_list = '', []
+
+        for member, url in three_hundred_information.items():
+            result = (await fetch([url], 'text', rs_typinglog_scraper))[0]
+            wpm = round(12000 * (result['length'] - 1) / (result['duration'] - result['start']), 3)
+            date = datetime.datetime.fromtimestamp(result['timestamp']).strftime('%-m/%-d/%y')
+            members_list.append([member, wpm, url, date])
+
+        members_list = sorted(members_list, key = lambda x: x[1], reverse = True)
+
+        for i, member in enumerate(members_list):
+            if i == 0: self.tally(member[0])
+            if i < 3: rank = self.medals[i]
+            else: rank = f"{i + 1}."
+            if member[1] >= 400: wpm = f"**{member[1]}**"
+            else: wpm = member[1]
+            description += f"{rank} [{self.get_flag(member[0])} {member[0]} - "
+            description += f"{wpm} WPM]({member[2]}) - {member[3]}\n"
+
+        description = description[:-1]
+        three_hundred_embed = discord.Embed(title = '300 WPM Club',
+                                            color = discord.Color(0),
+                                            description = description)
+        three_hundred_embed.set_footer(text = 'All speeds measured according to adjusted metric')
+
+        all_time_leaders = [user for category in self.races_alltime.values() for user in category]
+        all_time_leaders += [user for category in self.points_alltime.values() for user in category]
+        all_time_leaders += [user for category in self.awards_alltime.values() for user in category]
+        all_time_leaders = set(all_time_leaders)
+        all_time_data = dict()
+
+        url_constructor = Urls()
+        right_now = datetime.datetime.utcnow().timestamp()
+        texts_data = load_texts_json()
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+
+        for user in all_time_leaders:
+            try:
+                response = (await fetch([url_constructor.user(user, 'play')], 'text'))[0]
+                medals = {1: 0, 2: 0, 3: 0}
+                soup = BeautifulSoup(response, 'html.parser')
+                rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
+
+                for row in rows:
+                    cells = row.select('td')
+                    if len(cells) < 2: continue
+                    if cells[0].text.strip() == 'Awards':
+                        medal_html_objects = cells[1].select('a')
+                        break
+
+                for medal in medal_html_objects:
+                    medals[int(medal.select('img')[0]['title'][0])] += 1
+
+                if escape_sequence(user):
+                    raise FileNotFoundError
+                urls = [Urls().get_races(user, 'play', 1)]
+
+                user_data = c.execute(f"SELECT * FROM t_{user} ORDER BY t DESC LIMIT 1")
+                last_race_timestamp = user_data.fetchone()[1]
+
+                data = await fetch_data(user, 'play', last_race_timestamp + 0.01, right_now)
+                if data:
+                    c.executemany(f"INSERT INTO t_{user} VALUES (?, ?, ?, ?, ?)", data)
+                conn.commit()
+                data = c.execute(f"SELECT * FROM t_{user}")
+
+                races, chars_typed, points = (0,) * 3
+                for race in data:
+                    races += 1
+                    race_text_id = str(race[2])
+                    chars_typed += texts_data[race_text_id]['length']
+                    points += race[4]
+
+                first_race_timestamp = c.execute(f"SELECT * FROM t_{user} ORDER BY t ASC LIMIT 1").fetchone()[1]
+                time_difference = right_now - first_race_timestamp
+
+                all_time_data.update({
+                    user: {
+                        'races': races,
+                        'races_daily_average': 86400 * races / time_difference,
+                        'chars_typed': chars_typed,
+                        'points': points,
+                        'points_daily_average': 86400 * points / time_difference,
+                        'medals': medals,
+                        'time_difference': time_difference
+                    }
+                })
+            except:
+                continue
+
+        conn.close()
+
+        def helper_formatter(tally_dict, formatter, *args):
+            rankings = dict()
+            for key, value in tally_dict.items():
+                try:
+                    rankings[value].append(formatter(key))
+                except KeyError:
+                    rankings[value] = [formatter(key)]
+
+            rankings = [[k, v] for k, v in sorted(rankings.items(), key = lambda x: x[0], reverse = True)][0:3]
+            value = ''
+            for i, ranking in enumerate(rankings):
+                if i == 0:
+                    for user in ranking[1]:
+                        self.tally(user)
+
+                if len(args) == 0:
+                    optional = ''
+                else:
+                    optional = args[0][ranking[1][0]]
+
+                value += f"{self.medals[i]} {' / '.join(ranking[1])} - {f'{round(ranking[0]):,}'}{optional}\n"
+            return value
+
+        races_information = all_records_information['races']['records']
+        races_embed = discord.Embed(title = 'Race Records',
+                                    color = discord.Color(0))
+
+        helper_sorter = lambda param: {k: v[param] for k, v in all_time_data.items()}
+        helper_flag = lambda x: f"{self.get_flag(x)} {x}"
+
+        races_daily_average_dict = dict()
+        points_daily_average_dict = dict()
+        chars_typed_metadata_dict = dict()
+        medal_breakdown_dict = dict()
+        for key, value in all_time_data.items():
+            days = round(value['time_difference'] / 86400)
+            medal_breakdown = value['medals']
+
+            races_daily_average_dict.update({
+                helper_flag(key): f""" ({f"{round(value['races'], 2):,}"} races over {f"{days:,}"} days)"""
+            })
+
+            points_daily_average_dict.update({
+                helper_flag(key): f""" ({f"{round(value['points'], 2):,}"} points over {f"{days:,}"} days)"""
+            })
+
+            chars_typed_metadata_dict.update({
+                helper_flag(key): f""" ({f"{round(value['chars_typed'] / value['races'], 2):,}"} average chars over {f"{value['races']:,}"} races)"""
+            })
+
+            medal_breakdown_dict.update({
+                helper_flag(key): f""" (:first_place: {f"{medal_breakdown[1]:,}"} :second_place: {f"{medal_breakdown[2]:,}"} :third_place: {f"{medal_breakdown[3]:,}"})"""
+            })
+
+        races_embed.add_field(name = 'All-Time Leaders',
+                              value = helper_formatter(helper_sorter('races'), helper_flag),
+                              inline = False)
+        races_embed.add_field(name = 'Highest Average Daily Races',
+                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, races_daily_average_dict),
+                              inline = False)
+        races_embed.add_field(name = 'Most Characters Typed',
+                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, chars_typed_metadata_dict),
+                              inline = False)
+
+        for races_record in races_information:
+            races_embed.add_field(**self.record_field_constructor(races_record, ''))
+
+        points_information = all_records_information['points']['records']
+        points_embed = discord.Embed(title = 'Point Records',
+                                     color = discord.Color(0))
+
+        points_embed.add_field(name = 'All-Time Leaders',
+                               value = helper_formatter(helper_sorter('points'), helper_flag),
+                               inline = False)
+        points_embed.add_field(name = 'Highest Average Daily Points',
+                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, points_daily_average_dict),
+                               inline = False)
+
+        for points_record in points_information:
+            points_embed.add_field(**self.record_field_constructor(points_record, ''))
+
+        awards_embed = discord.Embed(title = 'Awards Records',
+                                     color = discord.Color(0))
+
+        medal_tally = {k: sum(v['medals'].values()) for k, v in all_time_data.items()}
+
+        awards_embed.add_field(name = 'All-Time Leaders',
+                               value = helper_formatter(medal_tally, helper_flag, medal_breakdown_dict),
+                               inline = False)
+
+        records_held_embed = discord.Embed(title = 'Records Held',
+                                           color = discord.Color(0))
+
+        top_countries_list = [[k, v] for k, v in self.country_tally.items()]
+        records_held_embed.add_field(name = 'Top Countries',
+                                     value = helper_formatter(self.country_tally, lambda x: x),
+                                     inline = False)
+        records_held_embed.add_field(name = 'Top Users',
+                                     value = helper_formatter(self.user_tally, helper_flag),
+                                     inline = False)
+
+        last_updated_embed = discord.Embed(color = discord.Color(0),
+                                           description = f"Last updated **{self.last_updated} UTC**")
+
+        return {
+            'faq': faq_embed,
+            'speed': speed_embed,
+            '300_wpm_club': three_hundred_embed,
+            'races': races_embed,
+            'points': points_embed,
+            'awards': awards_embed,
+            'records_held': records_held_embed,
+            'last_updated': last_updated_embed
+        }
+
+    def record_field_constructor(self, record_information, unit):
+        user = record_information['user']
+        value = (f"{self.get_flag(user)} {user} - "
+                 f"""{f"{record_information['record']:,}"}{unit} - """
+                 f"{record_information['date']} "
+                 f"[:cinema:]({record_information['url']})")
+
+        self.tally(user)
+
+        return {
+            'name': record_information['title'],
+            'value': value,
+            'inline': False
+        }
+
+    def get_flag(self, user):
+        try:
+            flag = f":flag_{self.countries[user]}:"
+        except KeyError:
+            flag = BLANK_FLAG
+
+        return flag
+
+    def tally(self, user):
+        try:
+            self.user_tally[user] += 1
+        except KeyError:
+            self.user_tally[user] = 1
+
+        country = self.get_flag(user)
+        try:
+            self.country_tally[country] += 1
+        except KeyError:
+            self.country_tally[country] = 1
 
 def setup(bot):
     bot.add_cog(TypeRacerOnly(bot))
