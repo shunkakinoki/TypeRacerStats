@@ -104,6 +104,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-boxplot [user] <user_2> ... <user_4>` | <details><summary>View</summary>![33]</details> | Returns WPM boxplot of given user(s). Outliers are removed. ![li] | `bp` |
 | `-histogram [user]` | <details><summary>View</summary>![34]</details> | Returns WPM boxplot of given user. ![li] | `hg` |
 | `-raceline <time> [user] <user_2> ... <user_10>` | <details><summary>View</summary>![35]</details> | Returns races over time graph for given user(s); optional `time` parameter returns graph with only the races completed after it. ![li] | `rl` |
+| `-pointline <time> [user] <user_2> ... <user_10>` | <details><summary>View</summary>![50]</details> | Returns points over time graph for given user(s); optional `time` parameter returns graph with only the races completed after it. ![li] | `pl`, `pl* |
 | `-improvement [user] <time/races>` | <details><summary>View</summary>![36]</details> | Returns WPM over specified category for given user. ![li] | `imp` |
 | `-week [user] <yyyy-mm-dd>` | <details><summary>View</summary>![47]</details> | Returns the given user's stats on a given week; defaults to current UTC week; `w*` is a special alias. ![li] | `w`, `w*` |
 | `-month [user] <yyyy-mm>` | <details><summary>View</summary>![48]</details> | Returns the given user's stats on a given month; defaults to current UTC month; `m*` is a special alias. ![li] | `m`, `m*` |
@@ -130,6 +131,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [47]: https://i.gyazo.com/fe4270981019936dda63f7459999327a.gif
 [48]: https://i.gyazo.com/4d64c035826f151f97cde0594a3a5e76.gif
 [49]: https://i.gyazo.com/35ccc3a1e5f1cba34b19f820a4d15247.gif
+[50]: https://i.gyazo.com/35ccc3a1e5f1cba34b19f820a4d15247.gif
 
 ### Other
 <details>
