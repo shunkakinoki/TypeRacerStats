@@ -18,6 +18,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
+from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 from TypeRacerStats.Core.Common.utility import reduce_list
 
@@ -144,9 +145,15 @@ class Graphs(commands.Cog):
 
     @commands.cooldown(3, 25, commands.BucketType.user)
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
-    @commands.command(aliases = get_aliases('raceline'))
+    @commands.command(aliases = get_aliases('raceline') + ['pointline'] + get_aliases('pointline'))
     async def raceline(self, ctx, *args):
         user_id = ctx.message.author.id
+
+        rl = ctx.invoked_with.lower() in ['raceline'] + get_aliases('raceline')
+        pl = ctx.invoked_with.lower() in ['pointline'] + get_aliases('pointline')
+
+        units = 'Races' if rl else 'Points (1000s)'
+        retroactive = ctx.invoked_with[-1] == '*' and pl
 
         if len(args) == 0: args = check_account(user_id)(args)
 
@@ -176,25 +183,45 @@ class Graphs(commands.Cog):
                                     "doesn't exist")))
                 return
 
+        def calculate_pts(tid,  wpm):
+            try:
+                return text_data[str(tid)]['word count'] * wpm / 60000
+            except ValueError:
+                return 0
+            except KeyError:
+                return 0
+
+        text_data = load_texts_json()
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         data_x, data_y = [], []
         try:
             for user in args:
-                temp_x, temp_y, first_gn = [], [], 1
+                temp_x, temp_y, first_gn, cur_pts = [], [], 1, 0
                 if opt:
-                    user_data = c.execute(f"SELECT t, gn FROM t_{user} WHERE t > ?", (opt,))
+                    user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (opt,))
                     try:
-                        first_t, first_gn = user_data.fetchone()
+                        first_t, first_gn, first_pts, first_wpm, first_tid = user_data.fetchone()
                     except TypeError:
                         continue
                     temp_x.append(datetime.datetime.fromtimestamp(first_t))
-                    temp_y.append(1)
+                    if rl:
+                        temp_y.append(1)
+                    elif pl:
+                        first_pts /= 1000
+                        if retroactive and not first_pts: first_pts = calculate_pts(first_tid, first_wpm)
+                        temp_y.append(first_pts)
                 else:
-                    user_data = c.execute(f"SELECT t, gn FROM t_{user}")
+                    user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
                 for i in user_data:
                     temp_x.append(datetime.datetime.fromtimestamp(i[0]))
-                    temp_y.append(i[1] - first_gn + 1)
+                    if rl:
+                        temp_y.append(i[1] - first_gn + 1)
+                    elif pl:
+                        pts = i[2] / 1000
+                        if retroactive and not pts: pts = calculate_pts(i[4], i[3])
+                        cur_pts += pts
+                        temp_y.append(cur_pts)
                 data_x.append(temp_x)
                 data_y.append(temp_y)
         except sqlite3.OperationalError:
@@ -230,7 +257,8 @@ class Graphs(commands.Cog):
             return
 
         title = f"{args[0].lower()}'s " if len(args) == 1 else ''
-        title += 'Races Over Time'
+        if retroactive: units = f"Retroactive {units}"
+        title += f"{units} Over Time"
         if opt:
             title += f"""\n(Since {datetime.datetime.fromtimestamp(opt) 
                                    .strftime("%B %-d, %Y")})"""
@@ -239,20 +267,20 @@ class Graphs(commands.Cog):
         ax.set_xticks(ax.get_xticks()[::2])
         formatter = mdates.DateFormatter("%b. %-d, '%y")
         ax.xaxis.set_major_formatter(formatter)
-        ax.set_ylabel('Races')
+        ax.set_ylabel(units)
         plt.grid(True)
 
         if len(data_y) > 1:
             plt.tight_layout(rect=[0,0,0.75,1])
             ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
-        file_name = 'Races Over Time.png'
+        file_name = f"{units} Over Time.png"
 
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False)
         plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
-        races_over_time_picture = discord.File(file_name, filename = file_name)
+        over_time_picture = discord.File(file_name, filename = file_name)
 
-        await ctx.send(file = races_over_time_picture)
+        await ctx.send(file = over_time_picture)
         os.remove(file_name)
         plt.close()
         return
@@ -366,8 +394,8 @@ class Graphs(commands.Cog):
         account = account_information(user_id)
         universe = account['universe']
 
-        ag = ctx.invoked_with in ['adjustedgraph'] + get_aliases('adjustedgraph')
-        mg = ctx.invoked_with in ['matchgraph'] + get_aliases('matchgraph')
+        ag = ctx.invoked_with.lower() in ['adjustedgraph'] + get_aliases('adjustedgraph')
+        mg = ctx.invoked_with.lower() in ['matchgraph'] + get_aliases('matchgraph')
 
         if len(args) == 0: args = check_account(user_id)(args)
 
