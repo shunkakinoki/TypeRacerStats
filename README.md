@@ -131,7 +131,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [47]: https://i.gyazo.com/fe4270981019936dda63f7459999327a.gif
 [48]: https://i.gyazo.com/4d64c035826f151f97cde0594a3a5e76.gif
 [49]: https://i.gyazo.com/35ccc3a1e5f1cba34b19f820a4d15247.gif
-[50]: https://i.gyazo.com/35ccc3a1e5f1cba34b19f820a4d15247.gif
+[50]: https://i.gyazo.com/6d3a27aba6468271e0c90bcb7abdef30.gif
 
 ### Other
 <details>
