@@ -150,7 +150,7 @@ class TypeRacerOnly(commands.Cog):
         await ctx.send(embed = discord.Embed(title = 'Records Updated', color = discord.Color(0)))
         return
 
-    @tasks.loop(hours = 1)
+    @tasks.loop(hours = 24)
     async def update_records(self):
         await self.edit_record_messages()
 
@@ -194,7 +194,7 @@ class TypeRacerOnly(commands.Cog):
 
         faq_thumbnail = HELP_IMG
         speed_thumbnail, speed_color = 'https://i.imgur.com/bXAjl4C.png', 0x001359
-        three_hundred_thumbnail, three_hundred_color = 'https://i.imgur.com/i8kXn3K.png', 0x1B0380
+        three_hundred_thumbnail, three_hundred_color = 'https://i.imgur.com/i8kXn3K.png', 0x1B038C
         races_thumbnail, races_color = 'https://i.imgur.com/DspJLUH.png', 0x14328C
         points_thumbnail, points_color = 'https://i.imgur.com/Xm0VNQV.png', 0x0B4A9E
         awards_thumbnail, awards_color = 'https://i.imgur.com/W9NEYb2.png', 0x0E61D1
