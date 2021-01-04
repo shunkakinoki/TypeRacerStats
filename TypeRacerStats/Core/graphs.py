@@ -9,6 +9,7 @@ import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.ticker as ticker
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
@@ -185,7 +186,7 @@ class Graphs(commands.Cog):
 
         def calculate_pts(tid,  wpm):
             try:
-                return text_data[str(tid)]['word count'] * wpm / 60000
+                return text_data[str(tid)]['word count'] * wpm / 60
             except ValueError:
                 return 0
             except KeyError:
@@ -208,17 +209,19 @@ class Graphs(commands.Cog):
                     if rl:
                         temp_y.append(1)
                     elif pl:
-                        first_pts /= 1000
                         if retroactive and not first_pts: first_pts = calculate_pts(first_tid, first_wpm)
                         temp_y.append(first_pts)
                 else:
-                    user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
+                    if rl or retroactive:
+                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
+                    elif pl:
+                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (1_501_113_600,))
                 for i in user_data:
                     temp_x.append(datetime.datetime.fromtimestamp(i[0]))
                     if rl:
                         temp_y.append(i[1] - first_gn + 1)
                     elif pl:
-                        pts = i[2] / 1000
+                        pts = i[2]
                         if retroactive and not pts: pts = calculate_pts(i[4], i[3])
                         cur_pts += pts
                         temp_y.append(cur_pts)
@@ -267,6 +270,8 @@ class Graphs(commands.Cog):
         ax.set_xticks(ax.get_xticks()[::2])
         formatter = mdates.DateFormatter("%b. %-d, '%y")
         ax.xaxis.set_major_formatter(formatter)
+        if pl:
+            ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{round(x / 1_000_000, 1)}M" if x >= 1_000_000 else f"{round(x / 1_000, 1)}K"))
         ax.set_ylabel(units)
         plt.grid(True)
 
