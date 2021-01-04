@@ -153,7 +153,7 @@ class Graphs(commands.Cog):
         rl = ctx.invoked_with.lower() in ['raceline'] + get_aliases('raceline')
         pl = ctx.invoked_with.lower() in ['pointline'] + get_aliases('pointline')
 
-        units = 'Races' if rl else 'Points (1000s)'
+        units = 'Races' if rl else 'Points'
         retroactive = ctx.invoked_with[-1] == '*' and pl
 
         if len(args) == 0: args = check_account(user_id)(args)
