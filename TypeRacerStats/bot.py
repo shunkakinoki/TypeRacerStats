@@ -8,7 +8,7 @@ from TypeRacerStats.config import BOT_TOKEN, DEFAULT_COMMAND_PREFIX, MAINTAIN, T
 from TypeRacerStats.file_paths import DATABASE_PATH
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.maintenance import drop_temporary_tables, maintain_players, maintain_top_tens
+from TypeRacerStats.Core.Common.maintenance import drop_temporary_tables, maintain_players, maintain_top_tens, maintain_text_files
 from TypeRacerStats.Core.Common.prefixes import get_prefix, load_prefixes, update_prefixes
 
 os.environ['TZ'] = 'UTC'
@@ -25,6 +25,8 @@ async def on_ready():
 
     eugene = await bot.fetch_user(697048255254495312) #Eugene's Discord ID
     await eugene.send(embed = discord.Embed(color = discord.Color(0), title = f"TypeRacerStats Ready."))
+
+    maintain_text_files()
 
     if MAINTAIN:
         drop_temporary_tables.start()

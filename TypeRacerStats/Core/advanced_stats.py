@@ -11,8 +11,7 @@ from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
-from TypeRacerStats.Core.Common.texts import load_texts_large
-from TypeRacerStats.Core.Common.texts import load_texts_json
+from TypeRacerStats.Core.Common.texts import load_texts_large, load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 
 class AdvancedStats(commands.Cog):

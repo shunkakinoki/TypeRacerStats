@@ -8,10 +8,39 @@ import time
 from bs4 import BeautifulSoup
 from discord.ext import tasks
 sys.path.insert(0, '')
-from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH
+from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH, TEXTS_LENGTHS, TEXTS_LARGE
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.urls import Urls
+
+def maintain_text_files():
+    texts_lengths = dict()
+    texts_large = dict()
+
+    with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)
+
+        for row in reader:
+            tid = str(row[0])
+            texts_lengths.update({
+                tid: {
+                    'length': len(row[1]),
+                    'word count': len(row[1].split(' '))
+                }
+            })
+
+            texts_large.update({
+                tid: f"{row[1][:50]}…"
+            })
+
+    with open(TEXTS_LENGTHS, 'w') as jsonfile:
+        json.dump(texts_lengths, jsonfile)
+
+    with open(TEXTS_LARGE, 'w') as jsonfile:
+        json.dump(texts_large, jsonfile)
+
+    print(texts_lengths)
 
 @tasks.loop(hours = 24)
 async def drop_temporary_tables():
