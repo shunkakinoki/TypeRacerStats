@@ -14,8 +14,9 @@ from TypeRacerStats.Core.Common.accounts import account_information, check_accou
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text
+from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.scrapers import timestamp_scraper
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -616,6 +617,71 @@ class BasicStats(commands.Cog):
         embed.add_field(name = date,
                         value = value)
         await ctx.send(embed = embed)
+        return
+
+    @commands.cooldown(5, 10, commands.BucketType.user)
+    @commands.cooldown(50, 100, commands.BucketType.default)
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases = get_aliases('timebetween'))
+    async def timebetween(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+        account = account_information(user_id)
+        universe = account['universe']
+
+        url_param = False
+        if len(args) < 2 or len(args) > 3:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters((f"{ctx.invoked_with} [url] [url]` or "
+                                                f"`{ctx.invoked_with} [user] [race_one] [race_two]")))
+            return
+        if len(args) == 2:
+            try:
+                args[0].index('result?') and args[1].index('result?')
+                url_param = True
+            except ValueError:
+                args = check_account(user_id)(args)
+        if len(args) == 3:
+            player = args[0].lower()
+            try:
+                race_one = int(args[1])
+                race_two = int(args[2])
+                if race_one <= 0 or race_two <= 1:
+                    raise ValueError
+                args = (race_one, race_two)
+            except ValueError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format(f"Refer to `help {ctx.invoked_with}` for correct parameter formats"))
+                return
+
+        urls = []
+        if url_param: urls = [url for url in args]
+        else: urls = [Urls().result(player, race_num, universe) for race_num in args]
+
+        responses = await fetch(urls, 'text', timestamp_scraper)
+        try:
+            player = responses[0]['player']
+            difference = abs(responses[1]['timestamp'] - responses[0]['timestamp'])
+            universe = responses[0]['universe']
+            race_nums = [response['race_number'] for response in responses]
+            race_one = min(race_nums)
+            race_two = max(race_nums)
+        except TypeError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information('`timestamp` was not found in either race'))
+            return
+
+        description = (f"The time between **{player}**'s "
+                       f"**{num_to_text(race_one)}** and "
+                       f"**{num_to_text(race_two)}** race in the\n"
+                       f"{href_universe(universe)} universe was "
+                       f"**{seconds_to_text(difference)}**")
+
+        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                             description = description))
         return
 
 def setup(bot):

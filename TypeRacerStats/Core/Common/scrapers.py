@@ -134,6 +134,31 @@ def raw_typinglog_scraper(response):
     except:
         return None
 
+def timestamp_scraper(response):
+    try:
+        soup = BeautifulSoup(response, 'html.parser')
+        player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
+        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        universe = 'play'
+        for detail in race_details:
+            cells = detail.select('td')
+            category = cells[0].text.strip()
+            if category == 'Race Number':
+                race_number = int(cells[1].text.strip())
+            elif category == 'Date':
+                timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
+                                                        "%a, %d %b %Y %H:%M:%S")
+                                                        .strftime("%s"))
+            elif category == 'Universe':
+                universe = cells[1].text.strip()
+
+        return {'player': player,
+                'timestamp': timestamp,
+                'race_number': race_number,
+                'universe': universe}
+    except:
+        return None
+
 def scrape_text(response):
     try:
         soup = BeautifulSoup(response, 'html.parser')

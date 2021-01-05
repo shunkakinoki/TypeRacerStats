@@ -33,7 +33,7 @@ class AdvancedStats(commands.Cog):
         if len(args) != 2:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user] [wpm/points]"))
+                                   .parameters(f"{ctx.invoked_with} [user] [wpm/points/weightedwpm]"))
             return
 
         player = args[0].lower()
@@ -44,28 +44,37 @@ class AdvancedStats(commands.Cog):
                                     "doesn't exist")))
             return
 
-        categories = ['wpm', 'points']
+        categories = ['wpm', 'points', 'weightedwpm']
 
-        if not args[1] in categories:
+        if not args[1].lower() in categories:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format('`category` must be `wpm/points`'))
+                                   .incorrect_format('`category` must be `wpm/points/weightedwpm`'))
             return
 
-        if args[1] == 'points':
+        if args[1].lower() == 'points':
             category = 'pts'
-        else:
+        elif args[1].lower() == 'wpm':
             category = 'wpm'
+        else:
+            category = 'weightedwpm'
 
+        texts_length = load_texts_json()
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
             if ctx.invoked_with in ['top'] + get_aliases('top'):
-                order_by = 'DESC'
+                order_by, reverse = 'DESC', True
             else:
-                order_by = 'ASC'
-            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY {category} {order_by} LIMIT 10")
-            user_data = user_data.fetchall()
+                order_by, reverse = 'ASC', False
+            if category != 'weightedwpm':
+                user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY {category} {order_by} LIMIT 10")
+                user_data = user_data.fetchall()
+            else:
+                raw_data = c.execute(f"SELECT * FROM t_{player}")
+                user_data = sorted(raw_data,
+                                   key = lambda x: x[3] * texts_length[str(x[2])]['length'],
+                                   reverse = reverse)[:10]
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
@@ -78,17 +87,19 @@ class AdvancedStats(commands.Cog):
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
 
-        category = {'pts': 'points', 'wpm': 'WPM'}[category]
+        formatted_category = {'pts': 'points', 'wpm': 'WPM', 'weightedwpm': 'WPM'}[category]
         texts = load_texts_large()
         for i, race in enumerate(user_data):
             value = f"{texts[str(race[2])]} [:cinema:]({Urls().result(player, race[0], 'play')})"
-            if category == 'points':
-                name = f"{i + 1}. {race[4]} {category} (Race #{f'{race[0]:,}'})"
+            if formatted_category == 'points':
+                name = f"{i + 1}. {race[4]} {formatted_category} (Race #{f'{race[0]:,}'}, Text ID: {race[2]})"
             else:
-                name = f"{i + 1}. {race[3]} {category} (Race #{f'{race[0]:,}'})"
+                name = f"{i + 1}. {race[3]} {formatted_category} (Race #{f'{race[0]:,}'}, Text ID: {race[2]})"
             embed.add_field(name = name,
                             value = value,
                             inline = False)
+            if category == 'weightedwpm':
+                embed.set_footer(text = 'Sorted by weighted WPM (text_length • wpm)')
         await ctx.send(embed = embed)
         return
 

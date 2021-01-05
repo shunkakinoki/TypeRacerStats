@@ -165,14 +165,23 @@ class Graphs(commands.Cog):
             return
         today = time.time()
 
-        opt = 0
+        start, end = 0, 0
         if len(args) > 1:
             try:
                 args[0].index('-')
-                opt = (datetime.datetime.strptime(args[0], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
-                if opt <= 1_250_000_000 or opt > time.time():
+                start = (datetime.datetime.strptime(args[0], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                if start <= 1_250_000_000 or start > time.time():
                     raise ValueError
                 args = args[1:]
+            except ValueError:
+                pass
+        if len(args) > 1:
+            try:
+                args[-1].index('-')
+                end = (datetime.datetime.strptime(args[-1], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                if end <= 1_250_000_000 or end > time.time():
+                    raise ValueError
+                args = args[:-1]
             except ValueError:
                 pass
 
@@ -199,8 +208,11 @@ class Graphs(commands.Cog):
         try:
             for user in args:
                 temp_x, temp_y, first_gn, cur_pts = [], [], 1, 0
-                if opt:
-                    user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (opt,))
+                if start:
+                    if not end:
+                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (start,))
+                    else:
+                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?", (start, end))
                     try:
                         first_t, first_gn, first_pts, first_wpm, first_tid = user_data.fetchone()
                     except TypeError:
@@ -213,9 +225,15 @@ class Graphs(commands.Cog):
                         temp_y.append(first_pts)
                 else:
                     if rl or retroactive:
-                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
+                        if end:
+                            user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t < ?", (end,))
+                        else:
+                            user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
                     elif pl:
-                        user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (1_501_113_600,))
+                        if end:
+                            user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?", (1_501_113_600, end))
+                        else:
+                            user_data = c.execute(f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (1_501_113_600,))
                 for i in user_data:
                     temp_x.append(datetime.datetime.fromtimestamp(i[0]))
                     if rl:
@@ -241,8 +259,10 @@ class Graphs(commands.Cog):
             try:
                 temp_x = reduce_list(data_x[i])
                 temp_y = reduce_list(data_y[i])
-                if opt:
-                    ax.plot([datetime.datetime.fromtimestamp(opt)] + temp_x + [datetime.datetime.fromtimestamp(today)],
+                if len(temp_x) < 2:
+                    raise IndexError
+                if start:
+                    ax.plot([datetime.datetime.fromtimestamp(start)] + temp_x + [datetime.datetime.fromtimestamp(today)],
                             [0] + temp_y + [temp_y[-1]],
                             label = args[i])
                 else:
@@ -262,16 +282,35 @@ class Graphs(commands.Cog):
         title = f"{args[0].lower()}'s " if len(args) == 1 else ''
         if retroactive: units = f"Retroactive {units}"
         title += f"{units} Over Time"
-        if opt:
-            title += f"""\n(Since {datetime.datetime.fromtimestamp(opt) 
+        segment = ''
+        if start:
+            segment = f"""\n(Since {datetime.datetime.fromtimestamp(start)
                                    .strftime("%B %-d, %Y")})"""
+        if end:
+            segment = f"""\n(Until {datetime.datetime.fromtimestamp(end)
+                                   .strftime("%B %-d, %Y")})"""
+        if start and end:
+            segment = (f"""\n(From {datetime.datetime.fromtimestamp(start)
+                                   .strftime("%B %-d, %Y")} to """
+                       f"""{datetime.datetime.fromtimestamp(end)
+                            .strftime("%B %-d, %Y")})""")
+        title += segment
+
         ax.set_title(title)
         ax.set_xlabel('Date')
         ax.set_xticks(ax.get_xticks()[::2])
         formatter = mdates.DateFormatter("%b. %-d, '%y")
         ax.xaxis.set_major_formatter(formatter)
-        if pl:
-            ax.yaxis.set_major_formatter(ticker.FuncFormatter(lambda x, pos: f"{round(x / 1_000_000, 1)}M" if x >= 1_000_000 else f"{round(x / 1_000, 1)}K"))
+
+        def y_axis_num_formatter(x, pos):
+            if x >= 1_000_000:
+                return f"{round(x / 1_000_000, 1)}M"
+            elif x >= 1_000:
+                return f"{round(x / 1_000, 1)}K"
+            else:
+                return x
+
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(y_axis_num_formatter))
         ax.set_ylabel(units)
         plt.grid(True)
 

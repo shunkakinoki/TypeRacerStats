@@ -64,6 +64,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 | `-lastonline [user]` | <details><summary>View</summary>![18]</details> | Returns the last time a user played. ![mu] ![li] | `lo`, `ls`, `lastseen` |
 | `-medals [user]` | <details><summary>View</summary>![19]</details> | Returns the medals a user has. ![li] | None |
 | `-toptens [user]` | <details><summary>View</summary>![20]</details> | Returns the number of text top 10s a user holds. ![li]<br/>![ba] can request JSON breakdowns with `10*`. | `10`, `10*`, `toptens*` |
+| `-timebetween [url] [url` | <details><summary>View</summary>![51]</details> | Returns the time between 2 races ![li] ![mu] | `diff` |
 </details>
 
 [9]: https://i.gyazo.com/25c9bcca4fc0cead99f3888d60df8cb8.gif
@@ -80,6 +81,7 @@ Finally, some commands' functionalities are limited according to the bot permiss
 [20]: https://i.gyazo.com/320321451eefcff121f21683b3e5caa6.gif
 [42]: https://i.gyazo.com/4f2ab33bdc58eb73d8880a3d49699dd3.gif
 [43]: https://i.gyazo.com/9d11c12b008787ad55dca77282359f5e.gif
+[51]: https://i.gyazo.com/0d5ba287d8dc8cd4a3d53c3a609e0ad2.gif
 
 ### Advanced (all require `-getdata`)
 <details>
@@ -87,8 +89,8 @@ Finally, some commands' functionalities are limited according to the bot permiss
 
 | Name | Example | Function | Aliases |
 |:-----|:-------:|----------|---------|
-| `-top [user] [wpm/points]` | <details><summary>View</summary>![21]</details> | Returns user's top 10 races sorted by specified category. ![li] | `best` |
-| `-worst [user] [wpm/points]` | <details><summary>View</summary>![22]</details> | Returns user's worst 10 races sorted by specified cateogry. ![li] | `bottom` |
+| `-top [user] [wpm/points/weightedwpm]` | <details><summary>View</summary>![21]</details> | Returns user's top 10 races sorted by specified category. ![li] | `best` |
+| `-worst [user] [wpm/points/weightedwpm]` | <details><summary>View</summary>![22]</details> | Returns user's worst 10 races sorted by specified cateogry. ![li] | `bottom` |
 | `-racedetails [user]` | <details><summary>View</summary>![23]</details> | Returns detailed breakdown of user's races. ![li] | `rd` |
 | `-textbests [user]` | <details><summary>View</summary>![24]</details> | Returns user's top 5 texts, worst 5 texts, and text bests average (average of best in each text). ![li] | `tb` |
 | `-breakdown [user]` | <details><summary>View</summary>![43]</details> | Returns detailed breakdown of text bests. ![li] | `bd` |

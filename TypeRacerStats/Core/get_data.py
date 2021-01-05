@@ -377,7 +377,7 @@ class GetData(commands.Cog):
             embed = discord.Embed(title = title,
                                   color = discord.Color(MAIN_COLOR),
                                   url = Urls().user(player, 'play'),
-                                  description = f":crown: **{formatted_sort}** :crown:")
+                                  description = f":crown: **{formatted_sort} Leader** :crown:")
         else:
             embed = discord.Embed(title = title,
                                   color = discord.Color(MAIN_COLOR),

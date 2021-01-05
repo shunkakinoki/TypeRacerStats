@@ -339,6 +339,23 @@
             },
             "aliases": ["10", "10*", "toptens*"],
             "linked": true
+        },
+        {
+            "name": "timebetween",
+            "description": "Returns the time between 2 races",
+            "speed": "fast",
+            "usage": {
+                "general": "[url] [url]",
+                "example": "https://data.typeracer.com/pit/result?id=play%7Ctr:keegant%7C300000 https://data.typeracer.com/pit/result?id=play%7Ctr:keegant%7C200000",
+                "alt_example": [
+                    {
+                        "usage": "keegant 200000 300000",
+                        "notes": "Returns the time between two race numbers"
+                    }
+                ]
+            },
+            "aliases": ["diff"],
+            "linked": true
         }
     ],
     "advanced": [
@@ -347,7 +364,7 @@
             "description": "Returns top 10 best results for given user in given category",
             "speed": "fast",
             "usage": {
-                "general": "[user] [wpm/points]",
+                "general": "[user] [wpm/points/weightedwpm]",
                 "example": "keegant wpm",
                 "alt_example": []
             },
@@ -359,7 +376,7 @@
             "description": "Returns top 10 worst results for given user in given category",
             "speed": "fast",
             "usage": {
-                "general": "[user] [wpm/points]",
+                "general": "[user] [wpm/points/weightedwpm]",
                 "example": "keegant wpm",
                 "alt_example": []
             },
@@ -579,7 +596,7 @@
             "description": "Returns races over time graph for given user(s)",
             "speed": "fast",
             "usage": {
-                "general": "<time> [user] <user_2> ... <user_10>",
+                "general": "<time> [user] <user_2> ... <user_10> <time>",
                 "example": "keegant",
                 "alt_example": [
                     {
@@ -589,6 +606,10 @@
                     {
                         "usage": "2020-01-01 despot e6f4e37l",
                         "notes": "Only graphs races that were completed after date in the form YYYY-MM-DD; date must be after 2007 and before the time it's called"
+                    },
+                    {
+                        "usage": "2020-01-01 despot e6f4e37l 2020-04-01",
+                        "notes": "Only graphs races that were completed after date in the form YYYY-MM-DD and before in the form YYYY-MM-DD; date must be after 2007 and before the time it's called"
                     }
                 ]
             },
