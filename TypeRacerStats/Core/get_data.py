@@ -126,6 +126,7 @@ class GetData(commands.Cog):
 
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
 
+        yd = False
         if ctx.invoked_with.lower() in ['yesterday', 'yday', 'yd']:
             yd = True
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
