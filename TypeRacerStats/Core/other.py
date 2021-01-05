@@ -6,8 +6,8 @@ import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS
-from TypeRacerStats.file_paths import ART_JSON, CLIPS_JSON, DATABASE_PATH
+from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
+from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
@@ -306,6 +306,71 @@ class Other(commands.Cog):
         embed.set_footer(text = 'Since December 24, 2020')
         await ctx.send(embed = embed)
         return
+
+    @commands.check(lambda ctx: check_banned_status(ctx))
+    @commands.command(aliases = get_aliases('updates'))
+    async def updates(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if user_id in BOT_OWNER_IDS and len(args) > 0:
+            request = args[0].lower()
+            if request == 'get':
+                file_ = discord.File(CHANGELOG, 'changelog.json')
+                await ctx.send(file = file_)
+                return
+            elif request == 'post':
+                try:
+                    updated_file_raw = ctx.message.attachments[0]
+                except IndexError:
+                    await ctx.send(content = f"<@{user_id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .incorrect_format('Please upload a file and comment the command call'))
+                    return
+
+                try:
+                    updated_file = json.loads(await updated_file_raw.read())
+                except json.JSONDecodeError:
+                    await ctx.send(content = f"<@{user_id}>",
+                                   embed = Error(ctx, ctx.message)
+                                           .incorrect_format('The uploaded file is not a properly formatted JSON file'))
+                    return
+
+                with open(CHANGELOG, 'w') as jsonfile:
+                    json.dump(updated_file, jsonfile, indent = 4)
+
+                await ctx.send(embed = discord.Embed(title = 'Records Updated', color = discord.Color(0)))
+                return
+
+        with open(CHANGELOG, 'r') as jsonfile:
+            changelog = json.load(jsonfile)
+
+        embed = discord.Embed(**changelog)
+        updates = []
+        for update in changelog['updates'][:20]:
+            name = update['name']
+            value = update['description']
+            date = (datetime.datetime.utcnow() -\
+                   datetime.datetime.strptime(update['date'], '%Y-%m-%d %I:%M %p'))\
+                   .total_seconds()
+
+            updates.append({
+                'name': name,
+                'value': value,
+                'date': abs(date),
+                'inline': False
+            })
+        print(updates)
+        updates = sorted(updates, key = lambda x: x['date'])
+        for update in updates:
+            date = update['date']
+            del update['date']
+            if date > 86400: fdate = f"{int(date // 86400)} day(s)"
+            elif date > 3600: fdate = f"{int(date // 3600)} hour(s)"
+            else: fdate = f"{int(date // 60)} minute(s)"
+            update['value'] += f"\n_Updated {fdate} ago._"
+            embed.add_field(**update)
+
+        await ctx.send(embed = embed)
 
 def setup(bot):
     bot.add_cog(Other(bot))

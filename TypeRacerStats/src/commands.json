@@ -824,6 +824,18 @@
             },
             "aliases": ["blb", "botlb", "blb*"],
             "linked": false
+        },
+        {
+            "name": "updates",
+            "description": "List the last few updates pushed to the bot",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["cl", "changelog"],
+            "linked": false
         }
     ],
     "supporter": [
