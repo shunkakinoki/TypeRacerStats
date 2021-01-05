@@ -127,6 +127,7 @@ class GetData(commands.Cog):
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
 
         if ctx.invoked_with.lower() in ['yesterday', 'yday', 'yd']:
+            yd = True
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
             if len(args) > 1 or len(args) == 0:
                 await ctx.send(content = f"<@{user_id}>",
@@ -203,7 +204,7 @@ class GetData(commands.Cog):
         date = datetime.datetime.fromtimestamp(today_timestamp).strftime('%B %d, %Y')
 
         user_is_leader = await self.check_if_leader(player, 'day')
-        if user_is_leader:
+        if user_is_leader and not yd:
             embed = discord.Embed(title = f"{date} Stats for {player}",
                                   color = discord.Color(MAIN_COLOR),
                                   url = Urls().user(player, 'play'),

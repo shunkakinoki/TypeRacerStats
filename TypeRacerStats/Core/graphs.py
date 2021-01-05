@@ -188,9 +188,9 @@ class Graphs(commands.Cog):
         for player in args:
             if escape_sequence(player):
                 await ctx.send(content = f"<@{user_id}>",
-                            embed = Error(ctx, ctx.message)
-                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                    "doesn't exist")))
+                              embed = Error(ctx, ctx.message)
+                                      .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                      "doesn't exist")))
                 return
 
         def calculate_pts(tid,  wpm):
@@ -261,14 +261,16 @@ class Graphs(commands.Cog):
                 temp_y = reduce_list(data_y[i])
                 if len(temp_x) < 2:
                     raise IndexError
+                added_x, added_y = [], []
                 if start:
-                    ax.plot([datetime.datetime.fromtimestamp(start)] + temp_x + [datetime.datetime.fromtimestamp(today)],
-                            [0] + temp_y + [temp_y[-1]],
-                            label = args[i])
-                else:
-                    ax.plot(temp_x + [datetime.datetime.fromtimestamp(today)],
-                            temp_y + [temp_y[-1]],
-                            label = args[i])
+                    added_x = [datetime.datetime.fromtimestamp(start)]
+                    added_y = [0]
+                added_x += temp_x
+                added_y += temp_y
+                if not end:
+                    added_x += [datetime.datetime.fromtimestamp(today)]
+                    added_y += [temp_y[-1]]
+                ax.plot(added_x, added_y, label = args[i])
                 count += 1
             except IndexError:
                 pass
