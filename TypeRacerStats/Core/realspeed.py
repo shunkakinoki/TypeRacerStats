@@ -1,3 +1,5 @@
+import csv
+import os
 import sys
 import discord
 from discord.ext import commands
@@ -269,9 +271,10 @@ class RealSpeed(commands.Cog):
         responses = sorted(responses,
                            key = lambda x: int(x['race_number']),
                            reverse = True)
+
         urls = [Urls().get_races(player, universe, responses[-1]['timestamp'] - 1, responses[0]['timestamp'] + 1)]
         race_api_responses = (await fetch(urls, 'json'))[0]
-
+        race_api_responses = sorted(race_api_responses, key = lambda x: x['gn'], reverse = True)
         computed_responses = []
         j = 0
         lagged_sum, unlagged_sum, adjusted_sum, ping_sum = (0,) * 4
@@ -282,11 +285,11 @@ class RealSpeed(commands.Cog):
                 j += 1
                 try:
                     realspeeds = compute_realspeed(response['length'],
-                                                  response['duration'],
-                                                  response['start'],
-                                                  race_api_response['wpm'],
-                                                  desslejusted,
-                                                  universe)
+                                                   response['duration'],
+                                                   response['start'],
+                                                   race_api_response['wpm'],
+                                                   desslejusted,
+                                                   universe)
                     computed_responses.append({
                         'url': Urls().result(player, response['race_number'], universe),
                         'race_number': response['race_number'],
@@ -333,6 +336,14 @@ class RealSpeed(commands.Cog):
         delays += f"**Average Start:** {f'{round(start_sum / race_count, 3):,}'}ms"
 
         if race_count >= 20 or redact:
+            if not redact:
+                csv_data = [list(computed_responses[0].keys())[1:]]
+                csv_data += [list(computed_response.values())[1:] for computed_response in computed_responses]
+                filename = f"{player}_real_speed_average_{responses[-1]['race_number']}_to_{responses[0]['race_number']}.csv"
+                with open(filename, 'w') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(csv_data)
+                file_ = discord.File(filename, filename)
             if description:
                 embed = discord.Embed(title = title,
                                       color = discord.Color(color),
@@ -344,9 +355,13 @@ class RealSpeed(commands.Cog):
             embed.set_footer(text = "(Adjusted speed is calculated by removing the start time from the race)")
             embed.add_field(name = "Speed", value = real_speeds, inline = False)
             embed.add_field(name = "Delays", value = delays, inline = False)
-            await ctx.send(content = f"<@{user_id}>", embed = embed)
+            if not redact:
+                await ctx.send(file = file_, content = f"<@{user_id}>", embed = embed)
+                os.remove(filename)
+            else:
+                await ctx.send(content = f"<@{user_id}>", embed = embed)
             return
-        
+
         embed = discord.Embed(title = title,
                               color = discord.Colour(color),
                               description = f"{description}**Speed**\n{real_speeds}\n**Delays**\n{delays}")

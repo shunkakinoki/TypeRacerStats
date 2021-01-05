@@ -601,5 +601,96 @@ class Graphs(commands.Cog):
         await ctx.send(file = file_, embed = embed)
         return
 
+    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases = get_aliases('pbgraph'))
+    async def pbgraph(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if len(args) <= 1: args = check_account(user_id)(args)
+
+        if len(args) == 1: args += ('races',)
+
+        if len(args) != 2:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with} [user] <time/races>"))
+            return
+
+        player = args[0].lower()
+        if args[1].lower() not in ['time', 'races']:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Must provide a valid category: `time/races`'))
+            return
+
+        if args[1].lower() == 'time':
+            q_category = 't'
+            category = 'Time'
+        else:
+            q_category = 'gn'
+            category = 'Races'
+
+        if escape_sequence(player):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                   "doesn't exist")))
+            return
+
+        data_x, data_y = [], []
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            player_data = c.execute(f"SELECT {q_category}, wpm FROM t_{player}")
+            temp_x, temp_y = player_data.fetchone()
+            if q_category == 't':
+                data_x.append(datetime.datetime.fromtimestamp(temp_x))
+            else:
+                data_x.append(temp_x)
+            data_y.append(temp_y)
+            for row in player_data:
+                if data_y[-1] > row[1]: continue
+                if q_category == 't':
+                    data_x.append(datetime.datetime.fromtimestamp(row[0]))
+                else:
+                    data_x.append(row[0])
+                data_y.append(row[1])
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .not_downloaded())
+            return
+        conn.close()
+
+        data_x = reduce_list(data_x)
+        data_y = reduce_list(data_y)
+
+        ax = plt.subplots()[1]
+        ax.plot(data_x, data_y)
+        ax.set_title(f"{player}'s PBs Over {category}")
+
+        if q_category == 't':
+            ax.set_xlabel('Date')
+            ax.set_xticks(ax.get_xticks()[::2])
+            formatter = mdates.DateFormatter("%b. %-d '%y")
+            ax.xaxis.set_major_formatter(formatter)
+        else:
+            ax.set_xlabel('Race #')
+
+        ax.set_ylabel('WPM')
+        plt.grid(True)
+        file_name = f"PBs Over {category}.png"
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False)
+        plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
+        races_over_time_picture = discord.File(file_name, filename = file_name)
+
+        await ctx.send(file = races_over_time_picture)
+        os.remove(file_name)
+        plt.close()
+        return
+
 def setup(bot):
     bot.add_cog(Graphs(bot))

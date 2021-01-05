@@ -601,7 +601,7 @@ class Supporter(commands.Cog):
                                        .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
                 return
 
-            if id_ in BOT_OWNER_IDS + BOT_ADMIN_IDS:
+            if id_ in BOT_OWNER_IDS:
                 raise commands.CheckFailure
                 return
 

@@ -650,6 +650,18 @@
             "linked": true
         },
         {
+            "name": "pbgraph",
+            "description": "Returns PBs of user over time/races",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <time/races>",
+                "example": "e6f4e37l races",
+                "alt_example": []
+            },
+            "aliases": ["pbg"],
+            "linked": true
+        },
+        {
             "name": "week",
             "description": "Returns the given user's stats on a given week; defaults to current UTC week",
             "speed": "medium",
