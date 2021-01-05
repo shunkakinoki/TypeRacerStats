@@ -294,10 +294,10 @@
         },
         {
             "name": "competition",
-            "description": "Returns the (updated) top 10 users for current daily competition; sorted by points as default",
+            "description": "Returns the (updated) top 10 users for current competition; sorted by daily and points as default",
             "speed": "slow",
             "usage": {
-                "general": "<points/races/wpm>",
+                "general": "<day/week/month/year> <points/races/wpm>",
                 "example": "races",
                 "alt_example": []
             },
@@ -907,7 +907,7 @@
         },
         {
             "name": "dessle",
-            "description": "Returns 5 randomly picked texts/slow ghosts",
+            "description": "Returns 10 randomly picked texts/slow ghosts",
             "speed": "fast",
             "usage": {
                 "general": "",

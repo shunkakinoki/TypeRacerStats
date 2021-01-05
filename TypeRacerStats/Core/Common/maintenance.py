@@ -40,8 +40,6 @@ def maintain_text_files():
     with open(TEXTS_LARGE, 'w') as jsonfile:
         json.dump(texts_large, jsonfile)
 
-    print(texts_lengths)
-
 @tasks.loop(hours = 24)
 async def drop_temporary_tables():
     conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)

@@ -2,7 +2,7 @@ class Urls:
     def __init__(self):
         self.trapi_races = 'https://data.typeracer.com/games?playerId=tr:'
         self.trapi_users = 'https://data.typeracer.com/users?id=tr:'
-        self.trapi_competitions = 'https://data.typeracer.com/partial_rankings?n=12&kind='
+        self.trapi_competitions = 'https://data.typeracer.com/partial_rankings?n='
         self.tr_competitions = "https://data.typeracer.com/pit/competitions?kind="
         self.tr_users = 'https://data.typeracer.com/pit/profile?user='
         self.tr_thumbnails = 'https://data.typeracer.com/misc/pic?uid=tr:'
@@ -23,8 +23,8 @@ class Urls:
     def get_user(self, player, universe):
         return f"{self.trapi_users}{player}&universe={universe}"
 
-    def get_competition(self, kind, sort, universe):
-        return f"{self.trapi_competitions}{kind}&sort={sort}&universe={universe}"
+    def get_competition(self, num, kind, sort, universe):
+        return f"{self.trapi_competitions}{num}&kind={kind}&sort={sort}&universe={universe}"
 
     def competition(self, kind, sort, date, universe):
         return f"{self.tr_competitions}{kind}&sort={sort}&date={date}&universe={universe}"

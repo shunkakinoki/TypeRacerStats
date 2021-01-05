@@ -201,9 +201,17 @@ class GetData(commands.Cog):
             data = await fetch_data(player, 'play', today_timestamp, today_timestamp + 86400)
 
         date = datetime.datetime.fromtimestamp(today_timestamp).strftime('%B %d, %Y')
-        embed = discord.Embed(title = f"{date} Stats for {player}",
-                              color = discord.Color(MAIN_COLOR),
-                              url = Urls().user(player, 'play'))
+
+        user_is_leader = await self.check_if_leader(player, 'day')
+        if user_is_leader:
+            embed = discord.Embed(title = f"{date} Stats for {player}",
+                                  color = discord.Color(MAIN_COLOR),
+                                  url = Urls().user(player, 'play'),
+                                  description = ':crown: **Daily Leader** :crown:')
+        else:
+            embed = discord.Embed(title = f"{date} Stats for {player}",
+                                  color = discord.Color(MAIN_COLOR),
+                                  url = Urls().user(player, 'play'))
         embed.set_thumbnail(url = Urls().thumbnail(player))
 
         if data:
@@ -301,12 +309,15 @@ class GetData(commands.Cog):
             normalizer = today.isocalendar()[2]
             start_time = today - datetime.timedelta(days = normalizer - 1)
             end_time = today + datetime.timedelta(days = 7 - normalizer)
+            formatted_sort = 'Weekly'
         elif month:
             start_time = today.replace(day = 1)
             end_time = (today.replace(day = 1) + datetime.timedelta(days = 32)).replace(day = 1) - datetime.timedelta(days = 1)
+            formatted_sort = 'Monthly'
         elif year:
             start_time = datetime.date(today.year, 1, 1)
             end_time = datetime.date(today.year, 12, 31)
+            formatted_sort = 'Yearly'
 
         delta_start = start_time
         delta = end_time - start_time
@@ -355,15 +366,22 @@ class GetData(commands.Cog):
                              WHERE t > ? AND t < ?""", (start_time, end_time,)).fetchall()
         conn.close()
 
-        if week: title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %d, %Y')}—"
-                          f"{datetime.datetime.fromtimestamp(end_time - 86400).strftime('%B %d, %Y')})")
+        if week: title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %-d')}—"
+                          f"{datetime.datetime.fromtimestamp(end_time - 86400).strftime('%-d, %Y')})")
         elif month: title = f"Monthly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %Y')})"
         elif year: title = f"Yearly ({datetime.datetime.fromtimestamp(start_time).strftime('%Y')})"
 
         title += f" Stats for {player}"
-        embed = discord.Embed(title = title,
-                              color = discord.Color(MAIN_COLOR),
-                              url = Urls().user(player, 'play'))
+        user_is_leader = await self.check_if_leader(player, formatted_sort.lower()[:-2])
+        if user_is_leader:
+            embed = discord.Embed(title = title,
+                                  color = discord.Color(MAIN_COLOR),
+                                  url = Urls().user(player, 'play'),
+                                  description = f":crown: **{formatted_sort}** :crown:")
+        else:
+            embed = discord.Embed(title = title,
+                                  color = discord.Color(MAIN_COLOR),
+                                  url = Urls().user(player, 'play'))
         embed.set_thumbnail(url = Urls().thumbnail(player))
 
         if not data:
@@ -478,6 +496,13 @@ class GetData(commands.Cog):
 
         await ctx.send(embed = embed)
         return
+
+    async def check_if_leader(self, user, kind):
+        urls = [Urls().get_competition(1, kind, 'points', 'play')]
+        competition = await fetch(urls, 'json')
+        competition = competition[0]
+
+        return competition[0][1]['typeracerUid'][3:] == user
 
 def setup(bot):
     bot.add_cog(GetData(bot))

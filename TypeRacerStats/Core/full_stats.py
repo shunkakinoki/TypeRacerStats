@@ -232,7 +232,7 @@ class FullStats(commands.Cog):
                 while user_data[i][1] - user_data[cur_min][1] > session_length:
                     cur_min += 1
             if len(user_data) - cur_min > max_end - max_start + 1:
-                max_start, max_end = cur_min = len(user_data) + 1
+                max_start, max_end = cur_min, len(user_data) + 1
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",

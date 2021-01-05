@@ -485,23 +485,33 @@ class BasicStats(commands.Cog):
             'wpm': 'wpm'
         }
 
-        if len(args) == 0:
-            args = ('points',)
-        if len(args) == 1:
-            try:
-                category = categories[args[0].lower()]
-            except KeyError:
-                await ctx.send(content = f"<@{user_id}>",
-                               embed = Error(ctx, ctx.message)
-                                       .incorrect_format('Must provide a valid cateogry: `races/points/wpm`'))
-                return
-        else:
+        try:
+            if len(args) == 0:
+                sort, category = 'day', 'points'
+            elif len(args) == 1:
+                param = args[0].lower()
+                if param in categories.keys():
+                    sort, category = 'day', categories[param]
+                elif param in ['day', 'week', 'month', 'year']:
+                    sort, category = param, 'points'
+                else:
+                    raise KeyError
+            elif len(args) == 2:
+                sort, category = args[0].lower(), categories[args[1].lower()]
+            else:
+                raise ValueError
+        except KeyError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Must provide a valid category: `races/points/wpm`'))
+            return
+        except ValueError:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
                                    .parameters(f"{ctx.invoked_with} [races/points/wpm]"))
             return
 
-        urls = [Urls().get_competition('day', category, universe)]
+        urls = [Urls().get_competition(12, sort, category, universe)]
         competition = await fetch(urls, 'json')
         competition = competition[0]
 
@@ -515,39 +525,53 @@ class BasicStats(commands.Cog):
             return formatted
 
         players = []
-        conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
-        c = conn.cursor()
-        for competitor in competition:
-            player = competitor[1]['typeracerUid'][3:]
-            if competitor[0]['country']:
-                country = competitor[0]['country']
-            else:
-                country = ''
+        if sort == 'day':
+            conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
+            c = conn.cursor()
+            for competitor in competition:
+                player = competitor[1]['typeracerUid'][3:]
+                if competitor[0]['country']:
+                    country = competitor[0]['country']
+                else:
+                    country = ''
 
-            today_timestamp = (datetime.datetime.utcnow().date() \
-                               - datetime.date(1970, 1, 1)).total_seconds()
-            file_name = f"t_{player}_{universe}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
+                today_timestamp = (datetime.datetime.utcnow().date() \
+                                - datetime.date(1970, 1, 1)).total_seconds()
+                file_name = f"t_{player}_{universe}_{today_timestamp}_{today_timestamp + 86400}".replace('.', '_')
 
-            try:
-                user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY gn DESC LIMIT 1")
-                last_race = user_data.fetchone()
-                time_stamp = last_race[1] + 0.01
-            except sqlite3.OperationalError:
-                time_stamp = today_timestamp
-                c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
+                try:
+                    user_data = c.execute(f"SELECT * FROM {file_name} ORDER BY gn DESC LIMIT 1")
+                    last_race = user_data.fetchone()
+                    time_stamp = last_race[1] + 0.01
+                except sqlite3.OperationalError:
+                    time_stamp = today_timestamp
+                    c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
 
-            races = await fetch_data(player, universe, time_stamp, today_timestamp + 86400)
-            if races:
-                c.executemany(f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", races)
-                conn.commit()
-            points, wpm = [], []
-            data = c.execute(f"SELECT * FROM {file_name}").fetchall()
-            for row in data:
-                points.append(row[4])
-                wpm.append(row[3])
-            players.append([player, country, round(sum(points)), len(points), round(sum(wpm), 2)])
+                races = await fetch_data(player, universe, time_stamp, today_timestamp + 86400)
+                if races:
+                    c.executemany(f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", races)
+                    conn.commit()
+                points, wpm = [], []
+                data = c.execute(f"SELECT * FROM {file_name}").fetchall()
+                for row in data:
+                    points.append(row[4])
+                    wpm.append(row[3])
+                players.append([player, country, round(sum(points)), len(points), round(sum(wpm), 2)])
 
-        conn.close()
+            conn.close()
+        else:
+            for competitor in competition:
+                player = competitor[1]['typeracerUid'][3:]
+                if competitor[0]['country']:
+                    country = competitor[0]['country']
+                else:
+                    country = ''
+                comp_stats = competitor[1]
+                players.append([player,
+                                country,
+                                round(comp_stats['points']),
+                                round(comp_stats['gamesFinished']),
+                                comp_stats['gamesFinished'] * comp_stats['wpm']])
 
         if category == 'points':
             players = sorted(players, key = lambda x: x[2])[-10:][::-1]
@@ -561,11 +585,35 @@ class BasicStats(commands.Cog):
             player = players[i]
             value += helper_formatter(player[0], player[1], player[2], player[3], player[4], i)
 
-        embed = discord.Embed(title = f"Daily Competition ({args[0]})",
+        today = datetime.datetime.utcnow().date()
+
+        if sort == 'day': date = today.strftime('%B %-d, %Y')
+        elif sort == 'week':
+            normalizer = today.isocalendar()[2]
+            start_time = today - datetime.timedelta(days = normalizer - 1)
+            end_time = today + datetime.timedelta(days = 7 - normalizer)
+            date = f"{start_time.strftime('%B %-d')}—{end_time.strftime('%-d, %Y')}"
+        elif sort == 'month': date = today.strftime('%B %Y')
+        elif sort == 'year': date = today.strftime('%Y')
+
+        formatted_sort = {
+            'day': 'Daily',
+            'week': 'Weekly',
+            'month': 'Monthly',
+            'year': 'Yearly'
+        }[sort]
+
+        formatted_category = {
+            'points': 'points',
+            'gamesFinished': 'races',
+            'wpm': 'wpm'
+        }[category]
+
+        embed = discord.Embed(title = f"{formatted_sort} Competition ({formatted_category})",
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Universe:** {href_universe(universe)}",
-                              url = Urls().competition('day', category, '', universe))
-        embed.add_field(name = datetime.datetime.utcnow().date().strftime("%B %d, %Y"),
+                              url = Urls().competition(sort, category, '', universe))
+        embed.add_field(name = date,
                         value = value)
         await ctx.send(embed = embed)
         return
