@@ -124,12 +124,12 @@ class GetData(commands.Cog):
 
         if len(args) == 0 or (len(args) == 1 and '-' in args[0]): args = check_account(user_id)(args)
 
+        is_today = True
         today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 1)).total_seconds()
 
-        yd = False
         if ctx.invoked_with.lower() in ['yesterday', 'yday', 'yd']:
-            yd = True
             today_timestamp = (datetime.datetime.utcnow().date() - datetime.date(1970, 1, 2)).total_seconds()
+            is_today = False
             if len(args) > 1 or len(args) == 0:
                 await ctx.send(content = f"<@{user_id}>",
                                embed = Error(ctx, ctx.message)
@@ -145,6 +145,7 @@ class GetData(commands.Cog):
         if len(args) == 2:
             try:
                 today_timestamp_temp = (datetime.datetime.strptime(args[1], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                if today_timestamp_temp != today_timestamp: is_today = False
                 if today_timestamp_temp > today_timestamp:
                     await ctx.send(content = f"<@{user_id}>",
                                    embed = Error(ctx, ctx.message)
@@ -202,10 +203,10 @@ class GetData(commands.Cog):
         except UnboundLocalError:
             data = await fetch_data(player, 'play', today_timestamp, today_timestamp + 86400)
 
-        date = datetime.datetime.fromtimestamp(today_timestamp).strftime('%B %d, %Y')
+        date = datetime.datetime.fromtimestamp(today_timestamp).strftime('%B %-d, %Y')
 
         user_is_leader = await self.check_if_leader(player, 'day')
-        if user_is_leader and not yd:
+        if user_is_leader and is_today:
             embed = discord.Embed(title = f"{date} Stats for {player}",
                                   color = discord.Color(MAIN_COLOR),
                                   url = Urls().user(player, 'play'),

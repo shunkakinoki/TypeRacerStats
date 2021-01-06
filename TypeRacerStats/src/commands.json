@@ -518,15 +518,15 @@
         },
         {
             "name": "marathon",
-            "description": "Returns the most races completed a given user completed in a given length of time, `seconds` being the maximum amount of time allowed between races before a session ends",
+            "description": "Returns the most races/points completed a given user completed in a given length of time, `seconds` being the maximum amount of time allowed between races before a session ends",
             "speed": "fast",
             "usage": {
-                "general": "[user] <seconds>",
+                "general": "[user] <seconds> <races/points>",
                 "example": "keegant 86400",
                 "alt_example": [
                     {
                         "usage": "keegant",
-                        "notes": "`seconds` defaults to 1 day if it is not provided"
+                        "notes": "`seconds` defaults to 1 day and category defaults to `races` if neither are not provided"
                     }
                 ]
             },
@@ -552,12 +552,17 @@
         },
         {
             "name": "fastestcompletion",
-            "description": "Returns the fastest the given user completed the given number of races",
+            "description": "Returns the fastest the given user completed the given number of races/points",
             "speed": "fast",
             "usage": {
-                "general": "[user] [num_races]",
-                "example": "keegant 100",
-                "alt_example": []
+                "general": "[user] [num] <races/points>",
+                "example": "keegant 100 races",
+                "alt_example": [
+                    {
+                        "usage": "keegant 100",
+                        "notes": "Category defaults to `races` if it is not provided"
+                    }
+                ]
             },
             "aliases": ["fc"],
             "linked": true

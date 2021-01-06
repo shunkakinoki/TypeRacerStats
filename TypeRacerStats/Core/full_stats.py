@@ -188,12 +188,14 @@ class FullStats(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 0: args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args, 86400, 'races')
+        elif len(args) == 1: args += (86400, 'races')
+        elif len(args) == 2: args += ('races',)
 
-        if len(args) == 0 or len(args) > 2:
+        if len(args) != 3:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user] <seconds>"))
+                                   .parameters(f"{ctx.invoked_with} [user] <seconds> <races/points>"))
             return
 
         player = args[0].lower()
@@ -204,10 +206,7 @@ class FullStats(commands.Cog):
                                     "doesn't exist")))
             return
         try:
-            if len(args) == 1:
-                session_length = 86400
-            else:
-                session_length = float(args[1])
+            session_length = float(args[1])
             if session_length <= 0:
                 raise ValueError
         except ValueError:
@@ -216,23 +215,17 @@ class FullStats(commands.Cog):
                                    .incorrect_format('`seconds` must be a positive number'))
             return
 
-        cur_min, max_start, max_end = (0,) * 3
-        tids, wpms = [], []
+        category = args[2].lower()
+        if not category in ['races', 'points']:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format("`category` must be `races/points`"))
+            return
+
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t")
-            user_data = user_data.fetchall()
-            for i in range(0, len(user_data)):
-                tids.append(user_data[i][2])
-                wpms.append(user_data[i][3])
-                if user_data[i][1] - user_data[cur_min][1] >= session_length:
-                    if i - cur_min > max_end - max_start + 1:
-                        max_start, max_end = cur_min, i - 1
-                while user_data[i][1] - user_data[cur_min][1] > session_length:
-                    cur_min += 1
-            if len(user_data) - cur_min > max_end - max_start + 1:
-                max_start, max_end = cur_min, len(user_data) + 1
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t").fetchall()
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
@@ -241,20 +234,42 @@ class FullStats(commands.Cog):
             return
         conn.close()
 
+        length = len(user_data)
+        if category == 'races':
+            cur_min, max_start, max_end = (0,) * 3
+            for i in range(0, length):
+                if user_data[i][1] - user_data[cur_min][1] >= session_length:
+                    if i - cur_min > max_end - max_start:
+                        max_start, max_end = cur_min, i
+                while user_data[i][1] - user_data[cur_min][1] > session_length:
+                    cur_min += 1
+            if length - cur_min - 1 > max_end - max_start:
+                max_start, max_end = cur_min, length - 1
+        elif category == 'points':
+            cur_min, max_start, max_end, cur_points, max_points = (0,) * 5
+            for i in range(0, length):
+                cur_points += user_data[i][4]
+                if user_data[i][1] - user_data[cur_min][1] >= session_length:
+                    if cur_points > max_points:
+                        max_start, max_end, max_points = cur_min, i, cur_points
+                while user_data[i][1] - user_data[cur_min][1] > session_length:
+                    cur_points -= user_data[cur_min][4]
+                    cur_min += 1
+            if cur_points + user_data[length - 1][4] > max_points:
+                max_start, max_end = cur_min, length - 1
+
         races, seconds_played, chars_typed, words_typed, points, wpm_sum, wpm_max = (0,) * 7
         wpm_min = 100000
         text_data = load_texts_json()
-        for i in range(max_start, max_end + 1):
+        for i in range(max_start, max_end):
             races += 1
             cur = user_data[i]
             wpm = cur[3]
             tid = str(cur[2])
 
             wpm_sum += wpm
-            if wpm < wpm_min:
-                wpm_min = wpm
-            if wpm > wpm_max:
-                wpm_max = wpm
+            wpm_min = min(wpm, wpm_min)
+            wpm_max = max(wpm, wpm_max)
 
             words = text_data[tid]['word count']
             chars = text_data[tid]['length']
@@ -264,12 +279,14 @@ class FullStats(commands.Cog):
             points += cur[4]
             if cur[4] == 0:
                 points += wpm * words / 60
+        print(max_start, max_end)
+        f_category = {'races': 'Races', 'points': 'Points'}[category]
 
-        embed = discord.Embed(title = (f"Marathon Stats for {player} "
+        embed = discord.Embed(title = (f"{f_category} Marathon Stats for {player} "
                                        f"({seconds_to_text(session_length, True)} period)"),
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %d, %Y, %I:%M:%S %p')} | "
+        embed.set_footer(text = (f"First Race (#{f'{max_start:,}'}): {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',
@@ -379,12 +396,13 @@ class FullStats(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 0: args = check_account(user_id)(args)
+        if len(args) == 1: args = check_account(user_id)(args) + ('races',)
+        elif len(args) == 2: args += ('races',)
 
-        if len(args) != 2:
+        if len(args) != 3:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user] [num_races]"))
+                                   .parameters(f"{ctx.invoked_with} [user] [num] <races/points>"))
             return
 
         player = args[0].lower()
@@ -395,37 +413,27 @@ class FullStats(commands.Cog):
                                     "doesn't exist")))
             return
         try:
-            num_races = float(args[1])
-            if num_races <= 0 or num_races % 1 != 0:
+            num = float(args[1])
+            if num <= 0 or num % 1 != 0:
                 raise ValueError
-            num_races = int(num_races)
+            num = int(num)
         except ValueError:
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .incorrect_format('`seconds` must be a positive number'))
+                                   .incorrect_format('`num` must be a positive number'))
             return
 
-        min_start = 0
-        min_end = num_races - 1
-        cur_start = 0
+        category = args[2].lower()
+        if not category in ['races', 'points']:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('`category` must be `races/points`'))
+            return
+
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
-            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t")
-            user_data = user_data.fetchall()
-            try:
-                user_data[num_races - 1]
-            except IndexError:
-                await ctx.send(content = f"<@{user_id}>",
-                               embed = Error(ctx, ctx.message)
-                                       .incorrect_format("`num_races` must not exceed user's race count"))
-                return
-
-            for i in range(num_races, len(user_data)):
-                cur_start += 1
-                if user_data[i][1] - user_data[cur_start][1] < \
-                user_data[min_end][1] - user_data[min_start][1]:
-                    min_start, min_end = cur_start, i
+            user_data = c.execute(f"SELECT * FROM t_{player} ORDER BY t").fetchall()
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
@@ -433,6 +441,46 @@ class FullStats(commands.Cog):
                                    .not_downloaded())
             return
         conn.close()
+
+        try:
+            if category == 'races':
+                user_data[num - 1]
+        except IndexError:
+            await ctx.send(content = f"<@{user_id}>",
+                            embed = Error(ctx, ctx.message)
+                                    .incorrect_format("`num` must not exceed user's race count"))
+            return
+
+        length = len(user_data)
+        if category == 'races':
+            min_start, min_end, cur_start, = 0, num - 1, 0
+            for i in range(num, length):
+                cur_start += 1
+                if user_data[i][1] - user_data[cur_start][1] <\
+                user_data[min_end][1] - user_data[min_start][1]:
+                    min_start, min_end = cur_start, i
+
+        elif category == 'points':
+            min_start, cur_start, cur_end, cur_points = (0,) * 4
+            min_end = length - 1
+            exceeds_point_count = True
+            for i in range(0, length):
+                cur_points += user_data[i][4]
+                if cur_points >= num:
+                    exceeds_point_count = False
+                    cur_end = i
+                    while cur_points - user_data[cur_start][4] >= num:
+                        cur_points -= user_data[cur_start][4]
+                        cur_start += 1
+                    if user_data[cur_end][1] - user_data[cur_start][1] <\
+                    user_data[min_end][1] - user_data[min_start][1]:
+                        min_start, min_end = cur_start, cur_end
+
+            if exceeds_point_count:
+                await ctx.send(content = f"<@{user_id}>",
+                                embed = Error(ctx, ctx.message)
+                                        .incorrect_format("`num` must not exceed user's point count"))
+                return
 
         races, seconds_played, chars_typed, words_typed, points, wpm_sum, wpm_max = (0,) * 7
         wpm_min = 100000
@@ -460,15 +508,18 @@ class FullStats(commands.Cog):
             if cur[4] == 0:
                 points += wpm * words / 60
 
-        embed = discord.Embed(title = f"{player}'s Fastest Time to Complete {f'{num_races:,}'} Races",
+        f_category = {'races': 'Races', 'points': 'Points'}[category]
+
+        embed = discord.Embed(title = f"{player}'s Fastest Time to Complete {f'{num:,}'} {f_category}",
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Took:** {seconds_to_text(user_data[min_end][1] - user_data[min_start][1])}")
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race: {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %d, %Y, %I:%M:%S %p')} | "
+        embed.set_footer(text = (f"First Race (#{f'{min_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',
-                        value = (f"**Total Words Typed:** {f'{words_typed:,}'}\n"
+                        value = (f"**Total Races:** {f'{min_end - min_start + 1:,}'}\n"
+                                 f"**Total Words Typed:** {f'{words_typed:,}'}\n"
                                  f"**Average Words Per Races:** {f'{round(words_typed / races, 2):,}'}\n"
                                  f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
                                  f"**Average Chars Per Race:** {f'{round(chars_typed / races, 2):,}'}\n"

@@ -546,7 +546,7 @@ class BasicStats(commands.Cog):
                     time_stamp = last_race[1] + 0.01
                 except sqlite3.OperationalError:
                     time_stamp = today_timestamp
-                    c.execute(f"CREATE TABLE {file_name} (gn, t, tid, wpm, pts)")
+                    c.execute(f"CREATE TABLE {file_name} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
 
                 races = await fetch_data(player, universe, time_stamp, today_timestamp + 86400)
                 if races:

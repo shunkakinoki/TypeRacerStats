@@ -346,7 +346,7 @@ class Other(commands.Cog):
 
         embed = discord.Embed(**changelog)
         updates = []
-        for update in changelog['updates'][:20]:
+        for update in changelog['updates'][:10]:
             name = update['name']
             value = update['description']
             date = (datetime.datetime.utcnow() -\
@@ -359,7 +359,7 @@ class Other(commands.Cog):
                 'date': abs(date),
                 'inline': False
             })
-        print(updates)
+
         updates = sorted(updates, key = lambda x: x['date'])
         for update in updates:
             date = update['date']
