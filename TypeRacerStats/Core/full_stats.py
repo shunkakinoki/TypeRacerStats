@@ -188,7 +188,7 @@ class FullStats(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 0: args = check_account(user_id)(args) + 86400, 'races')
+        if len(args) == 0: args = check_account(user_id)(args) + (86400, 'races')
         elif len(args) == 1: args += (86400, 'races')
         elif len(args) == 2: args += ('races',)
 
