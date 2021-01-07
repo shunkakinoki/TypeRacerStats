@@ -279,14 +279,16 @@ class FullStats(commands.Cog):
             points += cur[4]
             if cur[4] == 0:
                 points += wpm * words / 60
-        print(max_start, max_end)
+
         f_category = {'races': 'Races', 'points': 'Points'}[category]
+
+        max_end -= 1
 
         embed = discord.Embed(title = (f"{f_category} Marathon Stats for {player} "
                                        f"({seconds_to_text(session_length, True)} period)"),
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race (#{f'{max_start:,}'}): {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
+        embed.set_footer(text = (f"First Race (#{f'{max_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
                                  "(Retroactive points represent the total number of "
                                  "points a user would have gained, before points were introduced in 2017)"))
         embed.add_field(name = 'Races',
