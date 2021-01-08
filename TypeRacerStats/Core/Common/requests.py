@@ -6,21 +6,21 @@ async def fetch_json(session, url, scraper, store_url):
     async with session.get(url) as response:
         response_ = json.loads(await response.read())
         if store_url:
-            return {store_url(url): scraper(response_)}
+            return {url: scraper(response_)}
         return scraper(response_)
 
 async def fetch_html(session, url, scraper, store_url):
     async with session.get(url) as response:
         response_ = await response.text()
         if store_url:
-            return {store_url(url): scraper(response_)}
+            return {url: scraper(response_)}
         return scraper(response_)
 
 async def fetch_html_read(session, url, scraper, store_url):
     async with session.get(url) as response:
         response_ = await response.read()
         if store_url:
-            return {store_url(url): scraper(response_)}
+            return {url: scraper(response_)}
         return scraper(response_)
 
 async def fetch_jsons(urls, scraper, store_url):

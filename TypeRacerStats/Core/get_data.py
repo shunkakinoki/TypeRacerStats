@@ -281,6 +281,7 @@ class GetData(commands.Cog):
                                    .parameters('[user] <date>'))
             return
 
+        same_day = True
         today = datetime.datetime.utcnow().date()
         if len(args) == 2:
             try:
@@ -296,6 +297,7 @@ class GetData(commands.Cog):
                     raise ValueError
 
                 today_temp = datetime.datetime.strptime(args[1], parse_string).date()
+                if today_temp != today: same_day = False
                 if today_temp > today:
                     await ctx.send(content = f"<@{user_id}>",
                                    embed = Error(ctx, ctx.message)
@@ -376,7 +378,7 @@ class GetData(commands.Cog):
 
         title += f" Stats for {player}"
         user_is_leader = await self.check_if_leader(player, formatted_sort.lower()[:-2])
-        if user_is_leader:
+        if user_is_leader and same_day:
             embed = discord.Embed(title = title,
                                   color = discord.Color(MAIN_COLOR),
                                   url = Urls().user(player, 'play'),
@@ -456,9 +458,9 @@ class GetData(commands.Cog):
         today = time.time() if time.time() < end_time else end_time
         num_days = (today - start_time) / 86400
 
-        embed.set_footer(text = ('(Retroactive points represent the total number of points '
+        embed.set_footer(text = ('Retroactive points represent the total number of points '
                                  'a user would have gained, before points were introduced '
-                                 'in 2017)'))
+                                 'in 2017'))
 
         embed.add_field(name = 'Races',
                         value = (f"**Total Races:** {f'{races:,}'}\n"
@@ -470,7 +472,7 @@ class GetData(commands.Cog):
                                  f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
                                  f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"))
         embed.add_field(name = 'Points',
-                        value = (f"**Current Points:** {f'{round(points):,}'}\n"
+                        value = (f"**Points:** {f'{round(points):,}'}\n"
                                  f"**Average Daily Points:** {f'{round(points / num_days, 2):,}'}\n"
                                  f"**Average Points Per Race:** {f'{round((points + retro) / races, 2):,}'}\n"
                                  f"**Retroactive Points:** {f'{round(retro):,}'}\n"

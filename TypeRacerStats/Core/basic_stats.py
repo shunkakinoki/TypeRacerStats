@@ -9,12 +9,12 @@ import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
-from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH
+from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH, DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text, num_to_text
+from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text, num_to_text, escape_sequence
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import timestamp_scraper
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
@@ -65,6 +65,8 @@ class BasicStats(commands.Cog):
 
         urls = [Urls().trd_user(player, universe)]
         try:
+            if universe != 'play':
+                raise NotImplementedError
             trd_user_api = (await fetch(urls, 'json'))[0]
             textbests = round(float(trd_user_api['account']['wpm_textbests']), 2)
             textsraced = trd_user_api['account']['texts_raced']
@@ -669,10 +671,22 @@ class BasicStats(commands.Cog):
             race_one = min(race_nums)
             race_two = max(race_nums)
         except TypeError:
-            await ctx.send(content = f"<@{user_id}>",
-                           embed = Error(ctx, ctx.message)
-                                   .missing_information('`timestamp` was not found in either race'))
-            return
+            try:
+                conn = sqlite3.connect(DATABASE_PATH)
+                c = conn.cursor()
+                if escape_sequence(player):
+                    raise sqlite3.OperationalError
+                difference = abs(c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_one,))
+                                           .fetchone()[0] -\
+                                 c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_two,))
+                                           .fetchone()[0])
+            except sqlite3.OperationalError:
+                conn.close()
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .missing_information('`timestamp` was not found in either race'))
+                return
+        conn.close()
 
         description = (f"The time between **{player}**'s "
                        f"**{num_to_text(race_one)}** and "

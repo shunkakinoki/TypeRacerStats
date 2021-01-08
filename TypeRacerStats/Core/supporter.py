@@ -262,7 +262,9 @@ class Supporter(commands.Cog):
 
         plt.grid(True)
         file_name = 'Sample Graph.png'
-        graph_color(ax, supporters[user_id]['graph_color'], False)
+        graph_colors = supporters[user_id]['graph_color']
+        graph_colors.update({'name': '!'})
+        graph_color(ax, graph_colors, False)
         plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         plt.close()
 

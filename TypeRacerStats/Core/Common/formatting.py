@@ -56,7 +56,7 @@ def href_universe(universe):
 def graph_color(ax, information, boxplot, *patches):
     to_rgba = lambda x: (x // 65536 / 255, ((x % 65536) // 256) / 255, x % 256 / 255)
 
-    (bg, graph_bg, axis, line, text, grid, cmap) = information.values()
+    (bg, graph_bg, axis, line, text, grid, cmap, user) = information.values()
     legend = ax.get_legend()
     black = True
 
@@ -80,15 +80,23 @@ def graph_color(ax, information, boxplot, *patches):
 
     if line != None:
         line_color = to_rgba(line)
-        if ax.get_lines():
+
+        index = 0
+        graph_lines = ax.get_lines()
+        for i, graph_line in enumerate(graph_lines):
+            if graph_line.get_label() == user:
+                index = i
+                break
+
+        if graph_lines:
             if boxplot:
-                for line_ in ax.get_lines()[0:5]:
+                for line_ in graph_lines[0:5]:
                     line_.set_color(line_color)
             else:
                 if cmap != None:
-                    x, y = ax.get_lines()[0].get_data()
-                    label = ax.get_lines()[0].get_label()
-                    ax.lines.pop(0)
+                    x, y = graph_lines[index].get_data()
+                    label = graph_lines[index].get_label()
+                    ax.lines.pop(index)
 
                     if isinstance(x[0], datetime.date):
                         x = date2num(list(x))
@@ -99,13 +107,13 @@ def graph_color(ax, information, boxplot, *patches):
                     lc.set_array(y)
                     ax.add_collection(lc)
                 else:
-                    ax.get_lines()[0].set_color(line_color)
+                    graph_lines[index].set_color(line_color)
         elif len(patches) > 0:
             for patch in patches[0]:
                 patch.set_facecolor(line_color)
 
         if legend:
-            legend.get_lines()[0].set_color(line_color)
+            legend.get_lines()[index].set_color(line_color)
 
     if text != None:
         text_color = to_rgba(text)

@@ -244,7 +244,7 @@ class FullStats(commands.Cog):
                 while user_data[i][1] - user_data[cur_min][1] > session_length:
                     cur_min += 1
             if length - cur_min - 1 > max_end - max_start:
-                max_start, max_end = cur_min, length - 1
+                max_start, max_end = cur_min, length
         elif category == 'points':
             cur_min, max_start, max_end, cur_points, max_points = (0,) * 5
             for i in range(0, length):
@@ -256,7 +256,7 @@ class FullStats(commands.Cog):
                     cur_points -= user_data[cur_min][4]
                     cur_min += 1
             if cur_points + user_data[length - 1][4] > max_points:
-                max_start, max_end = cur_min, length - 1
+                max_start, max_end = cur_min, length
 
         races, seconds_played, chars_typed, words_typed, points, wpm_sum, wpm_max = (0,) * 7
         wpm_min = 100000
@@ -289,8 +289,8 @@ class FullStats(commands.Cog):
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
         embed.set_footer(text = (f"First Race (#{f'{max_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[max_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
-                                 "(Retroactive points represent the total number of "
-                                 "points a user would have gained, before points were introduced in 2017)"))
+                                 "Retroactive points represent the total number of "
+                                 "points a user would have gained, before points were introduced in 2017"))
         embed.add_field(name = 'Races',
                         value = (f"**Total Races:** {f'{races:,}'}\n"
                                  f"**Total Words Typed:** {f'{words_typed:,}'}\n"

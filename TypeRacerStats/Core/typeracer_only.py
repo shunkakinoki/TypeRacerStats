@@ -11,7 +11,7 @@ sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, BLANK_FLAG, HELP_IMG, TR_INFO
 from TypeRacerStats.file_paths import DATABASE_PATH, TYPERACER_RECORDS_JSON, COUNTRY_CODES
 from TypeRacerStats.Core.Common.accounts import check_banned_status
-from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
@@ -288,15 +288,19 @@ class TypeRacerOnly(commands.Cog):
                 conn.commit()
                 data = c.execute(f"SELECT * FROM t_{user}")
 
-                races, chars_typed, points = (0,) * 3
+                races, chars_typed, points, total_points, seconds_played = (0,) * 5
                 for race in data:
                     races += 1
                     race_text_id = str(race[2])
-                    chars_typed += texts_data[race_text_id]['length']
+                    text_length = texts_data[race_text_id]['length']
+                    chars_typed += text_length
                     points += race[4]
+                    total_points += race[4] if race[4] else texts_data[race_text_id]['word count'] * race[3] / 60
+                    seconds_played += 12 * text_length / race[3]
 
                 first_race_timestamp = c.execute(f"SELECT * FROM t_{user} ORDER BY t ASC LIMIT 1").fetchone()[1]
                 time_difference = right_now - first_race_timestamp
+                points_time_difference = min(right_now - 1_501_113_600, time_difference)
 
                 all_time_data.update({
                     user: {
@@ -304,9 +308,13 @@ class TypeRacerOnly(commands.Cog):
                         'races_daily_average': 86400 * races / time_difference,
                         'chars_typed': chars_typed,
                         'points': points,
-                        'points_daily_average': 86400 * points / time_difference,
+                        'points_daily_average': 86400 * points / points_time_difference,
+                        'total_points': total_points,
+                        'total_points_average': 86400 * total_points / time_difference,
                         'medals': medals,
-                        'time_difference': time_difference
+                        'seconds_played': seconds_played,
+                        'time_difference': time_difference,
+                        'points_time_difference': points_time_difference
                     }
                 })
             except:
@@ -314,7 +322,7 @@ class TypeRacerOnly(commands.Cog):
 
         conn.close()
 
-        def helper_formatter(tally_dict, formatter, *args):
+        def helper_formatter(tally_dict, name_formatter, results_formatter, *args):
             rankings = dict()
             args = args[0]
             for key, value in tally_dict.items():
@@ -338,8 +346,8 @@ class TypeRacerOnly(commands.Cog):
                     except KeyError:
                         optional = ''
 
-                ranking[1] = [formatter(j) for j in ranking[1]]
-                value += f"{self.medals[i]} {' / '.join(ranking[1])} - {f'{round(ranking[0]):,}'}{optional}\n"
+                ranking[1] = [name_formatter(j) for j in ranking[1]]
+                value += f"{self.medals[i]} {' / '.join(ranking[1])} - {results_formatter(ranking[0])}{optional}\n"
             return value
 
         races_information = all_records_information['races']['records']
@@ -349,13 +357,16 @@ class TypeRacerOnly(commands.Cog):
 
         helper_sorter = lambda param: {k: v[param] for k, v in all_time_data.items()}
         helper_flag = lambda x: f"{self.get_flag(x)} {x}"
+        helper_round = lambda x: f'{round(x):,}'
 
         races_daily_average_dict = dict()
         points_daily_average_dict = dict()
+        total_points_daily_average_dict = dict()
         chars_typed_metadata_dict = dict()
         medal_breakdown_dict = dict()
         for key, value in all_time_data.items():
             days = round(value['time_difference'] / 86400)
+            days_ = round(value['points_time_difference'] / 86400)
             medal_breakdown = value['medals']
 
             races_daily_average_dict.update({
@@ -363,7 +374,11 @@ class TypeRacerOnly(commands.Cog):
             })
 
             points_daily_average_dict.update({
-                key: f""" ({f"{round(value['points']):,}"} points over {f"{days:,}"} days)"""
+                key: f""" ({f"{round(value['points']):,}"} points over {f"{days_:,}"} days)"""
+            })
+
+            total_points_daily_average_dict.update({
+                key: f""" ({f"{round(value['total_points']):,}"} points over {f"{days:,}"} days)"""
             })
 
             chars_typed_metadata_dict.update({
@@ -375,13 +390,16 @@ class TypeRacerOnly(commands.Cog):
             })
 
         races_embed.add_field(name = 'All-Time Leaders',
-                              value = helper_formatter(helper_sorter('races'), helper_flag, (True,)),
+                              value = helper_formatter(helper_sorter('races'), helper_flag, helper_round, (True,)),
                               inline = False)
         races_embed.add_field(name = 'Highest Average Daily Races',
-                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, (True, races_daily_average_dict)),
+                              value = helper_formatter(helper_sorter('races_daily_average'), helper_flag, helper_round, (True, races_daily_average_dict)),
                               inline = False)
         races_embed.add_field(name = 'Most Characters Typed',
-                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, (True, chars_typed_metadata_dict)),
+                              value = helper_formatter(helper_sorter('chars_typed'), helper_flag, helper_round, (True, chars_typed_metadata_dict)),
+                              inline = False)
+        races_embed.add_field(name = 'Most Time Spent Racing',
+                              value = helper_formatter(helper_sorter('seconds_played'), helper_flag, seconds_to_text, (True,)),
                               inline = False)
 
         for races_record in races_information:
@@ -393,11 +411,18 @@ class TypeRacerOnly(commands.Cog):
         points_embed.set_thumbnail(url = points_thumbnail)
 
         points_embed.add_field(name = 'All-Time Leaders',
-                               value = helper_formatter(helper_sorter('points'), helper_flag, (True,)),
+                               value = helper_formatter(helper_sorter('points'), helper_flag, helper_round, (True,)),
                                inline = False)
         points_embed.add_field(name = 'Highest Average Daily Points',
-                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, (True, points_daily_average_dict)),
+                               value = helper_formatter(helper_sorter('points_daily_average'), helper_flag, helper_round, (True, points_daily_average_dict)),
                                inline = False)
+        points_embed.add_field(name = 'All-Time Total Points (Includes Retroactive Points)',
+                               value = helper_formatter(helper_sorter('total_points'), helper_flag, helper_round, (True,)),
+                               inline = False)
+        points_embed.add_field(name = 'Highest Average Daily Total Points (Includes Retroactive Points)',
+                               value = helper_formatter(helper_sorter('total_points_average'), helper_flag, helper_round, (True, total_points_daily_average_dict)),
+                               inline = False)
+        points_embed.set_footer(text = 'Retroactive points represent the total number of points a user would have gained, before points were introduced in 2017')
 
         for points_record in points_information:
             points_embed.add_field(**self.record_field_constructor(points_record, ''))
@@ -409,7 +434,7 @@ class TypeRacerOnly(commands.Cog):
         medal_tally = {k: sum(v['medals'].values()) for k, v in all_time_data.items()}
 
         awards_embed.add_field(name = 'All-Time Leaders',
-                               value = helper_formatter(medal_tally, helper_flag, (True, medal_breakdown_dict)),
+                               value = helper_formatter(medal_tally, helper_flag, helper_round, (True, medal_breakdown_dict)),
                                inline = False)
 
         records_held_embed = discord.Embed(title = 'Records Held',
@@ -420,10 +445,11 @@ class TypeRacerOnly(commands.Cog):
         records_held_embed.add_field(name = 'Top Countries',
                                      value = helper_formatter(self.country_tally,\
                                                               lambda x: f"{x} {country_codes[re.findall(':flag.+:', x)[0][5:-1].strip('_').upper()]}",
+                                                              helper_round,
                                                               (False,)),
                                      inline = False)
         records_held_embed.add_field(name = 'Top Users',
-                                     value = helper_formatter(self.user_tally, helper_flag, (False,)),
+                                     value = helper_formatter(self.user_tally, helper_flag, helper_round, (False,)),
                                      inline = False)
 
         last_updated_embed = discord.Embed(color = discord.Color(last_updated_color),

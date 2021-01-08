@@ -2,7 +2,7 @@ import csv
 import os
 import sys
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, BOT_OWNER_IDS, MAIN_COLOR, NUMBERS, TR_WARNING
 from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
@@ -17,6 +17,8 @@ from TypeRacerStats.Core.Common.urls import Urls
 class RealSpeed(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.realspeed_cache = dict()
+        self.clear_cache.start()
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
@@ -79,7 +81,11 @@ class RealSpeed(commands.Cog):
             if raw:
                 responses = await fetch(urls, 'text', raw_typinglog_scraper)
             else:
-                responses = await fetch(urls, 'text', rs_typinglog_scraper)
+                urls, responses = self.check_cache(urls)
+                if urls:
+                    responses = await fetch(urls, 'text', rs_typinglog_scraper, True)
+                    self.update_cache(responses)
+                    responses = [list(response.values())[0] for response in responses]
             result = responses[0]
             if not result:
                 raise KeyError
@@ -259,7 +265,13 @@ class RealSpeed(commands.Cog):
             replay_url = Urls().result(player, i, universe)
             urls.append(replay_url)
 
-        responses = await fetch(urls, 'text', rs_typinglog_scraper)
+        responses = []
+        urls, responses = self.check_cache(urls)
+        if urls:
+            new_responses = await fetch(urls, 'text', rs_typinglog_scraper, True)
+            self.update_cache(new_responses)
+            new_responses = [list(response.values())[0] for response in new_responses]
+            responses += new_responses
         responses = [i for i in responses if i]
         if len(responses) == 0:
             await ctx.send(content = f"<@{user_id}>",
@@ -381,6 +393,26 @@ class RealSpeed(commands.Cog):
             embed.add_field(name = name, value = value, inline = False)
         await ctx.send(embed = embed)
         return
+
+    def update_cache(self, responses):
+        for response in responses:
+            self.realspeed_cache.update(response)
+
+    def check_cache(self, urls):
+        results = []
+        uncached_urls = []
+
+        for url in urls:
+            try:
+                results.append(self.realspeed_cache[url])
+            except KeyError:
+                uncached_urls.append(url)
+
+        return uncached_urls, results
+
+    @tasks.loop(hours = 48)
+    async def clear_cache(self):
+        self.realspeed_cache = dict()
 
 def setup(bot):
     bot.add_cog(RealSpeed(bot))

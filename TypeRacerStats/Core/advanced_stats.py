@@ -183,9 +183,9 @@ class AdvancedStats(commands.Cog):
         embed = discord.Embed(title = f"Race Details for {player}",
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = ('(Retroactive points represent the total number of points '
+        embed.set_footer(text = ('Retroactive points represent the total number of points '
                                  'a user would have gained, before points were introduced '
-                                 'in 2017)'))
+                                 'in 2017'))
 
         embed.add_field(name = 'Races',
                         value = (f"**Total Races:** {f'{races:,}'}\n"

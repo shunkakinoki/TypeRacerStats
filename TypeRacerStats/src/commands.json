@@ -38,7 +38,7 @@
         },
         {
             "name": "support",
-            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 1: $0.01 - $5.99**\nName listed on `info` command and access to `echo` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot and set custom colors for graphs with `setgraphcolor`\n\n**Tier 4: $18.00+**\nAccess to commands via bot DM",
+            "description": "Returns links to help support the project\n\n__**Perks (USD)**__\n**Tier 0: $1.00 - $2.99**\nThanks for your support!\n\n**Tier 1: $3.00 - $5.99**\nName listed on `info` command and access to `echo` command\n\n**Tier 2: $6.00 - $11.99**\nSet custom embed color with `setcolor`\n\n**Tier 3: $12.00+**\nCustom command added to the bot and set custom colors for graphs with `setgraphcolor`\n\n**Tier 4: $18.00+**\nAccess to commands via bot DM",
             "speed": "fast",
             "usage": {
                 "general": "",
