@@ -680,7 +680,7 @@ class BasicStats(commands.Cog):
                                            .fetchone()[0] -\
                                  c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_two,))
                                            .fetchone()[0])
-            except sqlite3.OperationalError:
+            except:
                 conn.close()
                 await ctx.send(content = f"<@{user_id}>",
                                embed = Error(ctx, ctx.message)
