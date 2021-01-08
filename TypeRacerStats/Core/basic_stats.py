@@ -664,6 +664,8 @@ class BasicStats(commands.Cog):
 
         responses = await fetch(urls, 'text', timestamp_scraper)
         try:
+            conn = sqlite3.connect(DATABASE_PATH)
+            c = conn.cursor()
             player = responses[0]['player']
             difference = abs(responses[1]['timestamp'] - responses[0]['timestamp'])
             universe = responses[0]['universe']
@@ -672,8 +674,6 @@ class BasicStats(commands.Cog):
             race_two = max(race_nums)
         except TypeError:
             try:
-                conn = sqlite3.connect(DATABASE_PATH)
-                c = conn.cursor()
                 if escape_sequence(player):
                     raise sqlite3.OperationalError
                 difference = abs(c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_one,))
