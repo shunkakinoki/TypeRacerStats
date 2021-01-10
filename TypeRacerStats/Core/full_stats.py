@@ -516,9 +516,7 @@ class FullStats(commands.Cog):
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Took:** {seconds_to_text(user_data[min_end][1] - user_data[min_start][1])}")
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = (f"First Race (#{f'{min_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | "
-                                 "(Retroactive points represent the total number of "
-                                 "points a user would have gained, before points were introduced in 2017)"))
+        embed.set_footer(text = f"First Race (#{f'{min_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | ")
         embed.add_field(name = 'Races',
                         value = (f"**Total Races:** {f'{min_end - min_start + 1:,}'}\n"
                                  f"**Total Words Typed:** {f'{words_typed:,}'}\n"
@@ -529,7 +527,7 @@ class FullStats(commands.Cog):
                                  f"**Total Time Elapsed:** {seconds_to_text(user_data[min_end][1] - user_data[min_start][1])}\n"
                                  f"**Average Time Per Race:** {seconds_to_text(seconds_played / races)}"),
                         inline = False)
-        embed.add_field(name = 'Points (Retroactive Included)',
+        embed.add_field(name = 'Points',
                         value = (f"**Total Points:** {f'{round(points):,}'}\n"
                                  f"**Average Points Per Race:** {f'{round(points / races, 2):,}'}\n"),
                         inline = False)

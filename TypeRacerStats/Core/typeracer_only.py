@@ -197,9 +197,10 @@ class TypeRacerOnly(commands.Cog):
         three_hundred_thumbnail, three_hundred_color = 'https://i.imgur.com/i8kXn3K.png', 0x1B038C
         races_thumbnail, races_color = 'https://i.imgur.com/DspJLUH.png', 0x14328C
         points_thumbnail, points_color = 'https://i.imgur.com/Xm0VNQV.png', 0x0B4A9E
-        awards_thumbnail, awards_color = 'https://i.imgur.com/W9NEYb2.png', 0x0E61D1
-        records_held_thumbnail, records_held_color = 'https://i.imgur.com/3gJNZRO.png', 0x0790E8
-        last_updated_color = 0x00BFFF
+        speedruns_thumbnail, speedruns_color = 'https://i.imgur.com/lPdQvvQ.png', 0x0E61D1
+        awards_thumbnail, awards_color = 'https://i.imgur.com/W9NEYb2.png', 0x0790E8
+        records_held_thumbnail, records_held_color = 'https://i.imgur.com/3gJNZRO.png', 0x00BFFF
+        last_updated_color = 0x00EEFF
 
         faq_information = self.records_information['information']
         faq_embed = discord.Embed(**faq_information)
@@ -296,7 +297,10 @@ class TypeRacerOnly(commands.Cog):
                     chars_typed += text_length
                     points += race[4]
                     total_points += race[4] if race[4] else texts_data[race_text_id]['word count'] * race[3] / 60
-                    seconds_played += 12 * text_length / race[3]
+                    try:
+                        seconds_played += 12 * text_length / race[3]
+                    except ZeroDivisionError:
+                        seconds_played += 0
 
                 first_race_timestamp = c.execute(f"SELECT * FROM t_{user} ORDER BY t ASC LIMIT 1").fetchone()[1]
                 time_difference = right_now - first_race_timestamp
@@ -310,9 +314,9 @@ class TypeRacerOnly(commands.Cog):
                         'points': points,
                         'points_daily_average': 86400 * points / points_time_difference,
                         'total_points': total_points,
-                        'total_points_average': 86400 * total_points / time_difference,
                         'medals': medals,
                         'seconds_played': seconds_played,
+                        'seconds_played_daily_average': 86400 * seconds_played / time_difference,
                         'time_difference': time_difference,
                         'points_time_difference': points_time_difference
                     }
@@ -361,7 +365,6 @@ class TypeRacerOnly(commands.Cog):
 
         races_daily_average_dict = dict()
         points_daily_average_dict = dict()
-        total_points_daily_average_dict = dict()
         chars_typed_metadata_dict = dict()
         medal_breakdown_dict = dict()
         for key, value in all_time_data.items():
@@ -375,10 +378,6 @@ class TypeRacerOnly(commands.Cog):
 
             points_daily_average_dict.update({
                 key: f""" ({f"{round(value['points']):,}"} points over {f"{days_:,}"} days)"""
-            })
-
-            total_points_daily_average_dict.update({
-                key: f""" ({f"{round(value['total_points']):,}"} points over {f"{days:,}"} days)"""
             })
 
             chars_typed_metadata_dict.update({
@@ -401,6 +400,9 @@ class TypeRacerOnly(commands.Cog):
         races_embed.add_field(name = 'Most Time Spent Racing',
                               value = helper_formatter(helper_sorter('seconds_played'), helper_flag, seconds_to_text, (True,)),
                               inline = False)
+        races_embed.add_field(name = 'Highest Average Daily Time Spent Racing',
+                              value = helper_formatter(helper_sorter('seconds_played_daily_average'), helper_flag, seconds_to_text, (True,)),
+                              inline = False)
 
         for races_record in races_information:
             races_embed.add_field(**self.record_field_constructor(races_record, ''))
@@ -419,13 +421,18 @@ class TypeRacerOnly(commands.Cog):
         points_embed.add_field(name = 'All-Time Total Points (Includes Retroactive Points)',
                                value = helper_formatter(helper_sorter('total_points'), helper_flag, helper_round, (True,)),
                                inline = False)
-        points_embed.add_field(name = 'Highest Average Daily Total Points (Includes Retroactive Points)',
-                               value = helper_formatter(helper_sorter('total_points_average'), helper_flag, helper_round, (True, total_points_daily_average_dict)),
-                               inline = False)
         points_embed.set_footer(text = 'Retroactive points represent the total number of points a user would have gained, before points were introduced in 2017')
 
         for points_record in points_information:
             points_embed.add_field(**self.record_field_constructor(points_record, ''))
+
+        speedruns_information = all_records_information['speedruns']['records']
+        speedruns_embed = discord.Embed(title = 'Speedrun Records',
+                                        color = discord.Color(speedruns_color))
+        speedruns_embed.set_thumbnail(url = speedruns_thumbnail)
+
+        for speedruns_record in speedruns_information:
+            speedruns_embed.add_field(**self.record_field_constructor(speedruns_record, ''))
 
         awards_embed = discord.Embed(title = 'Awards Records',
                                      color = discord.Color(awards_color))
@@ -461,6 +468,7 @@ class TypeRacerOnly(commands.Cog):
             '300_wpm_club': three_hundred_embed,
             'races': races_embed,
             'points': points_embed,
+            'speedruns': speedruns_embed,
             'awards': awards_embed,
             'records_held': records_held_embed,
             'last_updated': last_updated_embed
@@ -470,8 +478,12 @@ class TypeRacerOnly(commands.Cog):
         user = record_information['user']
         if 'Race' in record_information['title'].split(' '): emote = ':cinema:'
         else: emote = TR_INFO
+        try:
+            formatted_record = f"{record_information['record']:,}"
+        except ValueError:
+            formatted_record = record_information['record']
         value = (f"{self.get_flag(user)} {user} - "
-                 f"""{f"{record_information['record']:,}"}{unit} - """
+                 f"{formatted_record}{unit} - "
                  f"{record_information['date']} "
                  f"[{emote}]({record_information['url']})")
 
