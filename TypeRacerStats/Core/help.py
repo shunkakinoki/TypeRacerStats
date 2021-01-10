@@ -98,7 +98,7 @@ class Help(commands.Cog):
                                           description = description)
         self.donate_embed.add_field(name = 'Perks (USD)',
                                     value = ('**Tier 0: $1.00 - $2.99**\n'
-                                             'Thanks for your support!'
+                                             'Thanks for your support!\n\n'
                                              '**Tier 1: $3.00 - $5.99**\n'
                                              'Name listed on `info` command and access to `echo` command\n\n'
                                              '**Tier 2: $6.00 - $11.99**\n'

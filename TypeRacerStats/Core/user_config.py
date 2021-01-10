@@ -18,9 +18,9 @@ class UserConfig(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(1, 1, commands.BucketType.default)
-    @commands.command(aliases = get_aliases('changeprefix'))
+    @commands.command(aliases = get_aliases('setprefix'))
     @commands.check(lambda ctx: ctx.message.author.guild_permissions.administrator and check_banned_status(ctx))
-    async def changeprefix(self, ctx, prefix):
+    async def setprefix(self, ctx, prefix):
         if len(prefix) > 14:
             await ctx.send(f"<@{ctx.message.author.id}>",
                            embed = Error(ctx, ctx.message)

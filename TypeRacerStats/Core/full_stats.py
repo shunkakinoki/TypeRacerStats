@@ -516,7 +516,7 @@ class FullStats(commands.Cog):
                               color = discord.Color(MAIN_COLOR),
                               description = f"**Took:** {seconds_to_text(user_data[min_end][1] - user_data[min_start][1])}")
         embed.set_thumbnail(url = Urls().thumbnail(player))
-        embed.set_footer(text = f"First Race (#{f'{min_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')} | ")
+        embed.set_footer(text = f"First Race (#{f'{min_start + 1:,}'}): {datetime.datetime.fromtimestamp(user_data[min_start][1]).strftime('%B %-d, %Y, %-I:%M:%S %p')}")
         embed.add_field(name = 'Races',
                         value = (f"**Total Races:** {f'{min_end - min_start + 1:,}'}\n"
                                  f"**Total Words Typed:** {f'{words_typed:,}'}\n"
