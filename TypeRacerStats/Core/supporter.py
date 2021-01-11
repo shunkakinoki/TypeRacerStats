@@ -576,7 +576,7 @@ class Supporter(commands.Cog):
         await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                              description = (datetime.datetime.utcnow() +\
                                                             datetime.timedelta(hours = 9))
-                                                            .strftime("%B %-d, %Y, %I:%M:%S %p")))
+                                                            .strftime("%B %-d, %Y, %-I:%M:%S %p")))
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dessle'))

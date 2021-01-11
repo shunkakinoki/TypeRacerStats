@@ -9,7 +9,7 @@ sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
 from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH
 from TypeRacerStats.Core.Common.accounts import check_banned_status
-from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.aliases import get_aliases, normalized_commands
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
@@ -52,7 +52,7 @@ class Other(commands.Cog):
             time = int(args[0])
             await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                                  description = datetime.datetime.fromtimestamp(time)
-                                                               .strftime("%B %d, %Y, %I:%M:%S")))
+                                                               .strftime("%B %d, %Y, %-I:%M:%S %p")))
             return
         except ValueError:
             try:
@@ -60,7 +60,7 @@ class Other(commands.Cog):
                 await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
                                                      description = datetime.datetime.fromtimestamp(
                                                                    float(scientific_notation_lst[0]) * 10 ** (int(scientific_notation_lst[1])))
-                                                                   .strftime("%B %d, %Y, %I:%M:%S")))
+                                                                   .strftime("%B %d, %Y, %-I:%M:%S %p")))
                 return
             except:
                 await ctx.send(content = f"<@{user_id}>",
@@ -195,6 +195,21 @@ class Other(commands.Cog):
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
+        def combine_aliases(cmds_data):
+            cmds_dict = dict()
+            for cmd in cmds_data:
+                try:
+                    normalized_name = normalized_commands[cmd[0]]
+                except KeyError:
+                    normalized_name = cmd[0]
+
+                try:
+                    cmds_dict[normalized_name] += cmd[1]
+                except KeyError:
+                    cmds_dict[normalized_name] = cmd[1]
+
+            return cmds_dict
+
         if ctx.invoked_with[-1] == '*':
             if len(args) == 0:
                 user_count = len(c.execute(f"SELECT DISTINCT id FROM {TABLE_KEY}").fetchall())
@@ -210,19 +225,32 @@ class Other(commands.Cog):
                     command = 'All Commands'
                     user_data = c.execute(f"""SELECT command, COUNT(command)
                                               FROM {TABLE_KEY}
-                                              GROUP BY command
-                                              ORDER BY COUNT(command) DESC LIMIT 10""").fetchall()
-                    user_data = [[f"`{i[0]}`", i[1]] for i in user_data]
+                                              GROUP BY command""")
+                    user_data = combine_aliases(user_data)
+                    user_data = [[f"`{key}`", value] for key, value in user_data.items()]
                 else:
-                    user_data = c.execute(f"""SELECT name, COUNT(id)
-                                              FROM
-                                                (SELECT * FROM {TABLE_KEY} WHERE command = ?)
-                                              GROUP BY id
-                                              ORDER BY COUNT(id) DESC LIMIT 10""", (command,)).fetchall()
+                    try:
+                        command = normalized_commands[command]
+                        aliases = [command] + get_aliases(command)
+                        user_data = []
+                        for alias in aliases:
+                            alias_data = c.execute(f"""SELECT name, COUNT(id)
+                                                       FROM
+                                                           (SELECT * FROM {TABLE_KEY} WHERE command = ?)
+                                                       GROUP BY id""", (alias,))
+                            user_data += alias_data.fetchall()
+                        user_data = combine_aliases(user_data)
+                        user_data = [[key, value] for key, value in user_data.items()]
+
+                    except KeyError:
+                        user_data = ()
+
                 conn.close()
 
+            user_data = sorted(user_data, key = lambda x: x[1], reverse = True)
+
             value = ''
-            for i, user in enumerate(user_data):
+            for i, user in enumerate(user_data[:10]):
                 value += f"{NUMBERS[i]} {user[0]} - {f'{user[1]:,}'}\n"
             value = value[:-1]
 
@@ -276,25 +304,24 @@ class Other(commands.Cog):
                                        .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
                 return
 
-            user_data = c.execute(f"""SELECT name, command, COUNT(command)
-                                      FROM
-                                        (SELECT * FROM {TABLE_KEY} WHERE ID = ?)
-                                      GROUP BY command
-                                      ORDER BY COUNT(command) DESC""", (id_,)).fetchall()
+            user_data = []
+            users_cmd_data = c.execute(f"""SELECT command, COUNT(command), name
+                                          FROM
+                                            (SELECT * FROM {TABLE_KEY} WHERE ID = ?)
+                                          GROUP BY command""", (id_,)).fetchall()
             conn.close()
+            if users_cmd_data: name = users_cmd_data[-1][2]
+            else: name = id_
+            user_data = combine_aliases(users_cmd_data)
+            user_data = sorted([[key, value] for key, value in user_data.items()], key = lambda x: x[1], reverse = True)
+            title = f"Bot Statistics for {name}"
 
-            user_data= list(user_data)
-            if not user_data:
-                title = f"Bot Statistics for {id_}"
-            else:
-                title = f"Bot Statistics for {user_data[-1][0]}"
-
-            count, value = 0, ''
+            value, count = '', 0
             for i, cmd in enumerate(user_data):
-                count += cmd[2]
-                if i < 5:
+                count += cmd[1]
+                if i <= 5:
                     cmds = i + 1
-                    value += f"**{i + 1}.** `{cmd[1]}` - {f'{cmd[2]:,}'}\n"
+                    value += f"**{cmds}.** `{cmd[0]}` - {f'{cmd[1]:,}'}\n"
 
             embed = discord.Embed(title = title,
                                   color = discord.Color(MAIN_COLOR),
