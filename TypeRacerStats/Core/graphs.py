@@ -413,7 +413,7 @@ class Graphs(commands.Cog):
             ax.xaxis.set_major_formatter(ticker.FuncFormatter(self.large_num_formatter))
             ax.set_xlabel('Race #')
 
-        if max_point > 2 * max_line: ax.set_ylim(0, 2 * maxline)
+        if max_point > 2 * max_line: ax.set_ylim(0, 2 * max_line)
         ax.set_ylabel('WPM')
         plt.grid(True)
         file_name = f"WPM Over {category}.png"
