@@ -15,6 +15,9 @@ def get_prefix(bot, message):
     try:
         return load_prefixes()[str(message.guild.id)]
     except KeyError:
+        prefixes = load_prefixes()
+        prefixes.update({str(guild.id): DEFAULT_COMMAND_PREFIX})
+        update_prefixes(prefixes)
         return DEFAULT_COMMAND_PREFIX
     except AttributeError:
         return DEFAULT_COMMAND_PREFIX

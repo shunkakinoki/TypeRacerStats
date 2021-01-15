@@ -9,9 +9,8 @@ normalized_commands = {}
 
 for category in commands_:
     for command in category:
-        aliases = command['aliases']
+        name, aliases = command['name'], command['aliases']
         if aliases:
-            name = command['name']
             command_aliases.update({name: aliases})
             for alias in aliases:
                 normalized_commands.update({alias: name})

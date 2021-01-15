@@ -235,9 +235,9 @@ class Other(commands.Cog):
                         user_data = []
                         for alias in aliases:
                             alias_data = c.execute(f"""SELECT name, COUNT(id)
-                                                       FROM
-                                                           (SELECT * FROM {TABLE_KEY} WHERE command = ?)
-                                                       GROUP BY id""", (alias,))
+                                                        FROM
+                                                            (SELECT * FROM {TABLE_KEY} WHERE command = ?)
+                                                        GROUP BY id""", (alias,))
                             user_data += alias_data.fetchall()
                         user_data = combine_aliases(user_data)
                         user_data = [[key, value] for key, value in user_data.items()]

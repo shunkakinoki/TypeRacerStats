@@ -371,8 +371,13 @@ class GetData(commands.Cog):
                              WHERE t > ? AND t < ?""", (start_time, end_time,)).fetchall()
         conn.close()
 
-        if week: title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %-d')}—"
-                          f"{datetime.datetime.fromtimestamp(end_time - 86400).strftime('%-d, %Y')})")
+        if week:
+            day_one = datetime.datetime.fromtimestamp(start_time).day
+            day_two = datetime.datetime.fromtimestamp(end_time - 86400).day
+            if day_one > day_two: format_string = '%B %-d, %Y'
+            else: format_string = '%-d, %Y'
+            title = (f"Weekly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %-d')}—"
+                     f"{datetime.datetime.fromtimestamp(end_time - 86400).strftime(format_string)})")
         elif month: title = f"Monthly ({datetime.datetime.fromtimestamp(start_time).strftime('%B %Y')})"
         elif year: title = f"Yearly ({datetime.datetime.fromtimestamp(start_time).strftime('%Y')})"
 

@@ -304,15 +304,7 @@ class Graphs(commands.Cog):
         formatter = mdates.DateFormatter("%b. %-d, '%y")
         ax.xaxis.set_major_formatter(formatter)
 
-        def y_axis_num_formatter(x, pos):
-            if x >= 1_000_000:
-                return f"{round(x / 1_000_000, 1)}M"
-            elif x >= 1_000:
-                return f"{round(x / 1_000, 1)}K"
-            else:
-                return x
-
-        ax.yaxis.set_major_formatter(ticker.FuncFormatter(y_axis_num_formatter))
+        ax.yaxis.set_major_formatter(ticker.FuncFormatter(self.large_num_formatter))
         ax.set_ylabel(units)
         plt.grid(True)
 
@@ -367,7 +359,7 @@ class Graphs(commands.Cog):
                                    "doesn't exist")))
             return
 
-        data_x, data_y = [], []
+        data_x, data_y, max_point = [], [], 0
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
@@ -377,7 +369,9 @@ class Graphs(commands.Cog):
                     data_x.append(datetime.datetime.fromtimestamp(row[1]))
                 else:
                     data_x.append(row[1])
-                data_y.append(row[0])
+                row_wpm = row[0]
+                max_point = max(max_point, row_wpm)
+                data_y.append(row_wpm)
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content = f"<@{user_id}>",
@@ -403,6 +397,8 @@ class Graphs(commands.Cog):
         moving_y = reduce_list(moving_y)
         moving_x = reduce_list(moving_x)
 
+        max_line = max(moving_y)
+
         ax = plt.subplots()[1]
         ax.scatter(data_x, data_y, marker = '.', alpha = 0.1, color = '#000000')
         ax.plot(moving_x, moving_y, color = '#FF0000')
@@ -414,8 +410,10 @@ class Graphs(commands.Cog):
             formatter = mdates.DateFormatter("%b. %-d '%y")
             ax.xaxis.set_major_formatter(formatter)
         else:
+            ax.xaxis.set_major_formatter(ticker.FuncFormatter(self.large_num_formatter))
             ax.set_xlabel('Race #')
 
+        if max_point > 2 * max_line: ax.set_ylim(0, 2 * maxline)
         ax.set_ylabel('WPM')
         plt.grid(True)
         file_name = f"WPM Over {category}.png"
@@ -691,6 +689,14 @@ class Graphs(commands.Cog):
         os.remove(file_name)
         plt.close()
         return
+
+    def large_num_formatter(self, x, pos):
+        if x >= 1_000_000:
+            return f"{round(x / 1_000_000, 1)}M"
+        elif x >= 1_000:
+            return f"{round(x / 1_000, 1)}K"
+        else:
+            return x
 
 def setup(bot):
     bot.add_cog(Graphs(bot))

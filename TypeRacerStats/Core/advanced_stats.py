@@ -83,7 +83,7 @@ class AdvancedStats(commands.Cog):
             return
         conn.close()
 
-        embed = discord.Embed(title = f"{player}'s Top {len(user_data)} Races (Lagged)",
+        embed = discord.Embed(title = f"{player}'s {['Worst', 'Top'][reverse]} {len(user_data)} Races (Lagged)",
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
 
