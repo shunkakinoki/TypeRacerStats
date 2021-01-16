@@ -80,7 +80,12 @@ class Help(commands.Cog):
     def create_invite_embed(self):
         guilds = self.bot.guilds
         server_count = len(guilds)
-        people_count = sum([guild.member_count if guild.member_count else 0 for guild in guilds])
+        people_count = 0
+        for guild in guilds:
+            try:
+                people_count += guild.member_count
+            except AttributeError:
+                pass
 
         self.invite_embed = discord.Embed(title = "TypeRacerStats Invite Link",
                                           color = HELP_BLACK,
@@ -169,13 +174,19 @@ class Help(commands.Cog):
     @commands.command(aliases = ['servers'])
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and not ctx.guild and check_banned_status(ctx))
     async def listservers(self, ctx):
-        guilds = sorted(self.bot.guilds, key = lambda x: x.member_count if x.member_count else 0, reverse = True)
+        guilds = []
+        for guild in self.bot.guilds:
+            try:
+                if guild.member_count:
+                    guilds.append(guild)
+            except AttributeError:
+                pass
+        guilds = sorted(guilds, key = lambda x: x.member_count, reverse = True)
         guilds_data = [['Name', "Member Count", 'Guild ID']]
         people_count, server_count = 0, 0
         for guild in guilds:
-            member_count = guild.member_count if guild.member_count else 0
-            guilds_data.append([guild.name, member_count, guild.id])
-            people_count += member_count
+            guilds_data.append([guild.name, guild.member_count, guild.id])
+            people_count += guild.member_count
             server_count += 1
 
         with open('servers.csv', 'w') as csvfile:
