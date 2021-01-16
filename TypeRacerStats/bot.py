@@ -37,7 +37,7 @@ async def on_ready():
 async def on_guild_join(guild):
     guilds = bot.guilds
     server_count = len(guilds)
-    people_count = sum([i.member_count for i in guilds])
+    people_count = sum([guild.member_count if guild.member_count else 0 for guild in guilds])
     await eugene.send(embed = discord.Embed(color = discord.Color(0),
                                             title = f"Joined \"{guild.name}\"",
                                             description = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers"))
@@ -50,7 +50,7 @@ async def on_guild_join(guild):
 async def on_guild_remove(guild):
     guilds = bot.guilds
     server_count = len(guilds)
-    people_count = sum([i.member_count for i in guilds])
+    people_count = sum([guild.member_count if guild.member_count else 0 for guild in guilds])
     await eugene.send(embed = discord.Embed(color = discord.Color(0),
                                             title = f"Left \"{guild.name}\"",
                                             description = f"Serving {f'{people_count:,}'} people in {f'{server_count:,}'} servers"))
