@@ -180,6 +180,7 @@ class TypeRacerOnly(commands.Cog):
         for main, sub_accounts in self.records_information['accounts'].items():
             for sub_account in sub_accounts:
                 self.accounts.update({sub_account: main})
+            self.accounts.update({main: main})
 
         self.countries = self.records_information['countries']
         self.last_updated = datetime.datetime.utcnow().strftime('%B %-d, %Y, %X %p')
@@ -496,6 +497,8 @@ class TypeRacerOnly(commands.Cog):
         }
 
     def get_flag(self, user):
+        user = self.normalize_user(user)
+
         try:
             flag = f":flag_{self.countries[user]}:"
         except KeyError:
@@ -504,6 +507,8 @@ class TypeRacerOnly(commands.Cog):
         return flag
 
     def tally(self, user):
+        user = self.normalize_user(user)
+
         try:
             self.user_tally[user] += 1
         except KeyError:
@@ -514,6 +519,12 @@ class TypeRacerOnly(commands.Cog):
             self.country_tally[country] += 1
         except KeyError:
             self.country_tally[country] = 1
+
+    def normalize_user(self, user):
+        try:
+            return self.accounts[user]
+        except KeyError:
+            return user
 
 def setup(bot):
     bot.add_cog(TypeRacerOnly(bot))
