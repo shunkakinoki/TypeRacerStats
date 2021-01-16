@@ -79,6 +79,7 @@ class Help(commands.Cog):
 
     def create_invite_embed(self):
         guilds = self.bot.guilds
+        print(self.bot.guilds)
         server_count = len(guilds)
         people_count = sum([i.member_count for i in guilds])
 
