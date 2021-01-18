@@ -260,9 +260,9 @@ class TypeRacerOnly(commands.Cog):
         c = conn.cursor()
 
         for user in all_time_leaders:
+            medals = {1: 0, 2: 0, 3: 0}
             try:
                 response = (await fetch([url_constructor.user(user, 'play')], 'text'))[0]
-                medals = {1: 0, 2: 0, 3: 0}
                 soup = BeautifulSoup(response, 'html.parser')
 
                 rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
