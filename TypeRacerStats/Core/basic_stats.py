@@ -55,6 +55,7 @@ class BasicStats(commands.Cog):
 
         country = f":flag_{user_api['country']}: " if user_api['country'] else ''
         name = user_api['name'] if user_api['name'] else ''
+        name += ' ' if user_api['name'] and user_api['lastName'] else ''
         name += user_api['lastName'] if user_api['lastName'] else ''
         premium = 'Premium' if user_api['premium'] else 'Basic'
         try:
