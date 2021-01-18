@@ -267,6 +267,7 @@ class TypeRacerOnly(commands.Cog):
 
                 rows = soup.select("table[class='personalInfoTable']")[0].select('tr')
 
+                medal_html_objects = None
                 for row in rows:
                     cells = row.select('td')
                     if len(cells) < 2: continue
@@ -274,8 +275,9 @@ class TypeRacerOnly(commands.Cog):
                         medal_html_objects = cells[1].select('a')
                         break
 
-                for medal in medal_html_objects:
-                    medals[int(medal.select('img')[0]['title'][0])] += 1
+                if medal_html_objects:
+                    for medal in medal_html_objects:
+                        medals[int(medal.select('img')[0]['title'][0])] += 1
 
                 if escape_sequence(user):
                     raise FileNotFoundError
