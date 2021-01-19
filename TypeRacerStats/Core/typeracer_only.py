@@ -74,7 +74,7 @@ class TypeRacerOnly(commands.Cog):
                                            embed = embed)
                 return
 
-        if not ({'how', 'dark', 'mode'} - set(message_content_lower.split(' '))):
+        if not ({'how', 'dark', 'mode'} - set(re.findall('[a-z0-9]+', message_content_lower))):
             print('t')
             embed = discord.Embed(title = 'FAQ: How do I get dark mode on TypeRacer?',
                                   color = discord.Color(0),
