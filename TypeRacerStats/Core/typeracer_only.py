@@ -47,7 +47,7 @@ class TypeRacerOnly(commands.Cog):
         if message.author.id == self.bot.user.id:
             return
 
-        if message.guild.id != 742266694340182047:#175964903033667585: #TypeRacer Discord guild ID
+        if message.guild.id != 175964903033667585: #TypeRacer Discord guild ID
             return
 
         message_content_lower = message.content.lower()
