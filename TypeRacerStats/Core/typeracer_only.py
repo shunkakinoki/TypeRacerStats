@@ -44,13 +44,20 @@ class TypeRacerOnly(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message):
-        if message.channel.id != 746460695670816798: #typeracer-stats in TypeRacer main server
+        if message.author.id == self.bot.user.id:
             return
-        if 't!tg train' in message.content:
+
+        if message.guild.id != 742266694340182047:#175964903033667585: #TypeRacer Discord guild ID
+            return
+
+        message_content_lower = message.content.lower()
+
+        if 't!tg train' in message_content_lower:
+            if message.channel.id != 746460695670816798: #typeracer-stats in TypeRacer main server
+                return
             if message.author.id == 476016555981930526: #pasta's Discord ID
                 await message.channel.send(content = f"<@{message.author.id}>, this is NOT bot usage.")
-            elif message.author.id == 742267194443956334: #TypeRacerStat's Discord ID
-                await message.channel.send(content = '<a:pasta_200_iq_patch:794905370011107328>')
+                return
             else:
                 embed = discord.Embed(title = 'Training Success!',
                                       color = discord.Color(0x4B9F6C),
@@ -65,6 +72,27 @@ class TypeRacerOnly(commands.Cog):
                                                       '** ] • **`1`<a:mail_new_small:791710454946857001>'
                                                       '`2`<a:dice:791710772984021013>'),
                                            embed = embed)
+                return
+
+        if not ({'how', 'dark', 'mode'} - set(message_content_lower.split(' '))):
+            print('t')
+            embed = discord.Embed(title = 'FAQ: How do I get dark mode on TypeRacer?',
+                                  color = discord.Color(0),
+                                  description = ('With the Chrome extension ["Stylus"]'
+                                                 '(https://chrome.google.com/webstore/detail/stylus/clngdbkpkpeebahjckkjfobafhncgmne?hl=en), '
+                                                 'any theme can be applied to any website. '
+                                                 'If you know the basics of `css`, you can create your own theme. '
+                                                 'If you do not, you can browse [themes created by the community]'
+                                                 '(https://userstyles.org/styles/browse/typeracer). '
+                                                 'The most popular ones for TypeRacer are '
+                                                 '[TypeRacer modern dark]'
+                                                 '(https://userstyles.org/styles/140579/typeracer-modern-dark) '
+                                                 'and [TypeRacer modern dark by Hysteria]'
+                                                 '(https://userstyles.org/styles/164591/typeracer-modern-dark-by-hysteria).'))
+
+            await message.channel.send(content = f"<@{message.author.id}>",
+                                       embed = embed)
+            return
 
         return
 
