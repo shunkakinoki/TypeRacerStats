@@ -74,12 +74,14 @@ class TypeRacerOnly(commands.Cog):
                                            embed = embed)
                 return
 
-        if not ({'how', 'dark', 'mode'} - set(re.findall('[a-z0-9]+', message_content_lower))):
-            print('t')
+        words_set = set(re.findall('[a-z0-9]+', message_content_lower))
+
+        if not ({'how', 'dark', 'mode'} - words_set):
             embed = discord.Embed(title = 'FAQ: How do I get dark mode on TypeRacer?',
                                   color = discord.Color(0),
-                                  description = ('With the Chrome extension ["Stylus"]'
-                                                 '(https://chrome.google.com/webstore/detail/stylus/clngdbkpkpeebahjckkjfobafhncgmne?hl=en), '
+                                  description = ('_By: Keegan_\n\n'
+                                                 'With the Chrome extension "[Stylus]'
+                                                 '(https://chrome.google.com/webstore/detail/stylus/clngdbkpkpeebahjckkjfobafhncgmne?hl=en)," '
                                                  'any theme can be applied to any website. '
                                                  'If you know the basics of `css`, you can create your own theme. '
                                                  'If you do not, you can browse [themes created by the community]'
@@ -89,6 +91,46 @@ class TypeRacerOnly(commands.Cog):
                                                  '(https://userstyles.org/styles/140579/typeracer-modern-dark) '
                                                  'and [TypeRacer modern dark by Hysteria]'
                                                  '(https://userstyles.org/styles/164591/typeracer-modern-dark-by-hysteria).'))
+
+            await message.channel.send(content = f"<@{message.author.id}>",
+                                       embed = embed)
+            return
+
+        if not ({'show', 'unlagged'} - words_set) or not ({'show', 'adjusted'} - words_set):
+            embed = discord.Embed(title = 'FAQ: How do I get unlagged/adjusted WPM to show?',
+                                  color = discord.Color(0),
+                                  description = ('_By: Poem_\n\n'
+                                                 'To install, ```'
+                                                 'Get Tampermonkey from the Chrome Web store. '
+                                                 'Click on one of the GitHub links below to access the code, '
+                                                 'then `ctrl + a` and `ctrl + c` copy everything. '
+                                                 'Click on the Tampermonkey icon in Chrome at the top right corner, '
+                                                 'then "Dashboard," then "⊞" to create a new script. '
+                                                 'Finally, replace the contents of that new script with the code, '
+                                                 'and press file > save. You\'re set!```'))
+            embed.add_field(name = 'Adjusted Speed (including on Race End pages), Text Difficulty',
+                            value = ('[__`Script`__]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/adjusted_speed.js)\n'
+                                     '[Information on the "difficulty" in this script.]'
+                                     '(http://bit.ly/typeracertextdifficulty)\n\n'
+                                     '_Warning 1: this script **replaces** the previous \'adjusted speed calculator\' script—'
+                                     'Make sure to delete the old version._\n'
+                                     '*Warning 2: this version is this version is reportedly unstable on Firefox—'
+                                     'working on it. In the meantime, Firefox users may use the [older version]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/d_tr-p.js).*'),
+                            inline = False)
+            embed.add_field(name = 'Unlagged Scores and Top 10s in an Off-Window',
+                            value = ('[__`Script`__]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/officiator.js)'),
+                            inline = False)
+            embed.add_field(name = 'Exact Last 10 Average',
+                            value = ('[__`Script`__]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/better-info-box.js)'),
+                            inline = False)
+            embed.add_field(name = 'Awards Organizer',
+                            value = ('[__`Script`__]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/d_tr-a.js)'),
+                            inline = False)
 
             await message.channel.send(content = f"<@{message.author.id}>",
                                        embed = embed)
