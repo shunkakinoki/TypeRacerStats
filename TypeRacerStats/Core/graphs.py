@@ -461,7 +461,7 @@ class Graphs(commands.Cog):
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
                     race_api_response = race_api_response[0][0]
-                    replay_url = Urls().result(args[0], last_race, universe)
+                    replay_url = Urls().result(player, last_race, universe)
                     urls = [replay_url]
                 except:
                     await ctx.send(content = f"<@{user_id}>",
@@ -473,7 +473,8 @@ class Graphs(commands.Cog):
 
         elif len(args) == 2:
             try:
-                replay_url = Urls().result(args[0], int(args[1]), universe)
+                player = args[0].lower()
+                replay_url = Urls().result(player, int(args[1]), universe)
                 urls = [replay_url]
             except ValueError:
                 await ctx.send(content = f"<@{user_id}>",

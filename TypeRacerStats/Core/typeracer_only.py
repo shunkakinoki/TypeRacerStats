@@ -136,6 +136,18 @@ class TypeRacerOnly(commands.Cog):
                                        embed = embed)
             return
 
+        if not ({'what', 'are', 'points'} - words_set):
+            embed = discord.Embed(title = 'FAQ: What are points?',
+                                  color = discord.Color(0),
+                                  description = ('Points are an arbitrary measure of a user\'s speed and amount played. '
+                                                 'You receive these simply by playing the game: '
+                                                 'After each race, you will receive `(words per second) • (number of words)` points. '
+                                                 'There is no functionality to points other than to serve as a statistic/measure.'))
+
+            await message.channel.send(content = f"<@{message.author.id}>",
+                                       embed = embed)
+            return
+
         return
 
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
