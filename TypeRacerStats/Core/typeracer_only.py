@@ -119,6 +119,11 @@ class TypeRacerOnly(commands.Cog):
                                      'working on it. In the meantime, Firefox users may use the [older version]'
                                      '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/d_tr-p.js).*'),
                             inline = False)
+            embed.add_field(name = 'Unlagged Scores and Top 10s in an Off-Window',
+                            value = ('[__`Script`__]'
+                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/officiator.js)\n\n'
+                                     '_Warning: these scripts will only work for the \'Classic Theme\' on TypeRacer._'),
+                            inline = False)
             embed.add_field(name = 'Exact Last 10 Average',
                             value = ('[__`Script`__]'
                                      '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/better-info-box.js)'),
@@ -127,7 +132,6 @@ class TypeRacerOnly(commands.Cog):
                             value = ('[__`Script`__]'
                                      '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/d_tr-a.js)'),
                             inline = False)
-            embed.set_footer(text = 'Note: These scripts will only work for the \'Classic Theme\' on TypeRacer.')
 
             await message.channel.send(content = f"<@{message.author.id}>",
                                        embed = embed)
