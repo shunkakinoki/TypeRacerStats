@@ -148,7 +148,7 @@ class TypeRacerOnly(commands.Cog):
                                        embed = embed)
             return
 
-        if not ({'how', 'type', 'fast'} - words_set) or ({'how', 'type', 'faster'} - words_set):
+        if not ({'how', 'type', 'fast'} - words_set) or not ({'how', 'type', 'faster'} - words_set):
             embed = discord.Embed(title = 'FAQ: How do I type faster?',
                                   color = discord.Color(0),
                                   description = ('_By: Izzy_\n\n'
