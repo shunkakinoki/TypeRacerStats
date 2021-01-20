@@ -148,6 +148,16 @@ class TypeRacerOnly(commands.Cog):
                                        embed = embed)
             return
 
+        if not ({'how', 'type', 'fast'} - words_set) or ({'how', 'type', 'faster'} - words_set):
+            embed = discord.Embed(title = 'FAQ: How do I type faster?',
+                                  color = discord.Color(0),
+                                  description = ('_By: Izzy_\n\n'
+                                                 'Type the words faster in the right order.'))
+
+            await message.channel.send(content = f"<@{message.author.id}>",
+                                       embed = embed)
+            return
+
         return
 
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
