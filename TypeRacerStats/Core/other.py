@@ -319,7 +319,7 @@ class Other(commands.Cog):
             value, count = '', 0
             for i, cmd in enumerate(user_data):
                 count += cmd[1]
-                if i <= 5:
+                if i < 10:
                     cmds = i + 1
                     value += f"**{cmds}.** `{cmd[0]}` - {f'{cmd[1]:,}'}\n"
 
