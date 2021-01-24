@@ -251,7 +251,7 @@
                     }
                 ]
             },
-            "aliases": ["ag"],
+            "aliases": ["ag", "ag*", "adjustedgraph*"],
             "linked": true
         },
         {
@@ -272,7 +272,7 @@
                     }
                 ]
             },
-            "aliases": ["mg"],
+            "aliases": ["mg", "mg*", "matchgraph*"],
             "linked": true
         },
         {

@@ -565,18 +565,24 @@ class Graphs(commands.Cog):
 
         description = f"**Quote**\n\"{race_text[0:1008]}\""
 
+        text_length = len(race_text) > 9
+
         ax = plt.subplots()[1]
         if ag:
             ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
         else:
-            value, i = '', 0
+            value, i, starts, remaining = '', 0, [], []
             for name, data_y in data.items():
-                ax.plot([i for i in range(1, len(data_y[0]) + 1)], data_y[0], label = name)
+                wpm_ = data_y[0]
+                if text_length:
+                    starts += wpm_[0:9]
+                    remaining += wpm_[9:]
+                ax.plot([i for i in range(1, len(wpm_) + 1)], wpm_, label = name)
                 value += (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
                           f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
                 i += 1
             if len(data) > 1:
-                plt.tight_layout(rect=[0.02,0.02,0.75,0.92])
+                plt.tight_layout(rect = [0.02,0.02,0.75,0.92])
                 ax.legend(loc = 'upper left', bbox_to_anchor = (1.03, 1), shadow = True, ncol = 1)
 
         ax.set_title(title)
@@ -585,13 +591,21 @@ class Graphs(commands.Cog):
         plt.grid(True)
         file_name = 'WPM Over Race.png'
 
+        embed = discord.Embed(title = title_1, color = discord.Color(MAIN_COLOR), description = description, url = replay_url)
+        if text_length:
+            max_starts, max_remaining = max(starts), max(remaining)
+            messed_up_scaled = max_starts > max_remaining
+            if messed_up_scaled:
+                if ctx.invoked_with[-1] != '*':
+                    ax.set_ylim(0, 1.05 * max_remaining)
+                    embed.set_footer(text = f"The `y`-axis has been scaled; run `{ctx.invoked_with}*` to see the entire graph")
+
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False)
         plt.savefig(file_name, facecolor = ax.figure.get_facecolor())
         plt.close()
 
         file_ = discord.File(file_name, filename = 'image.png')
-        embed = discord.Embed(title = title_1, color = discord.Color(MAIN_COLOR), description = description, url = replay_url)
         embed.set_image(url = 'attachment://image.png')
         if mg:
             embed.add_field(name = 'Ranks (ranked by unlagged WPM)', value = value[:-1])
