@@ -280,6 +280,11 @@ class Supporter(commands.Cog):
     @commands.check(lambda ctx: str(ctx.message.author.id) in list(load_supporters().keys()) \
                                 and int(load_supporters()[str(ctx.message.author.id)]['tier']) >= 1 and check_banned_status(ctx))
     async def echo(self, ctx, *, args):
+        try:
+            await ctx.message.delete()
+        except:
+            pass
+
         if ctx.message.author.id == 476016555981930526 and 't!tg train' in ctx.message.content: #pasta's Discord ID
             await ctx.send('<a:pasta_200_iq_patch:794905370011107328>')
             return
