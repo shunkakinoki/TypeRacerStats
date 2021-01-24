@@ -110,14 +110,12 @@ class TypeRacerOnly(commands.Cog):
                                                  'and press file > save. You\'re set!```'))
             embed.add_field(name = 'Adjusted Speed (including on Race End pages), Text Difficulty',
                             value = ('[__`Script`__]'
-                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/adjusted_speed.js)\n'
+                                     '(https://github.com/PoemOnTyperacer/tampermonkey/raw/master/adjusted_speed.user.js) - '
+                                     'Thanks to **ph0t0shop#6788** for help implementing various changes such as cross-browser support!\n'
                                      '[Information on the "difficulty" in this script.]'
                                      '(http://bit.ly/typeracertextdifficulty)\n\n'
                                      '_Warning 1: this script **replaces** the previous \'adjusted speed calculator\' script—'
-                                     'Make sure to delete the old version._\n'
-                                     '*Warning 2: this version is this version is reportedly unstable on Firefox—'
-                                     'working on it. In the meantime, Firefox users may use the [older version]'
-                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/d_tr-p.js).*'),
+                                     'Make sure to delete the old version._'),
                             inline = False)
             embed.add_field(name = 'Unlagged Scores and Top 10s in an Off-Window',
                             value = ('[__`Script`__]'
