@@ -569,6 +569,9 @@ class Graphs(commands.Cog):
 
         ax = plt.subplots()[1]
         if ag:
+            if text_length:
+                starts = data_y[0:9]
+                remaining = data_y[9:]
             ax.plot([i for i in range(1, len(data_y) + 1)], data_y)
         else:
             value, i, starts, remaining = '', 0, [], []
