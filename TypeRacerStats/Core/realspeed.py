@@ -173,10 +173,12 @@ class RealSpeed(commands.Cog):
             value = ''
             players = sorted(players, key = lambda x: x[3], reverse = True)
             for i, player in enumerate(players):
-                value += (f"{NUMBERS[i]} "
-                          f"[{player[0]}]({player[1]}) - "
-                          f"{player[3]} unlagged WPM / "
-                          f"{player[4]} adjusted WPM\n")
+                segment = (f"{NUMBERS[i]} "
+                           f"[{player[0]}]({player[1]}) - "
+                           f"{player[3]} unlagged WPM / "
+                           f"{player[4]} adjusted WPM\n")
+                if len(value + segment) > 1024: break
+                value += segment
             value = value[:-1]
             embed.add_field(name = 'Ranks (ranked by unlagged WPM)',
                             value = value,

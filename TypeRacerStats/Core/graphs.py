@@ -581,8 +581,10 @@ class Graphs(commands.Cog):
                     starts += wpm_[0:9]
                     remaining += wpm_[9:]
                 ax.plot([i for i in range(1, len(wpm_) + 1)], wpm_, label = name)
-                value += (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
-                          f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
+                segment = (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
+                           f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
+                if len(value + segment) <= 1024:
+                    value += segment
                 i += 1
             if len(data) > 1:
                 plt.tight_layout(rect = [0.02,0.02,0.75,0.92])
