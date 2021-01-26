@@ -14,6 +14,7 @@ from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import scrape_text
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
 from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.utility import predicate
 
 class Texts(commands.Cog):
     def __init__(self, bot):
@@ -96,7 +97,7 @@ class Texts(commands.Cog):
         action = ctx.send
         time_ = time.time()
 
-        while time.time() - time_ < 20 and embed_count > 1:
+        while time.time() - time_ < 5 and embed_count > 1:
             res = await action(embed = messages[index])
             if res:
                 msg = res
@@ -226,17 +227,6 @@ class Texts(commands.Cog):
                        embed = Error(ctx, ctx.message)
                                .incorrect_format(f"{tid} is not a valid text ID"))
         return
-
-def predicate(message, l, r, user_id):
-    def check(reaction, user):
-        if reaction.message.id != message.id or user.id != user_id:
-            return False
-        if l and reaction.emoji == '◀️':
-            return True
-        if r and reaction.emoji == '▶️':
-            return True
-        return False
-    return check
 
 def setup(bot):
     bot.add_cog(Texts(bot))

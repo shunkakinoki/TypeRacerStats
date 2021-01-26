@@ -634,7 +634,19 @@ class Supporter(commands.Cog):
         ascii_art += '```'
 
         os.remove('eugene.png')
-        await ctx.send(ascii_art)
+        message = await ctx.send(ascii_art)
+        await message.add_reaction('🗑️')
+
+        def check(reaction, user):
+            return str(reaction.emoji) == '🗑️' and\
+                   reaction.message.id == message.id and\
+                   user.id == ctx.message.author.id
+
+        try:
+            await self.bot.wait_for('reaction_add', check = check, timeout = 10)
+            await message.delete()
+        except:
+            await message.remove_reaction('🗑️', self.bot.user)
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dessle'))
