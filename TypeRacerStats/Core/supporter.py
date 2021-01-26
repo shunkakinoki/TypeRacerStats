@@ -2,6 +2,7 @@ import csv
 import datetime
 import json
 import os
+from PIL import Image, ImageEnhance
 import random
 import re
 import sqlite3
@@ -570,6 +571,7 @@ class Supporter(commands.Cog):
         return
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.cooldown(1, 60, commands.BucketType.default)
     @commands.command(aliases = get_aliases('eugene'))
     async def eugene(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -578,10 +580,61 @@ class Supporter(commands.Cog):
         if len(args) > 0:
             return
 
-        await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
-                                             description = (datetime.datetime.utcnow() +\
-                                                            datetime.timedelta(hours = 9))
-                                                            .strftime("%B %-d, %Y, %-I:%M:%S %p")))
+        if not len(ctx.message.attachments):
+            await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                                 description = (datetime.datetime.utcnow() +\
+                                                                 datetime.timedelta(hours = 9))
+                                                                 .strftime("%B %-d, %Y, %-I:%M:%S %p")))
+            return
+
+        attached_file = ctx.message.attachments[0]
+
+        if not attached_file.url.endswith('png'):
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Uploaded image must be **.png** file'))
+            return
+
+        height = attached_file.height
+        width = attached_file.width
+        size = attached_file.size
+
+        if height > 1024 or width > 1024 or size > 1_572_864:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Uploaded image must be at most 1024px in width, 1024px in height, and 1.5MB in size.'))
+            return
+
+        image_information = await ctx.message.attachments[0].save(fp = 'eugene.png')
+        rgb_im = ImageEnhance.Contrast(Image.open('eugene.png').convert('RGB')).enhance(3)
+        ascii_shades = """@%#*+=-:. """
+        num_shades = len(ascii_shades)
+        x = int((3900 * width / height) ** 0.5)
+        y = int((3900 * height / width) ** 0.5 / 2)
+        pixel_search_size = int(width / x)
+        total_shade = 1_530 * pixel_search_size ** 2
+
+        ascii_art = '```'
+
+        cur_y = 0
+        while cur_y < y:
+            cur_x = 0
+            while cur_x < x:
+                cur_shade = 0
+                for x_ in range(pixel_search_size):
+                    for y_ in range(pixel_search_size * 2):
+                        cur_pixel = rgb_im.getpixel((cur_x * pixel_search_size + x_,
+                                                     2 * cur_y * pixel_search_size + y_))
+                        cur_shade += sum(cur_pixel)
+                normalized_shade = min(cur_shade / total_shade, 0.99)
+                ascii_art += ascii_shades[int(num_shades * normalized_shade)]
+                cur_x += 1
+            ascii_art += '\n'
+            cur_y += 1
+        ascii_art += '```'
+
+        os.remove('eugene.png')
+        await ctx.send(ascii_art)
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('dessle'))
