@@ -640,7 +640,7 @@ class Supporter(commands.Cog):
         def check(reaction, user):
             return str(reaction.emoji) == '🗑️' and\
                    reaction.message.id == message.id and\
-                   user.id == ctx.message.author.id
+                   (user.id == ctx.message.author.id or user.id in BOT_ADMIN_IDS)
 
         try:
             await self.bot.wait_for('reaction_add', check = check, timeout = 10)
