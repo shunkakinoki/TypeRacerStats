@@ -16,8 +16,25 @@ class ManageModules(commands.Cog):
 
     @commands.command()
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    async def list_modules(self, ctx):
+        modules = ''
+        for filename in os.listdir('TypeRacerStats/Core'):
+            if filename.endswith('.py') and filename != '__init__.py':
+                modules += f"**{filename[:-3]}**\n"
+
+        await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                             description = modules))
+        return
+
+    @commands.command()
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def load(self, ctx, extension):
-        self.bot.load_extension(f"Core.{extension}")
+        try:
+            self.bot.load_extension(f"Core.{extension}")
+        except commands.errors.ExtensionNotFound:
+            await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                                 description = f"**{extension}** module not found."))
+            return
 
         await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
                                              description = f"**{extension}** module loaded."))
@@ -25,7 +42,17 @@ class ManageModules(commands.Cog):
     @commands.command()
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def unload(self, ctx, extension):
-        self.bot.unload_extension(f"Core.{extension}")
+        if extension == 'manage_modules':
+            await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                                 description = f"**{extension}** module can not be unloaded."))
+            return
+
+        try:
+            self.bot.unload_extension(f"Core.{extension}")
+        except commands.errors.ExtensionNotFound:
+            await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                                 description = f"**{extension}** module was never loaded."))
+            return
 
         await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
                                              description = f"**{extension}** module unloaded."))
@@ -33,8 +60,17 @@ class ManageModules(commands.Cog):
     @commands.command()
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
     async def reload(self, ctx, extension):
-        self.bot.unload_extension(f"Core.{extension}")
-        self.bot.load_extension(f"Core.{extension}")
+        try:
+            self.bot.unload_extension(f"Core.{extension}")
+            self.bot.load_extension(f"Core.{extension}")
+        except commands.errors.ExtensionNotFound:
+            await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                                 description = f"**{extension}** module not found."))
+            return
+        except commands.errors.ExtensionNotLoaded:
+            await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
+                                                 description = f"**{extension}** module was never loaded."))
+            return
 
         await ctx.send(embed = discord.Embed(color = discord.Color(HELP_BLACK),
                                              description = f"**{extension}** module reloaded."))
