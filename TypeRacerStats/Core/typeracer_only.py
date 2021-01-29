@@ -119,8 +119,7 @@ class TypeRacerOnly(commands.Cog):
                             inline = False)
             embed.add_field(name = 'Unlagged Scores and Top 10s in an Off-Window',
                             value = ('[__`Script`__]'
-                                     '(https://raw.githubusercontent.com/PoemOnTyperacer/tampermonkey/master/officiator.js)\n\n'
-                                     '_Warning: this script will only work for the \'Classic Theme\' on TypeRacer._'),
+                                     '(https://github.com/PoemOnTyperacer/tampermonkey/raw/master/unlagged_scores.user.js)'),
                             inline = False)
             embed.add_field(name = 'Exact Last 10 Average',
                             value = ('[__`Script`__]'

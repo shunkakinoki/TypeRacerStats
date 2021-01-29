@@ -26,6 +26,7 @@ from TypeRacerStats.Core.Common.urls import Urls
 class Supporter(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        self.eugene_message = '`null`'
 
     @commands.command(aliases = ['as'])
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
@@ -577,14 +578,17 @@ class Supporter(commands.Cog):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) > 0:
+        if len(args) > 0 and not user_id == 697048255254495312:
             return
+        elif len(args) > 0:
+            self.eugene_message = ' '.join(ctx.message.content.split(' ')[1:])[:2048]
 
         if not len(ctx.message.attachments):
             await ctx.send(embed = discord.Embed(color = discord.Color(MAIN_COLOR),
-                                                 description = (datetime.datetime.utcnow() +\
-                                                                 datetime.timedelta(hours = 9))
-                                                                 .strftime("%B %-d, %Y, %-I:%M:%S %p")))
+                                                 title = (datetime.datetime.utcnow() +\
+                                                          datetime.timedelta(hours = 9))
+                                                          .strftime("%B %-d, %Y, %-I:%M:%S %p"),
+                                                 description = self.eugene_message))
             return
 
         attached_file = ctx.message.attachments[0]
