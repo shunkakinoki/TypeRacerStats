@@ -257,5 +257,14 @@
                 "url": "https://i.imgur.com/4OGMNX5.png"
             }
         ]
+    },
+    "powerpunch": {
+        "trid": "power_punch",
+        "art": [
+            {
+                "title": "",
+                "url": "https://i.imgur.com/dt5cdAP.png"
+            }
+        ]
     }
 }
