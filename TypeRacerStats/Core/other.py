@@ -1,13 +1,15 @@
 import datetime
 import json
+import os
 import random
 import sqlite3
 import sys
+from cairosvg import svg2png
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
-from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH
+from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH, KEYMAPS_SVG, BLANK_KEYMAP
 from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases, normalized_commands
 from TypeRacerStats.Core.Common.errors import Error
@@ -18,6 +20,8 @@ from TypeRacerStats.Core.Common.urls import Urls
 class Other(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+        with open(KEYMAPS_SVG, 'r') as txtfile:
+            self.svg_start = txtfile.read()
 
     @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases = get_aliases('unixreference'))
@@ -398,6 +402,147 @@ class Other(commands.Cog):
             embed.add_field(**update)
 
         await ctx.send(embed = embed)
+
+    @commands.check(lambda ctx: check_banned_status(ctx))
+    @commands.cooldown(1, 600, commands.BucketType.default)
+    @commands.command(aliases = get_aliases('keymap'))
+    async def keymap(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) != 0:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .parameters(f"{ctx.invoked_with}"))
+            return
+
+        if len(ctx.message.attachments) == 0:
+            embed = discord.Embed(color = discord.Color(MAIN_COLOR),
+                                  description = 'Edit the JSON file with your personal keymap!\n0 for left pinky, 1 for left ring, ..., 9 for right pinky.\nMultiple colors may be inputted.')
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = embed,
+                           file = discord.File(BLANK_KEYMAP, f"keymap_template.json"))
+            return
+
+        with open(BLANK_KEYMAP, 'r') as jsonfile:
+            keymap_template = json.load(jsonfile)
+        try:
+            user_data = json.loads(await ctx.message.attachments[0].read())
+            if user_data.keys() != keymap_template.keys():
+                raise ValueError
+        except json.JSONDecodeError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('The uploaded file is not a properly formatted JSON file'))
+            return
+        except ValueError:
+            await ctx.send(content = f"<@{user_id}>",
+                           embed = Error(ctx, ctx.message)
+                                   .incorrect_format('Please do not modify the labels'))
+            return
+
+        def id_generator():
+            num = 0
+            while True:
+                yield num
+                num += 1
+
+        id_generator = id_generator()
+
+        default_color = '#CCCCCC'
+        colors = [
+            '#EA2027', #Red Pigment
+            '#EE5A24', #Puffins Bill
+            '#F79F1F', #Radiant Yellow
+            '#FFC312', #Sunflower
+            '#C4E538', #Energos
+            '#9980FA', #Forgotten Purple
+            '#12CBC4', #Blue Martina
+            '#1289A7', #Mediterranean Sea
+            '#0652DD', #Merchant Marine Blue
+            '#1B1464'  #20000 Leagues Under the Sea
+        ]
+
+        svg = self.svg_start
+        labels = {}
+        key_colors = {}
+        for key, value in user_data.items():
+            user_colors = sorted(list(set([color for color in value if isinstance(color, int) and (0 <= color and color <= 9)])))
+            if len(user_colors) == 0:
+                fill = default_color
+            elif len(user_colors) == 1:
+                fill = colors[user_colors[0]]
+            else:
+                try:
+                    fill_id = key_colors[''.join([str(i) for i in user_colors])]
+                except KeyError:
+                    fill_id = next(id_generator)
+                    increment_size = 100 / len(user_colors)
+                    lin_gradient = f"""<linearGradient id="{fill_id}" x2="100%" y2="0%">"""
+                    for i, color in enumerate(user_colors):
+                        fill_color = colors[color]
+                        lin_gradient += (
+                            f"""<stop offset="{round(i * increment_size, 2)}%" """
+                            f"""stop-color="{fill_color}"/>"""
+                            f"""<stop offset="{round((i + 1) * increment_size, 2)}%" """
+                            f"""stop-color="{fill_color}"/>"""
+                        )
+                    lin_gradient += '</linearGradient>'
+                    svg += lin_gradient
+                    key_colors.update({
+                        ''.join([str(i) for i in user_colors]): fill_id
+                    })
+                fill = f"url(#{fill_id})"
+            labels.update({key: fill})
+        svg += '</defs>'
+
+        labels = iter(labels.items())
+
+        def return_key(width, x, y):
+            label, fill = next(labels)
+            label = label.split(' ')
+            rect = f'<rect width="{width}" x="{x}" y="{y}" fill="{fill}"/>'
+            if len(label) == 2:
+                rect += f'<text x="{x + width / 2}" y="{y + 14}">{label[0]}</text>'
+                rect += f'<text x="{x + width / 2}" y="{y + 6}">{label[1]}</text>'
+            else:
+                rect += f'<text x="{x + width / 2}" y="{y + 10}">{label[0]}</text>'
+
+            return rect
+
+        for i in range(13):
+            svg += return_key(20, 22 * i, 0)
+        svg += return_key(30, 286, 0)
+        svg += return_key(30, 0, 21)
+        for i in range(13):
+            svg += return_key(20, 32 + 22 * i, 21)
+        svg += return_key(36, 0, 42)
+        for i in range(11):
+            svg += return_key(20, 38 + 22 * i, 42)
+        svg += return_key(36, 280, 42)
+        svg += return_key(47, 0, 63)
+        for i in range(10):
+            svg += return_key(20, 49 + 22 * i, 63)
+        svg += return_key(47, 269, 63)
+        for i in range(3):
+            svg += return_key(20, 22 * i, 84)
+        svg += return_key(25, 66, 84)
+        svg += return_key(108, 93, 84)
+        svg += return_key(25, 203, 84)
+        for i in range(4):
+            svg += return_key(20, 230 + 22 * i, 84)
+
+        legend_labels = ['LP', 'LR', 'LM', 'LI', 'LT', 'RT', 'RI', 'RM', 'RR', 'RP']
+        for i, color in enumerate(colors):
+            svg += f"""<rect width="20" x="{49 + 22 * i}" y="105" fill="{color}"/>"""
+            svg += f"""<text x="{59 + 22 * i}" y="115">{legend_labels[i]}</text>"""
+
+        svg += '</svg>'
+
+        svg2png(bytestring = svg, write_to = 'keymap.png', scale = 10)
+        await ctx.send(file = discord.File('keymap.png', 'keymap.png'))
+        os.remove('keymap.png')
+        return
 
 def setup(bot):
     bot.add_cog(Other(bot))

@@ -1,0 +1,1 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="316" height="125" viewBox="0 0 316 125"><defs><style>rect{height:20px;rx:2.25}text{fill:#fafafa;font-size:4pt;font-family:sans-serif;dominant-baseline:middle;text-anchor:middle;}</style>

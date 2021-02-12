@@ -841,6 +841,18 @@
             },
             "aliases": ["cl", "changelog"],
             "linked": false
+        },
+        {
+            "name": "keymap",
+            "description": "Generates **keymap.png** based on uploaded JSON file; run the command with no arguments to request the file",
+            "speed": "fast",
+            "usage": {
+                "general": "",
+                "example": "",
+                "alt_example": []
+            },
+            "aliases": ["km"],
+            "linked": false
         }
     ],
     "supporter": [
