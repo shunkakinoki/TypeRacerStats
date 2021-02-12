@@ -540,6 +540,7 @@ class Other(commands.Cog):
         svg += '</svg>'
 
         svg2png(bytestring = svg, write_to = 'keymap.png', scale = 10)
+
         await ctx.send(file = discord.File('keymap.png', 'keymap.png'))
         os.remove('keymap.png')
         return
