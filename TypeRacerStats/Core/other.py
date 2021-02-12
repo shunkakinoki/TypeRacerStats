@@ -24,16 +24,19 @@ class Other(commands.Cog):
         with open(KEYMAPS_SVG, 'r') as txtfile:
             self.svg_start = txtfile.read()
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('unixreference'))
     async def unixreference(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) > 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} <timestamp>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx,
+                    ctx.message).parameters(f"{ctx.invoked_with} <timestamp>"))
             return
 
         if len(args) == 0:
@@ -55,63 +58,74 @@ class Other(commands.Cog):
 
         try:
             time = int(args[0])
-            await ctx.send(embed=discord.Embed(color=discord.Color(MAIN_COLOR),
-                                               description=datetime.datetime.fromtimestamp(
-                                                   time)
-                                               .strftime("%B %d, %Y, %-I:%M:%S %p")))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(MAIN_COLOR),
+                description=datetime.datetime.fromtimestamp(time).strftime(
+                    "%B %d, %Y, %-I:%M:%S %p")))
             return
         except ValueError:
             try:
                 scientific_notation_lst = args[0].lower().split('e')
-                await ctx.send(embed=discord.Embed(color=discord.Color(MAIN_COLOR),
-                                                   description=datetime.datetime.fromtimestamp(
-                    float(scientific_notation_lst[0]) * 10 ** (int(scientific_notation_lst[1])))
-                    .strftime("%B %d, %Y, %-I:%M:%S %p")))
+                await ctx.send(embed=discord.Embed(
+                    color=discord.Color(MAIN_COLOR),
+                    description=datetime.datetime.fromtimestamp(
+                        float(scientific_notation_lst[0]) *
+                        10**(int(scientific_notation_lst[1]))).strftime(
+                            "%B %d, %Y, %-I:%M:%S %p")))
                 return
             except:
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format('`timestamp` must be an integer or scientific notation (e.g. 1.0365e9)'))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        '`timestamp` must be an integer or scientific notation (e.g. 1.0365e9)'
+                    ))
                 return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('serverinfo'))
     async def serverinfo(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 0:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with}"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx,
+                            ctx.message).parameters(f"{ctx.invoked_with}"))
             return
 
         embed = discord.Embed(title=f"Server Information for {ctx.guild.name}",
                               color=discord.Color(MAIN_COLOR),
                               description=ctx.guild.description)
         embed.set_thumbnail(url=ctx.guild.icon_url)
-        embed.add_field(name='Stats',
-                        value=(f"**Owner:** <@{ctx.guild.owner_id}>\n"
-                               f"**Region:** {ctx.guild.region}\n"
-                               f"**Created At:** {ctx.guild.created_at}\n"
-                               f"**Member Count:** {f'{ctx.guild.member_count:,}'}\n"
-                               f"**Text Channels:** {f'{len(ctx.guild.text_channels):,}'}\n"
-                               f"**Roles:** {f'{len(ctx.guild.roles):,}'}"))
+        embed.add_field(
+            name='Stats',
+            value=(
+                f"**Owner:** <@{ctx.guild.owner_id}>\n"
+                f"**Region:** {ctx.guild.region}\n"
+                f"**Created At:** {ctx.guild.created_at}\n"
+                f"**Member Count:** {f'{ctx.guild.member_count:,}'}\n"
+                f"**Text Channels:** {f'{len(ctx.guild.text_channels):,}'}\n"
+                f"**Roles:** {f'{len(ctx.guild.roles):,}'}"))
         embed.set_image(url=ctx.guild.banner_url)
 
         await ctx.send(embed=embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('art'))
     async def art(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) > 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} <artist>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx,
+                    ctx.message).parameters(f"{ctx.invoked_with} <artist>"))
             return
 
         with open(ART_JSON, 'r') as jsonfile:
@@ -121,15 +135,17 @@ class Other(commands.Cog):
         if len(args) == 1:
             artist = args[0].lower()
             if artist == '*':
-                await ctx.send(file=discord.File(ART_JSON, f"typeracer_art.json"))
+                await ctx.send(
+                    file=discord.File(ART_JSON, f"typeracer_art.json"))
                 return
             if artist not in artists:
                 artists_ = ''
                 for artist_ in artists:
                     artists_ += f"`{artist_}`, "
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format(f"Must provide a valid artist: {artists_[:-2]}"))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        f"Must provide a valid artist: {artists_[:-2]}"))
                 return
             works, trid = works[artist]['art'], works[artist]['trid']
             work = random.choice(works)
@@ -148,8 +164,7 @@ class Other(commands.Cog):
 
         title = work['title'] if work['title'] else "Untitled"
 
-        embed = discord.Embed(title=title,
-                              color=discord.Color(MAIN_COLOR))
+        embed = discord.Embed(title=title, color=discord.Color(MAIN_COLOR))
         embed.set_author(name=artist,
                          url=Urls().user(trid, 'play'),
                          icon_url=Urls().thumbnail(trid))
@@ -158,16 +173,18 @@ class Other(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('clip'))
     async def clip(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [clip]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [clip]"))
             return
 
         with open(CLIPS_JSON, 'r') as jsonfile:
@@ -185,9 +202,10 @@ class Other(commands.Cog):
                 calls_ = ''
                 for clip_ in calls:
                     calls_ += f"`{clip_}`, "
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format(f"Must provide a valid clip: {calls_[:-2]}"))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        f"Must provide a valid clip: {calls_[:-2]}"))
                 return
 
         await ctx.send(clip_url)
@@ -219,13 +237,17 @@ class Other(commands.Cog):
         if ctx.invoked_with[-1] == '*':
             if len(args) == 0:
                 user_count = len(
-                    c.execute(f"SELECT DISTINCT id FROM {TABLE_KEY}").fetchall())
+                    c.execute(
+                        f"SELECT DISTINCT id FROM {TABLE_KEY}").fetchall())
                 command_count = len(
                     c.execute(f"SELECT * FROM {TABLE_KEY}").fetchall())
 
                 conn.close()
-                await ctx.send(embed=discord.Embed(color=discord.Color(MAIN_COLOR),
-                                                   description=f"**{f'{user_count:,}'}** users have used **{f'{command_count:,}'}** commands"))
+                await ctx.send(embed=discord.Embed(
+                    color=discord.Color(MAIN_COLOR),
+                    description=
+                    f"**{f'{user_count:,}'}** users have used **{f'{command_count:,}'}** commands"
+                ))
                 return
             elif len(args) == 1:
                 command = args[0].lower()
@@ -243,10 +265,12 @@ class Other(commands.Cog):
                         aliases = [command] + get_aliases(command)
                         user_data = []
                         for alias in aliases:
-                            alias_data = c.execute(f"""SELECT name, COUNT(id)
+                            alias_data = c.execute(
+                                f"""SELECT name, COUNT(id)
                                                         FROM
                                                             (SELECT * FROM {TABLE_KEY} WHERE command = ?)
-                                                        GROUP BY id""", (alias,))
+                                                        GROUP BY id""",
+                                (alias, ))
                             user_data += alias_data.fetchall()
                         user_data = combine_aliases(user_data)
                         user_data = [[key, value]
@@ -265,14 +289,17 @@ class Other(commands.Cog):
             value = value[:-1]
 
             if not value:
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format(f"`{command}` is not a command or has never been used"))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        f"`{command}` is not a command or has never been used")
+                )
                 return
 
-            embed = discord.Embed(title=f"Bot Usage Leaderboard (`{command}` command)",
-                                  color=discord.Color(MAIN_COLOR),
-                                  description=value)
+            embed = discord.Embed(
+                title=f"Bot Usage Leaderboard (`{command}` command)",
+                color=discord.Color(MAIN_COLOR),
+                description=value)
 
             embed.set_footer(text='Since December 24, 2020')
             await ctx.send(embed=embed)
@@ -280,15 +307,16 @@ class Other(commands.Cog):
 
         if len(args) > 1:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} <discord_id>"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} <discord_id>"))
             return
 
         if len(args) == 0:
             user_data = c.execute(f"""SELECT name, COUNT(id)
                                       FROM {TABLE_KEY}
                                       GROUP BY id
-                                      ORDER BY COUNT(id) DESC LIMIT 10""").fetchall()
+                                      ORDER BY COUNT(id) DESC LIMIT 10"""
+                                  ).fetchall()
             conn.close()
 
             value = ''
@@ -300,7 +328,7 @@ class Other(commands.Cog):
                                   color=discord.Color(MAIN_COLOR),
                                   description=value)
         else:
-            args = (args[0].strip('<@!').strip('>'),)
+            args = (args[0].strip('<@!').strip('>'), )
             try:
                 if len(args[0]) > 18:
                     raise ValueError
@@ -309,23 +337,27 @@ class Other(commands.Cog):
                     raise ValueError
             except ValueError:
                 await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format(f"**{args[0]}** is not a valid Discord ID"))
+                               embed=Error(ctx, ctx.message).incorrect_format(
+                                   f"**{args[0]}** is not a valid Discord ID"))
                 return
 
             user_data = []
-            users_cmd_data = c.execute(f"""SELECT command, COUNT(command), name
+            users_cmd_data = c.execute(
+                f"""SELECT command, COUNT(command), name
                                           FROM
                                             (SELECT * FROM {TABLE_KEY} WHERE ID = ?)
-                                          GROUP BY command""", (id_,)).fetchall()
+                                          GROUP BY command""",
+                (id_, )).fetchall()
             conn.close()
             if users_cmd_data:
                 name = users_cmd_data[-1][2]
             else:
                 name = id_
             user_data = combine_aliases(users_cmd_data)
-            user_data = sorted([[key, value] for key, value in user_data.items(
-            )], key=lambda x: x[1], reverse=True)
+            user_data = sorted([[key, value]
+                                for key, value in user_data.items()],
+                               key=lambda x: x[1],
+                               reverse=True)
             title = f"Bot Statistics for {name}"
 
             value, count = '', 0
@@ -335,12 +367,12 @@ class Other(commands.Cog):
                     cmds = i + 1
                     value += f"**{cmds}.** `{cmd[0]}` - {f'{cmd[1]:,}'}\n"
 
-            embed = discord.Embed(title=title,
-                                  color=discord.Color(MAIN_COLOR),
-                                  description=f"**Used:** {f'{count:,}'} times")
+            embed = discord.Embed(
+                title=title,
+                color=discord.Color(MAIN_COLOR),
+                description=f"**Used:** {f'{count:,}'} times")
             if value:
-                embed.add_field(name=f"Top {cmds} Most Used",
-                                value=value)
+                embed.add_field(name=f"Top {cmds} Most Used", value=value)
 
         embed.set_footer(text='Since December 24, 2020')
         await ctx.send(embed=embed)
@@ -361,23 +393,28 @@ class Other(commands.Cog):
                 try:
                     updated_file_raw = ctx.message.attachments[0]
                 except IndexError:
-                    await ctx.send(content=f"<@{user_id}>",
-                                   embed=Error(ctx, ctx.message)
-                                   .incorrect_format('Please upload a file and comment the command call'))
+                    await ctx.send(
+                        content=f"<@{user_id}>",
+                        embed=Error(ctx, ctx.message).incorrect_format(
+                            'Please upload a file and comment the command call'
+                        ))
                     return
 
                 try:
                     updated_file = json.loads(await updated_file_raw.read())
                 except json.JSONDecodeError:
-                    await ctx.send(content=f"<@{user_id}>",
-                                   embed=Error(ctx, ctx.message)
-                                   .incorrect_format('The uploaded file is not a properly formatted JSON file'))
+                    await ctx.send(
+                        content=f"<@{user_id}>",
+                        embed=Error(ctx, ctx.message).incorrect_format(
+                            'The uploaded file is not a properly formatted JSON file'
+                        ))
                     return
 
                 with open(CHANGELOG, 'w') as jsonfile:
                     json.dump(updated_file, jsonfile, indent=4)
 
-                await ctx.send(embed=discord.Embed(title='Records Updated', color=discord.Color(0)))
+                await ctx.send(embed=discord.Embed(title='Records Updated',
+                                                   color=discord.Color(0)))
                 return
 
         with open(CHANGELOG, 'r') as jsonfile:
@@ -422,17 +459,22 @@ class Other(commands.Cog):
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) != 0:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with}"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx,
+                            ctx.message).parameters(f"{ctx.invoked_with}"))
             return
 
         if len(ctx.message.attachments) == 0:
-            embed = discord.Embed(color=discord.Color(MAIN_COLOR),
-                                  description='Edit the JSON file with your personal keymap!\n0 for left pinky, 1 for left ring, ..., 9 for right pinky.\nMultiple colors may be inputted.')
+            embed = discord.Embed(
+                color=discord.Color(MAIN_COLOR),
+                description=
+                'Edit the JSON file with your personal keymap!\n0 for left pinky, 1 for left ring, ..., 9 for right pinky.\nMultiple colors may be inputted.'
+            )
             await ctx.send(content=f"<@{user_id}>",
                            embed=embed,
-                           file=discord.File(BLANK_KEYMAP, f"keymap_template.json"))
+                           file=discord.File(BLANK_KEYMAP,
+                                             f"keymap_template.json"))
             return
 
         with open(BLANK_KEYMAP, 'r') as jsonfile:
@@ -442,14 +484,15 @@ class Other(commands.Cog):
             if user_data.keys() != keymap_template.keys():
                 raise ValueError
         except json.JSONDecodeError:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('The uploaded file is not a properly formatted JSON file'))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).incorrect_format(
+                    'The uploaded file is not a properly formatted JSON file'))
             return
         except ValueError:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('Please do not modify the labels'))
+                           embed=Error(ctx, ctx.message).incorrect_format(
+                               'Please do not modify the labels'))
             return
 
         def id_generator():
@@ -462,32 +505,29 @@ class Other(commands.Cog):
 
         default_color = '#474448'
         colors = [
-            '#ffadad',
-            '#ffd6a5',
-            '#fdffb6',
-            '#caffbf',
-            '#9bf6ff',
-            '#a0c4ff',
-            '#bdb2ff',
-            '#ffc6ff',
-            '#d7e3fc',
-            '#fffffc'
+            '#ffadad', '#ffd6a5', '#fdffb6', '#caffbf', '#9bf6ff', '#a0c4ff',
+            '#bdb2ff', '#ffc6ff', '#d7e3fc', '#fffffc'
         ]
 
         svg = self.svg_start
         labels = {}
         key_colors = {}
         for key, value in user_data.items():
-            user_colors = sorted(list(set([color for color in value if isinstance(
-                color, int) and (0 <= color and color <= 9)])))
+            user_colors = sorted(
+                list(
+                    set([
+                        color for color in value
+                        if isinstance(color, int) and (
+                            0 <= color and color <= 9)
+                    ])))
             if len(user_colors) == 0:
                 fill = default_color
             elif len(user_colors) == 1:
                 fill = colors[user_colors[0]]
             else:
                 try:
-                    fill_id = key_colors[''.join(
-                        [str(i) for i in user_colors])]
+                    fill_id = key_colors[''.join([str(i)
+                                                  for i in user_colors])]
                 except KeyError:
                     fill_id = next(id_generator)
                     increment_size = 100 / len(user_colors)
@@ -498,13 +538,11 @@ class Other(commands.Cog):
                             f"""<stop offset="{round(i * increment_size, 2)}%" """
                             f"""stop-color="{fill_color}"/>"""
                             f"""<stop offset="{round((i + 1) * increment_size, 2)}%" """
-                            f"""stop-color="{fill_color}"/>"""
-                        )
+                            f"""stop-color="{fill_color}"/>""")
                     lin_gradient += '</linearGradient>'
                     svg += lin_gradient
-                    key_colors.update({
-                        ''.join([str(i) for i in user_colors]): fill_id
-                    })
+                    key_colors.update(
+                        {''.join([str(i) for i in user_colors]): fill_id})
                 fill = f"url(#{fill_id})"
             labels.update({key: fill})
         svg += '</defs>'
@@ -515,7 +553,7 @@ class Other(commands.Cog):
             label, fill = next(labels)
             label = label.split(' ')
             text_color = fill == '#474448'
-            small_size = len(label) == 2 or label[0] == 'backspace'
+            small_size = len(label) == 2 or len(label[0]) * 6 > width
             text_class = [['', 's'], ['w', 'z']][text_color][small_size]
             text_class = f' class="{text_class}"' if text_class else ''
             rect = f'<rect width="{width}" x="{x}" y="{y}" fill="{fill}"/>'
@@ -549,8 +587,9 @@ class Other(commands.Cog):
         for i in range(4):
             svg += return_key(20, 230 + 22 * i, 84)
 
-        legend_labels = ['LP', 'LR', 'LM', 'LI',
-                         'LT', 'RT', 'RI', 'RM', 'RR', 'RP']
+        legend_labels = [
+            'LP', 'LR', 'LM', 'LI', 'LT', 'RT', 'RI', 'RM', 'RR', 'RP'
+        ]
         for i, color in enumerate(colors):
             svg += f"""<rect width="20" x="{49 + 22 * i}" y="110" fill="{color}"/>"""
             svg += f"""<text x="{59 + 22 * i}" y="120" class="b">{legend_labels[i]}</text>"""
