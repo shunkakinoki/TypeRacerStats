@@ -1,18 +1,21 @@
+from TypeRacerStats.Core.Common.accounts import check_account
+from TypeRacerStats.file_paths import SUPPORTERS_FILE_PATH
+from TypeRacerStats.config import MAIN_COLOR
 import json
 import sys
 sys.path.insert(0, '')
-from TypeRacerStats.config import MAIN_COLOR
-from TypeRacerStats.file_paths import SUPPORTERS_FILE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account
+
 
 def load_supporters():
     with open(SUPPORTERS_FILE_PATH, 'r') as jsonfile:
         supporters = json.load(jsonfile)
     return supporters
 
+
 def update_supporters(supporters):
     with open(SUPPORTERS_FILE_PATH, 'w') as jsonfile:
-        json.dump(supporters, jsonfile, indent = 4)
+        json.dump(supporters, jsonfile, indent=4)
+
 
 def get_supporter(id_):
     try:
@@ -24,6 +27,7 @@ def get_supporter(id_):
     except KeyError:
         return MAIN_COLOR
 
+
 def get_graph_colors(id_):
     graph_colors = dict()
     try:
@@ -34,14 +38,14 @@ def get_graph_colors(id_):
             raise KeyError
     except KeyError:
         graph_colors = {
-                'bg': None,
-                'graph_bg': None,
-                'axis': None,
-                'line': None,
-                'text': None,
-                'grid': None,
-                'cmap': None
-            }
+            'bg': None,
+            'graph_bg': None,
+            'axis': None,
+            'line': None,
+            'text': None,
+            'grid': None,
+            'cmap': None
+        }
 
     account = check_account(id_)(())
     if account:
@@ -50,6 +54,7 @@ def get_graph_colors(id_):
         graph_colors.update({'user': '!'})
 
     return graph_colors
+
 
 def check_dm_perms(ctx, tier):
     if ctx.message.guild:

@@ -6,6 +6,7 @@ def reduce_list(lst):
     else:
         return lst
 
+
 def predicate(message, l, r, user_id):
     def check(reaction, user):
         if reaction.message.id != message.id or user.id != user_id:

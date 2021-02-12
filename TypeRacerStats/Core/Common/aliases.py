@@ -16,6 +16,7 @@ for category in commands_:
                 normalized_commands.update({alias: name})
         normalized_commands.update({name: name})
 
+
 def get_aliases(command_):
     try:
         return command_aliases[command_]

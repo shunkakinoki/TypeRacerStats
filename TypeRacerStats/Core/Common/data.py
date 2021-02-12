@@ -1,8 +1,9 @@
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.urls import Urls
 import time
 import sys
 sys.path.insert(0, '')
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.requests import fetch
+
 
 async def get_registered(player, universe, start, end):
     urls = [Urls().get_races(player, universe, start, end)]
@@ -18,6 +19,7 @@ async def get_registered(player, universe, start, end):
     else:
         return api_response + await get_registered(player, universe,
                                                    start, float(api_response[-1]['t']) - 0.01)
+
 
 async def fetch_data(player, universe, start, end):
     registered_races = await get_registered(player, universe, start, end)

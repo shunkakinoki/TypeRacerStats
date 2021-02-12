@@ -1,3 +1,7 @@
+from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.data import fetch_data
+from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH, TEXTS_LENGTHS, TEXTS_LARGE
 import asyncio
 import csv
 import json
@@ -8,10 +12,7 @@ import time
 from bs4 import BeautifulSoup
 from discord.ext import tasks
 sys.path.insert(0, '')
-from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH, TEXTS_LENGTHS, TEXTS_LARGE
-from TypeRacerStats.Core.Common.data import fetch_data
-from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.urls import Urls
+
 
 def maintain_text_files():
     texts_lengths = dict()
@@ -40,16 +41,19 @@ def maintain_text_files():
     with open(TEXTS_LARGE, 'w') as jsonfile:
         json.dump(texts_large, jsonfile)
 
-@tasks.loop(hours = 24)
+
+@tasks.loop(hours=24)
 async def drop_temporary_tables():
     conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
     c = conn.cursor()
-    tables = [i[0] for i in c.execute("SELECT name FROM sqlite_master").fetchall()]
+    tables = [i[0]
+              for i in c.execute("SELECT name FROM sqlite_master").fetchall()]
 
     for table in tables:
         c.execute(f"DROP TABLE {table}")
 
-@tasks.loop(hours = 24)
+
+@tasks.loop(hours=24)
 async def maintain_players():
     with open(MAINTAIN_PLAYERS_TXT, 'r') as txtfile:
         players = txtfile.read().split('\n')
@@ -59,15 +63,18 @@ async def maintain_players():
 
     for player in players:
         print(f"Maintaining: {player}")
-        last_race = c.execute(f"SELECT t FROM t_{player} ORDER BY gn DESC LIMIT 1").fetchone()[0]
+        last_race = c.execute(
+            f"SELECT t FROM t_{player} ORDER BY gn DESC LIMIT 1").fetchone()[0]
         data = await fetch_data(player, 'play', last_race + 0.01, time.time())
         if data:
-            c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
+            c.executemany(
+                f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
             conn.commit()
 
     conn.close()
 
-@tasks.loop(hours = 168)
+
+@tasks.loop(hours=168)
 async def maintain_top_tens():
     tids = []
     with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
@@ -78,7 +85,7 @@ async def maintain_top_tens():
 
     def scraper(response):
         soup = BeautifulSoup(response, 'html.parser')
-        top_10 = soup.findAll('a', class_ = "userProfileTextLink")
+        top_10 = soup.findAll('a', class_="userProfileTextLink")
         top_10_dict = {}
         for i in range(0, len(top_10)):
             top_10_dict.update({i + 1: top_10[i].text})

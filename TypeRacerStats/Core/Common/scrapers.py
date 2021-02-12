@@ -1,10 +1,11 @@
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.urls import Urls
 import datetime
 import re
 import sys
 from bs4 import BeautifulSoup
 sys.path.insert(0, '')
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.requests import fetch
+
 
 def compute_realspeed(quote_length, actual_time, start, lagged, desslejusted, universe):
     if universe == 'lang_ko':
@@ -18,7 +19,8 @@ def compute_realspeed(quote_length, actual_time, start, lagged, desslejusted, un
     ping = mult * quote_length / lagged - actual_time
     adjusted = round(mult * (quote_length - 1) / (actual_time - start), 3)
     if desslejusted:
-        desslejusted_wpm = round(mult * quote_length / (actual_time - start), 3)
+        desslejusted_wpm = round(
+            mult * quote_length / (actual_time - start), 3)
     else:
         desslejusted_wpm = None
 
@@ -28,6 +30,7 @@ def compute_realspeed(quote_length, actual_time, start, lagged, desslejusted, un
             'ping': ping,
             'desslejusted': desslejusted_wpm}
 
+
 async def find_registered(player, universe, gn, timestamp):
     urls = [Urls().get_races(player, universe, timestamp - 1, timestamp + 1)]
     api_response = await fetch(urls, 'json')
@@ -35,19 +38,21 @@ async def find_registered(player, universe, gn, timestamp):
         if race['gn'] == gn:
             return race
 
+
 def rs_typinglog_scraper(response):
     escapes = ''.join([chr(char) for char in range(1, 32)])
 
     try:
         soup = BeautifulSoup(response, 'html.parser')
         typinglog = re.sub('\\t\d', 'a',
-                        re.search(r'typingLog\s=\s"(.*?)";', response)
-                        .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+                           re.search(r'typingLog\s=\s"(.*?)";', response)
+                           .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
         times = [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
 
         race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
         player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
-        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        race_details = soup.select("table[class='raceDetails']")[
+            0].select('tr')
         universe = 'play'
         opponents = []
         for detail in race_details:
@@ -57,8 +62,8 @@ def rs_typinglog_scraper(response):
                 race_number = int(cells[1].text.strip())
             elif category == 'Date':
                 timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
-                                                        "%a, %d %b %Y %H:%M:%S")
-                                                        .strftime("%s"))
+                                                           "%a, %d %b %Y %H:%M:%S")
+                                .strftime("%s"))
             elif category == 'Universe':
                 universe = cells[1].text.strip()
             elif category == 'Opponents':
@@ -76,20 +81,21 @@ def rs_typinglog_scraper(response):
     except:
         return None
 
+
 def raw_typinglog_scraper(response):
     escapes = ''.join([chr(char) for char in range(1, 32)])
 
     try:
         soup = BeautifulSoup(response, 'html.parser')
         typinglog = re.sub('\\t\d', 'a',
-                        re.search(r'typingLog\s=\s"(.*?)";', response)
-                        .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+                           re.search(r'typingLog\s=\s"(.*?)";', response)
+                           .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
         times = [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
-
 
         race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
         player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
-        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        race_details = soup.select("table[class='raceDetails']")[
+            0].select('tr')
         universe = 'play'
         opponents = []
         for detail in race_details:
@@ -99,8 +105,8 @@ def raw_typinglog_scraper(response):
                 race_number = int(cells[1].text.strip())
             elif category == 'Date':
                 timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
-                                                        "%a, %d %b %Y %H:%M:%S")
-                                                        .strftime("%s"))
+                                                           "%a, %d %b %Y %H:%M:%S")
+                                .strftime("%s"))
             elif category == 'Universe':
                 universe = cells[1].text.strip()
             elif category == 'Opponents':
@@ -134,11 +140,13 @@ def raw_typinglog_scraper(response):
     except:
         return None
 
+
 def timestamp_scraper(response):
     try:
         soup = BeautifulSoup(response, 'html.parser')
         player = soup.select("a[class='userProfileTextLink']")[0]["href"][13:]
-        race_details = soup.select("table[class='raceDetails']")[0].select('tr')
+        race_details = soup.select("table[class='raceDetails']")[
+            0].select('tr')
         universe = 'play'
         for detail in race_details:
             cells = detail.select('td')
@@ -147,8 +155,8 @@ def timestamp_scraper(response):
                 race_number = int(cells[1].text.strip())
             elif category == 'Date':
                 timestamp = int(datetime.datetime.strptime(cells[1].text.strip()[:-6],
-                                                        "%a, %d %b %Y %H:%M:%S")
-                                                        .strftime("%s"))
+                                                           "%a, %d %b %Y %H:%M:%S")
+                                .strftime("%s"))
             elif category == 'Universe':
                 universe = cells[1].text.strip()
 
@@ -158,6 +166,7 @@ def timestamp_scraper(response):
                 'universe': universe}
     except:
         return None
+
 
 def scrape_text(response):
     try:
