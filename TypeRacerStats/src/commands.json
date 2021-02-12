@@ -400,9 +400,14 @@
             "description": "Returns a given user's text bests average and top 5 best/worst texts",
             "speed": "fast",
             "usage": {
-                "general": "[user]",
+                "general": "[user] <num_texts>",
                 "example": "despot",
-                "alt_example": []
+                "alt_example": [
+                    {
+                        "usage": "joshua728 250",
+                        "notes": "Takes the top `num_text` texts and computes the text best average"
+                    }
+                ]
             },
             "aliases": ["tb"],
             "linked": true

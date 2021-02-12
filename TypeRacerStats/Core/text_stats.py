@@ -35,25 +35,47 @@ class TextStats(commands.Cog):
 
         if len(args) == 0: args = check_account(user_id)(args)
 
-        if len(args) != 1:
+        try:
+            if len(args) == 0:
+                raise ValueError
+            elif len(args) > 2:
+                raise ValueError
+            elif bd and len(args) != 1:
+                raise ValueError
+        except ValueError:
+            optional = ' <num_texts>' if tb else ''
             await ctx.send(content = f"<@{user_id}>",
                            embed = Error(ctx, ctx.message)
-                                   .parameters(f"{ctx.invoked_with} [user]"))
+                                   .parameters(f"{ctx.invoked_with} [user]{optional}"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
             await ctx.send(content = f"<@{user_id}>",
-                            embed = Error(ctx, ctx.message)
-                                    .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                    "doesn't exist")))
+                           embed = Error(ctx, ctx.message)
+                                   .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
+                                   "doesn't exist")))
             return
+
+        filter_tb = len(args) == 2
+        if filter_tb:
+            try:
+                num_texts = int(args[1])
+                if num_texts <= 0:
+                    raise TypeError
+            except TypeError:
+                await ctx.send(content = f"<@{user_id}>",
+                               embed = Error(ctx, ctx.message)
+                                       .incorrect_format('`num_texts` must be a positive integer'))
+                return
 
         sum_, count = 0, 0
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
             user_data = c.execute(f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm").fetchall()
+            if filter_tb:
+                user_data = user_data[-num_texts:]
             min_bucket = int(user_data[0][2] // 10)
             max_bucket = int(user_data[-1][2] // 10) if user_data[-1][2] // 10 <= 30 else 30
 
@@ -114,7 +136,10 @@ class TextStats(commands.Cog):
                 else:
                     breakdown_text += f"({' ' * count_spacer_}{f'{count - count_:,}'} left)\n"
 
-        embed = discord.Embed(title = f"{player}'s Text Bests",
+        title = f"{player}'s Text Bests"
+        if filter_tb:
+            title += f" (Top {f'{num_texts:,}'} Texts Filtered)"
+        embed = discord.Embed(title = title,
                               color = discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url = Urls().thumbnail(player))
 
