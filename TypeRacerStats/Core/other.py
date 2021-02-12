@@ -1,11 +1,3 @@
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
-from TypeRacerStats.Core.Common.formatting import escape_sequence
-from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.aliases import get_aliases, normalized_commands
-from TypeRacerStats.Core.Common.accounts import check_banned_status
-from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH, KEYMAPS_SVG, BLANK_KEYMAP
-from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
 import datetime
 import json
 import os
@@ -16,6 +8,14 @@ from cairosvg import svg2png
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
+from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.formatting import escape_sequence
+from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.aliases import get_aliases, normalized_commands
+from TypeRacerStats.Core.Common.accounts import check_banned_status
+from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH, KEYMAPS_SVG, BLANK_KEYMAP
+from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
 
 
 class Other(commands.Cog):
@@ -556,7 +556,6 @@ class Other(commands.Cog):
             svg += f"""<text x="{59 + 22 * i}" y="120" class="b">{legend_labels[i]}</text>"""
 
         svg += '</svg>'
-        print(svg)
         svg2png(bytestring=svg, write_to='keymap.png', scale=10)
 
         await ctx.send(file=discord.File('keymap.png', 'keymap.png'))

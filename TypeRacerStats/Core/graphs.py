@@ -1,14 +1,3 @@
-from TypeRacerStats.Core.Common.utility import reduce_list
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.texts import load_texts_json
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
-from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
-from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.aliases import get_aliases
-from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status
-from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 import datetime
 import os
 import sqlite3
@@ -22,32 +11,45 @@ import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
 sys.path.insert(0, '')
+from TypeRacerStats.config import MAIN_COLOR, NUMBERS
+from TypeRacerStats.file_paths import DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status
+from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
+from TypeRacerStats.Core.Common.texts import load_texts_json
+from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.utility import reduce_list
 
 
 class Graphs(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('histogram'))
     async def histogram(self, ctx, *args):
         user_id = ctx.message.author.id
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
@@ -57,8 +59,7 @@ class Graphs(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
@@ -87,26 +88,28 @@ class Graphs(commands.Cog):
         return
 
     @commands.cooldown(3, 15, commands.BucketType.user)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('boxplot'))
     async def boxplot(self, ctx, *args):
         user_id = ctx.message.author.id
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) < 1 or len(args) > 4:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
             return
 
         for player in args:
             if escape_sequence(player):
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                     "doesn't exist")))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).missing_information(
+                        (f"[**{player}**]({Urls().user(player, 'play')}) "
+                         "doesn't exist")))
                 return
 
         conn = sqlite3.connect(DATABASE_PATH)
@@ -122,8 +125,7 @@ class Graphs(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
         title_text = title_text[:-4]
@@ -148,25 +150,27 @@ class Graphs(commands.Cog):
         return
 
     @commands.cooldown(3, 25, commands.BucketType.user)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
-    @commands.command(aliases=get_aliases('raceline') + ['pointline'] + get_aliases('pointline'))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('raceline') + ['pointline'] +
+                      get_aliases('pointline'))
     async def raceline(self, ctx, *args):
         user_id = ctx.message.author.id
 
         rl = ctx.invoked_with.lower() in ['raceline'] + get_aliases('raceline')
-        pl = ctx.invoked_with.lower() in [
-            'pointline'] + get_aliases('pointline')
+        pl = ctx.invoked_with.lower() in ['pointline'
+                                          ] + get_aliases('pointline')
 
         units = 'Races' if rl else 'Points'
         retroactive = ctx.invoked_with[-1] == '*' and pl
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) < 1 or len(args) > 10:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] <user_2>...<user_10>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    f"{ctx.invoked_with} [user] <user_2>...<user_10>"))
             return
         today = time.time()
 
@@ -174,8 +178,9 @@ class Graphs(commands.Cog):
         if len(args) > 1:
             try:
                 args[0].index('-')
-                start = (datetime.datetime.strptime(
-                    args[0], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                start = (
+                    datetime.datetime.strptime(args[0], "%Y-%m-%d").date() -
+                    datetime.date(1970, 1, 1)).total_seconds()
                 if start <= 1_250_000_000 or start > time.time():
                     raise ValueError
                 args = args[1:]
@@ -184,8 +189,9 @@ class Graphs(commands.Cog):
         if len(args) > 1:
             try:
                 args[-1].index('-')
-                end = (datetime.datetime.strptime(
-                    args[-1], "%Y-%m-%d").date() - datetime.date(1970, 1, 1)).total_seconds()
+                end = (
+                    datetime.datetime.strptime(args[-1], "%Y-%m-%d").date() -
+                    datetime.date(1970, 1, 1)).total_seconds()
                 if end <= 1_250_000_000 or end > time.time():
                     raise ValueError
                 args = args[:-1]
@@ -194,13 +200,14 @@ class Graphs(commands.Cog):
 
         for player in args:
             if escape_sequence(player):
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                     "doesn't exist")))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).missing_information(
+                        (f"[**{player}**]({Urls().user(player, 'play')}) "
+                         "doesn't exist")))
                 return
 
-        def calculate_pts(tid,  wpm):
+        def calculate_pts(tid, wpm):
             try:
                 return text_data[str(tid)]['word count'] * wpm / 60
             except ValueError:
@@ -218,12 +225,15 @@ class Graphs(commands.Cog):
                 if start:
                     if not end:
                         user_data = c.execute(
-                            f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (start,))
+                            f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?",
+                            (start, ))
                     else:
                         user_data = c.execute(
-                            f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?", (start, end))
+                            f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?",
+                            (start, end))
                     try:
-                        first_t, first_gn, first_pts, first_wpm, first_tid = user_data.fetchone()
+                        first_t, first_gn, first_pts, first_wpm, first_tid = user_data.fetchone(
+                        )
                     except TypeError:
                         continue
                     temp_x.append(datetime.datetime.fromtimestamp(first_t))
@@ -237,17 +247,20 @@ class Graphs(commands.Cog):
                     if rl or retroactive:
                         if end:
                             user_data = c.execute(
-                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t < ?", (end,))
+                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t < ?",
+                                (end, ))
                         else:
                             user_data = c.execute(
                                 f"SELECT t, gn, pts, wpm, tid FROM t_{user}")
                     elif pl:
                         if end:
                             user_data = c.execute(
-                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?", (1_501_113_600, end))
+                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ? AND t < ?",
+                                (1_501_113_600, end))
                         else:
                             user_data = c.execute(
-                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?", (1_501_113_600,))
+                                f"SELECT t, gn, pts, wpm, tid FROM t_{user} WHERE t > ?",
+                                (1_501_113_600, ))
                 for i in user_data:
                     temp_x.append(datetime.datetime.fromtimestamp(i[0]))
                     if rl:
@@ -263,8 +276,7 @@ class Graphs(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
@@ -292,13 +304,12 @@ class Graphs(commands.Cog):
 
         if not count:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information('No users had races specified time interval'))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               'No users had races specified time interval'))
             return
 
         title = f"{args[0].lower()}'s " if len(args) == 1 else ''
-        if retroactive:
-            units = f"Retroactive {units}"
+        if retroactive: units = f"Retroactive {units}"
         title += f"{units} Over Time"
         segment = ''
         if start:
@@ -327,8 +338,10 @@ class Graphs(commands.Cog):
 
         if len(data_y) > 1:
             plt.tight_layout(rect=[0, 0, 0.75, 1])
-            ax.legend(loc='upper left', bbox_to_anchor=(
-                1.03, 1), shadow=True, ncol=1)
+            ax.legend(loc='upper left',
+                      bbox_to_anchor=(1.03, 1),
+                      shadow=True,
+                      ncol=1)
         file_name = f"{units} Over Time.png"
 
         graph_colors = get_graph_colors(user_id)
@@ -341,28 +354,27 @@ class Graphs(commands.Cog):
         plt.close()
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('improvement'))
     async def improvement(self, ctx, *args):
         user_id = ctx.message.author.id
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
-        if len(args) == 1:
-            args += ('races',)
+        if len(args) == 1: args += ('races', )
 
         if len(args) != 2:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] <time/races>"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] <time/races>"))
             return
 
         player = args[0].lower()
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('Must provide a valid category: `time/races`'))
+                           embed=Error(ctx, ctx.message).incorrect_format(
+                               'Must provide a valid category: `time/races`'))
             return
 
         if args[1].lower() == 'time':
@@ -373,10 +385,11 @@ class Graphs(commands.Cog):
             category = 'Races'
 
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         data_x, data_y, max_point = [], [], 0
@@ -384,7 +397,8 @@ class Graphs(commands.Cog):
         c = conn.cursor()
         try:
             player_data = c.execute(
-                f"SELECT wpm, {q_category} FROM t_{player} ORDER by {q_category}")
+                f"SELECT wpm, {q_category} FROM t_{player} ORDER by {q_category}"
+            )
             for row in player_data:
                 if q_category == 't':
                     data_x.append(datetime.datetime.fromtimestamp(row[1]))
@@ -396,16 +410,17 @@ class Graphs(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
         length = len(data_x)
         if length < 15:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information(f"`{ctx.invoked_with}` requires 15≤ races to generate a graph"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    f"`{ctx.invoked_with}` requires 15≤ races to generate a graph"
+                ))
             return
 
         elif length < 7500:
@@ -436,8 +451,7 @@ class Graphs(commands.Cog):
                 ticker.FuncFormatter(self.large_num_formatter))
             ax.set_xlabel('Race #')
 
-        if max_point > 2 * max_line:
-            ax.set_ylim(0, 2 * max_line)
+        if max_point > 2 * max_line: ax.set_ylim(0, 2 * max_line)
         ax.set_ylabel('WPM')
         plt.grid(True)
         file_name = f"WPM Over {category}.png"
@@ -454,26 +468,29 @@ class Graphs(commands.Cog):
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
-    @commands.command(aliases=get_aliases('adjustedgraph') + ['matchgraph'] + get_aliases('matchgraph'))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('adjustedgraph') + ['matchgraph'] +
+                      get_aliases('matchgraph'))
     async def adjustedgraph(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
         account = account_information(user_id)
         universe = account['universe']
 
-        ag = ctx.invoked_with.lower() in [
-            'adjustedgraph'] + get_aliases('adjustedgraph')
-        mg = ctx.invoked_with.lower() in [
-            'matchgraph'] + get_aliases('matchgraph')
+        ag = ctx.invoked_with.lower() in ['adjustedgraph'
+                                          ] + get_aliases('adjustedgraph')
+        mg = ctx.invoked_with.lower() in ['matchgraph'
+                                          ] + get_aliases('matchgraph')
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) > 2 or len(args) == 0:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] [race_num]` or `{ctx.invoked_with} [url]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    f"{ctx.invoked_with} [user] [race_num]` or `{ctx.invoked_with} [url]"
+                ))
             return
 
         if len(args) == 1:
@@ -491,11 +508,12 @@ class Graphs(commands.Cog):
                     replay_url = Urls().result(player, last_race, universe)
                     urls = [replay_url]
                 except:
-                    await ctx.send(content=f"<@{user_id}>",
-                                   embed=Error(ctx, ctx.message)
-                                   .missing_information((f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
-                                                         "doesn't exist or has no races in the "
-                                                         f"{href_universe(universe)} universe")))
+                    await ctx.send(
+                        content=f"<@{user_id}>",
+                        embed=Error(ctx, ctx.message).missing_information((
+                            f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
+                            "doesn't exist or has no races in the "
+                            f"{href_universe(universe)} universe")))
                     return
 
         elif len(args) == 2:
@@ -505,20 +523,23 @@ class Graphs(commands.Cog):
                 urls = [replay_url]
             except ValueError:
                 await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format('`race_num` must be a positive integer'))
+                               embed=Error(ctx, ctx.message).incorrect_format(
+                                   '`race_num` must be a positive integer'))
                 return
 
         def helper_scraper(soup):
             escapes = ''.join([chr(char) for char in range(1, 32)])
             try:
-                typinglog = re.sub('\\t\d', 'a',
-                                   re.search(
-                                       r'typingLog\s=\s"(.*?)";', response)
-                                   .group(1).encode().decode('unicode-escape').translate(escapes)).split('|')
+                typinglog = re.sub(
+                    '\\t\d', 'a',
+                    re.search(
+                        r'typingLog\s=\s"(.*?)";',
+                        response).group(1).encode().decode(
+                            'unicode-escape').translate(escapes)).split('|')
                 return [int(c) for c in re.findall(r"\d+", typinglog[0])][2:]
             except:
                 return None
+
         try:
             response = (await fetch(urls, 'text'))[0]
             if not response:
@@ -527,10 +548,10 @@ class Graphs(commands.Cog):
             times = helper_scraper(soup)
 
             race_text = soup.select("div[class='fullTextStr']")[0].text.strip()
-            player = soup.select("a[class='userProfileTextLink']")[
-                0]["href"][13:]
-            race_details = soup.select("table[class='raceDetails']")[
-                0].select('tr')
+            player = soup.select(
+                "a[class='userProfileTextLink']")[0]["href"][13:]
+            race_details = soup.select("table[class='raceDetails']")[0].select(
+                'tr')
             universe = 'play'
             opponents = []
             for detail in race_details:
@@ -543,10 +564,12 @@ class Graphs(commands.Cog):
                 elif category == 'Opponents':
                     opponents = [i['href'] for i in cells[1].select('a')]
         except:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information(('`var typingLog` was not found in the requested URL;\n'
-                                                 f"Currently linked to the {href_universe(universe)} universe\n\n")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information((
+                    '`var typingLog` was not found in the requested URL;\n'
+                    f"Currently linked to the {href_universe(universe)} universe\n\n"
+                )))
             return
 
         if universe == 'lang_ko':
@@ -571,8 +594,12 @@ class Graphs(commands.Cog):
             data_y = wpm_helper(times)
         else:
             unl = wpm_helper(times)
-            data = {player: [unl, unl[-1], times[0],
-                             replay_url.split('https://data.typeracer.com/pit/')[1]]}
+            data = {
+                player: [
+                    unl, unl[-1], times[0],
+                    replay_url.split('https://data.typeracer.com/pit/')[1]
+                ]
+            }
             for opponent in opponents:
                 try:
                     urls = ["https://data.typeracer.com/pit/" + opponent]
@@ -582,12 +609,17 @@ class Graphs(commands.Cog):
                     soup = BeautifulSoup(response, 'html.parser')
                     times = helper_scraper(soup)
                     unl = wpm_helper(times)
-                    data.update({opponent.split('|')[1][3:]: [
-                                unl, unl[-1], times[0], opponent]})
+                    data.update({
+                        opponent.split('|')[1][3:]:
+                        [unl, unl[-1], times[0], opponent]
+                    })
                 except:
                     pass
-            data = {k: v for k, v in sorted(
-                data.items(), key=lambda x: x[1][1], reverse=True)}
+            data = {
+                k: v
+                for k, v in sorted(
+                    data.items(), key=lambda x: x[1][1], reverse=True)
+            }
 
         if ag:
             title_1 = f"Adjusted WPM Over {player}'s {num_to_text(race_number)} Race"
@@ -614,15 +646,19 @@ class Graphs(commands.Cog):
                     starts += wpm_[0:9]
                     remaining += wpm_[9:]
                 ax.plot([i for i in range(1, len(wpm_) + 1)], wpm_, label=name)
-                segment = (f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
-                           f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n")
+                segment = (
+                    f"{NUMBERS[i]} [{name}]({f'https://data.typeracer.com/pit/{data_y[3]}'})"
+                    f" - {round(data_y[1], 2)} WPM ({f'{data_y[2]:,}'}ms start)\n"
+                )
                 if len(value + segment) <= 1024:
                     value += segment
                 i += 1
             if len(data) > 1:
                 plt.tight_layout(rect=[0.02, 0.02, 0.75, 0.92])
-                ax.legend(loc='upper left', bbox_to_anchor=(
-                    1.03, 1), shadow=True, ncol=1)
+                ax.legend(loc='upper left',
+                          bbox_to_anchor=(1.03, 1),
+                          shadow=True,
+                          ncol=1)
 
         ax.set_title(title)
         ax.set_xlabel('Keystrokes')
@@ -630,8 +666,10 @@ class Graphs(commands.Cog):
         plt.grid(True)
         file_name = 'WPM Over Race.png'
 
-        embed = discord.Embed(title=title_1, color=discord.Color(
-            MAIN_COLOR), description=description, url=replay_url)
+        embed = discord.Embed(title=title_1,
+                              color=discord.Color(MAIN_COLOR),
+                              description=description,
+                              url=replay_url)
         if text_length:
             max_starts, max_remaining = max(starts), max(remaining)
             messed_up_scaled = max_starts > max_remaining
@@ -639,7 +677,9 @@ class Graphs(commands.Cog):
                 if ctx.invoked_with[-1] != '*':
                     ax.set_ylim(0, 1.05 * max_remaining)
                     embed.set_footer(
-                        text=f"The `y`-axis has been scaled; run `{ctx.invoked_with}*` to see the entire graph")
+                        text=
+                        f"The `y`-axis has been scaled; run `{ctx.invoked_with}*` to see the entire graph"
+                    )
 
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False)
@@ -649,35 +689,34 @@ class Graphs(commands.Cog):
         file_ = discord.File(file_name, filename='image.png')
         embed.set_image(url='attachment://image.png')
         if mg:
-            embed.add_field(
-                name='Ranks (ranked by unlagged WPM)', value=value[:-1])
+            embed.add_field(name='Ranks (ranked by unlagged WPM)',
+                            value=value[:-1])
         os.remove(file_name)
 
         await ctx.send(file=file_, embed=embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('pbgraph'))
     async def pbgraph(self, ctx, *args):
         user_id = ctx.message.author.id
 
-        if len(args) <= 1:
-            args = check_account(user_id)(args)
+        if len(args) <= 1: args = check_account(user_id)(args)
 
-        if len(args) == 1:
-            args += ('races',)
+        if len(args) == 1: args += ('races', )
 
         if len(args) != 2:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] <time/races>"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] <time/races>"))
             return
 
         player = args[0].lower()
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('Must provide a valid category: `time/races`'))
+                           embed=Error(ctx, ctx.message).incorrect_format(
+                               'Must provide a valid category: `time/races`'))
             return
 
         if args[1].lower() == 'time':
@@ -688,10 +727,11 @@ class Graphs(commands.Cog):
             category = 'Races'
 
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         data_x, data_y = [], []
@@ -707,8 +747,7 @@ class Graphs(commands.Cog):
                 data_x.append(temp_x)
             data_y.append(temp_y)
             for row in player_data:
-                if data_y[-1] > row[1]:
-                    continue
+                if data_y[-1] > row[1]: continue
                 if q_category == 't':
                     data_x.append(datetime.datetime.fromtimestamp(row[0]))
                 else:
@@ -717,8 +756,7 @@ class Graphs(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 

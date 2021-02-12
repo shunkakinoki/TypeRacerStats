@@ -16,7 +16,8 @@ class ManageModules(commands.Cog):
         self.bot = bot
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
+                    check_banned_status(ctx))
     async def list_modules(self, ctx):
         modules = ''
         for filename in os.listdir('TypeRacerStats/Core'):
@@ -28,76 +29,94 @@ class ManageModules(commands.Cog):
         return
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
+                    check_banned_status(ctx))
     async def load(self, ctx, extension):
         try:
             self.bot.load_extension(f"Core.{extension}")
         except commands.errors.ExtensionNotFound:
-            await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                               description=f"**{extension}** module not found."))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                description=f"**{extension}** module not found."))
             return
 
-        await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                           description=f"**{extension}** module loaded."))
+        await ctx.send(
+            embed=discord.Embed(color=discord.Color(HELP_BLACK),
+                                description=f"**{extension}** module loaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
+                    check_banned_status(ctx))
     async def unload(self, ctx, extension):
         if extension == 'manage_modules':
-            await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                               description=f"**{extension}** module can not be unloaded."))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                description=f"**{extension}** module can not be unloaded."))
             return
 
         try:
             self.bot.unload_extension(f"Core.{extension}")
         except commands.errors.ExtensionNotFound:
-            await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                               description=f"**{extension}** module was never loaded."))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                description=f"**{extension}** module was never loaded."))
             return
 
-        await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                           description=f"**{extension}** module unloaded."))
+        await ctx.send(embed=discord.Embed(
+            color=discord.Color(HELP_BLACK),
+            description=f"**{extension}** module unloaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
+                    check_banned_status(ctx))
     async def reload(self, ctx, extension):
         try:
             self.bot.unload_extension(f"Core.{extension}")
             self.bot.load_extension(f"Core.{extension}")
         except commands.errors.ExtensionNotFound:
-            await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                               description=f"**{extension}** module not found."))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                description=f"**{extension}** module not found."))
             return
         except commands.errors.ExtensionNotLoaded:
-            await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                               description=f"**{extension}** module was never loaded."))
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                description=f"**{extension}** module was never loaded."))
             return
 
-        await ctx.send(embed=discord.Embed(color=discord.Color(HELP_BLACK),
-                                           description=f"**{extension}** module reloaded."))
+        await ctx.send(embed=discord.Embed(
+            color=discord.Color(HELP_BLACK),
+            description=f"**{extension}** module reloaded."))
 
     @commands.command()
-    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and check_banned_status(ctx))
+    @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
+                    check_banned_status(ctx))
     async def droptable(self, ctx, *args):
         user_id = ctx.message.author.id
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
-        await ctx.send(embed=discord.Embed(title='Type "YES" to confirm', color=discord.Color(0)), delete_after=10)
+        await ctx.send(embed=discord.Embed(title='Type "YES" to confirm',
+                                           color=discord.Color(0)),
+                       delete_after=10)
 
-        msg = await self.bot.wait_for('message', check=check(ctx.message.author), timeout=10)
+        msg = await self.bot.wait_for('message',
+                                      check=check(ctx.message.author),
+                                      timeout=10)
 
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
@@ -107,8 +126,8 @@ class ManageModules(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information("The user's table does not exist"))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               "The user's table does not exist"))
             return
 
         conn.close()
@@ -125,6 +144,7 @@ def check(author):
             return True
         else:
             return False
+
     return inner_check
 
 

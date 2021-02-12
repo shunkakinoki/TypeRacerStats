@@ -41,8 +41,9 @@ async def fetch_htmls(urls, scraper, store_url):
 
 async def fetch_html_reads(urls, scraper, store_url):
     async with aiohttp.ClientSession() as session:
-        tasks = [fetch_html_read(session, url, scraper, store_url)
-                 for url in urls]
+        tasks = [
+            fetch_html_read(session, url, scraper, store_url) for url in urls
+        ]
         return await asyncio.gather(*tasks)
 
 

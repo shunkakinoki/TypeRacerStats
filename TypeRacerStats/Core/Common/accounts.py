@@ -1,9 +1,9 @@
-from TypeRacerStats.file_paths import ACCOUNTS_FILE_PATH, DATABASE_PATH
-from TypeRacerStats.config import USERS_KEY
 import json
 import sqlite3
 import sys
 sys.path.insert(0, '')
+from TypeRacerStats.config import USERS_KEY
+from TypeRacerStats.file_paths import ACCOUNTS_FILE_PATH, DATABASE_PATH
 
 
 def load_accounts():
@@ -21,7 +21,7 @@ def check_account(discord_id):
 
     try:
         account = accounts[str(discord_id)]['main']
-        return lambda x: (account,) + x
+        return lambda x: (account, ) + x
     except KeyError:
         return lambda x: x
 
@@ -45,11 +45,12 @@ def check_banned_status(ctx):
     c = conn.cursor()
 
     try:
-        user_data = c.execute(
-            f"SELECT * FROM {USERS_KEY} WHERE id = ?", (ctx.message.author.id,)).fetchall()
+        user_data = c.execute(f"SELECT * FROM {USERS_KEY} WHERE id = ?",
+                              (ctx.message.author.id, )).fetchall()
     except sqlite3.OperationalError:
         c.execute(
-            f"CREATE TABLE {USERS_KEY} (id integer PRIMARY KEY, banned BOOLEAN)")
+            f"CREATE TABLE {USERS_KEY} (id integer PRIMARY KEY, banned BOOLEAN)"
+        )
 
     conn.close()
 

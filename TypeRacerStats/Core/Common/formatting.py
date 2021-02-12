@@ -7,15 +7,11 @@ from matplotlib.colors import Colormap
 
 
 def seconds_to_text(seconds, *args):
-    if len(args) > 1:
-        return
-    elif len(args) == 1:
-        addS = args[0]
-    else:
-        addS = False
+    if len(args) > 1: return
+    elif len(args) == 1: addS = args[0]
+    else: addS = False
 
-    if seconds == 0:
-        return 0
+    if seconds == 0: return 0
     days = int(seconds // 86400)
     seconds %= 86400
     hours = int(seconds // 3600)
@@ -24,37 +20,26 @@ def seconds_to_text(seconds, *args):
     seconds = round(seconds % 60, 3)
 
     days_text = ''
-    if days:
-        days_text = f"{f'{days:,}'} days"
-    if days == 1 or (days and addS):
-        days_text = f"{f'{days:,}'} day"
+    if days: days_text = f"{f'{days:,}'} days"
+    if days == 1 or (days and addS): days_text = f"{f'{days:,}'} day"
     days_comma = ''
-    if days and (hours or minutes or seconds):
-        days_comma = ', '
+    if days and (hours or minutes or seconds): days_comma = ', '
 
     hours_text = ''
-    if hours:
-        hours_text = f"{hours} hours"
-    if hours == 1 or (hours and addS):
-        hours_text = f"{hours} hour"
+    if hours: hours_text = f"{hours} hours"
+    if hours == 1 or (hours and addS): hours_text = f"{hours} hour"
     hours_comma = ''
-    if hours and (minutes or seconds):
-        hours_comma = ', '
+    if hours and (minutes or seconds): hours_comma = ', '
 
     minutes_text = ''
-    if minutes:
-        minutes_text = f"{minutes} minutes"
-    if minutes == 1 or (minutes and addS):
-        minutes_text = f"{minutes} minute"
+    if minutes: minutes_text = f"{minutes} minutes"
+    if minutes == 1 or (minutes and addS): minutes_text = f"{minutes} minute"
     minutes_comma = ''
-    if minutes and seconds:
-        minutes_comma = ', '
+    if minutes and seconds: minutes_comma = ', '
 
     seconds_text = ''
-    if seconds:
-        seconds_text = f"{seconds} seconds"
-    if seconds == 1 or (seconds and addS):
-        seconds_text = f"{seconds} second"
+    if seconds: seconds_text = f"{seconds} seconds"
+    if seconds == 1 or (seconds and addS): seconds_text = f"{seconds} second"
     return days_text + days_comma + hours_text + hours_comma + minutes_text + minutes_comma + seconds_text
 
 
@@ -64,8 +49,7 @@ def num_to_text(n):
         ending = endings[n % 10]
     except IndexError:
         ending = 'th'
-    if n % 100 - n % 10 == 10:
-        ending = 'th'
+    if n % 100 - n % 10 == 10: ending = 'th'
     return f"{f'{n:,}'}{ending}"
 
 
@@ -74,8 +58,8 @@ def href_universe(universe):
 
 
 def graph_color(ax, information, boxplot, *patches):
-    def to_rgba(x): return (x // 65536 / 255,
-                            ((x % 65536) // 256) / 255, x % 256 / 255)
+    to_rgba = lambda x: (x // 65536 / 255,
+                         ((x % 65536) // 256) / 255, x % 256 / 255)
 
     (bg, graph_bg, axis, line, text, grid, cmap, user) = information.values()
     legend = ax.get_legend()
@@ -123,8 +107,8 @@ def graph_color(ax, information, boxplot, *patches):
                         x = date2num(list(x))
                     points = np.array([x, y]).T.reshape(-1, 1, 2)
 
-                    segments = np.concatenate(
-                        [points[:-1], points[1:]], axis=1)
+                    segments = np.concatenate([points[:-1], points[1:]],
+                                              axis=1)
                     lc = LineCollection(segments, cmap=cmap)
                     lc.set_array(y)
                     ax.add_collection(lc)
@@ -157,4 +141,4 @@ def graph_color(ax, information, boxplot, *patches):
             collection.set_color(color_)
 
 
-def escape_sequence(x): return bool(re.findall('[^a-z^0-9^_]', x.lower()))
+escape_sequence = lambda x: bool(re.findall('[^a-z^0-9^_]', x.lower()))

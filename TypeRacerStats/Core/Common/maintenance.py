@@ -1,7 +1,3 @@
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.data import fetch_data
-from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH, TEXTS_LENGTHS, TEXTS_LARGE
 import asyncio
 import csv
 import json
@@ -12,6 +8,10 @@ import time
 from bs4 import BeautifulSoup
 from discord.ext import tasks
 sys.path.insert(0, '')
+from TypeRacerStats.file_paths import DATABASE_PATH, MAINTAIN_PLAYERS_TXT, TEMPORARY_DATABASE_PATH, TEXTS_FILE_PATH_CSV, TOPTENS_JSON_FILE_PATH, TOPTENS_FILE_PATH, TEXTS_LENGTHS, TEXTS_LARGE
+from TypeRacerStats.Core.Common.data import fetch_data
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.urls import Urls
 
 
 def maintain_text_files():
@@ -31,9 +31,7 @@ def maintain_text_files():
                 }
             })
 
-            texts_large.update({
-                tid: f"{row[1][:50]}…"
-            })
+            texts_large.update({tid: f"{row[1][:50]}…"})
 
     with open(TEXTS_LENGTHS, 'w') as jsonfile:
         json.dump(texts_lengths, jsonfile)
@@ -46,8 +44,9 @@ def maintain_text_files():
 async def drop_temporary_tables():
     conn = sqlite3.connect(TEMPORARY_DATABASE_PATH)
     c = conn.cursor()
-    tables = [i[0]
-              for i in c.execute("SELECT name FROM sqlite_master").fetchall()]
+    tables = [
+        i[0] for i in c.execute("SELECT name FROM sqlite_master").fetchall()
+    ]
 
     for table in tables:
         c.execute(f"DROP TABLE {table}")
@@ -67,8 +66,8 @@ async def maintain_players():
             f"SELECT t FROM t_{player} ORDER BY gn DESC LIMIT 1").fetchone()[0]
         data = await fetch_data(player, 'play', last_race + 0.01, time.time())
         if data:
-            c.executemany(
-                f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)", data)
+            c.executemany(f"INSERT INTO t_{player} VALUES (?, ?, ?, ?, ?)",
+                          data)
             conn.commit()
 
     conn.close()
@@ -101,7 +100,8 @@ async def maintain_top_tens():
 
     for partition in urls:
         print(partition[0])
-        data = (await fetch(partition, 'text', scraper, lambda x: re.findall('[0-9]+', x)[0]))
+        data = (await fetch(partition, 'text', scraper,
+                            lambda x: re.findall('[0-9]+', x)[0]))
         for text in data:
             text_top_tens.update(text)
         await asyncio.sleep(100)

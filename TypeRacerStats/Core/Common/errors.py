@@ -14,14 +14,16 @@ class Error:
 
     def incorrect_format(self, message):
         embed = discord.Embed(color=discord.Color(0xe0001a))
-        embed.add_field(
-            name='Error: Incorrect Parameter Type/Format', value=message)
+        embed.add_field(name='Error: Incorrect Parameter Type/Format',
+                        value=message)
         return embed
 
     def not_downloaded(self):
         embed = discord.Embed(color=discord.Color(0xf8e41c))
-        embed.add_field(name='Error: User Information Not Downloaded',
-                        value=f"Must run `{self.command_prefix}getdata [user]` on the user(s)")
+        embed.add_field(
+            name='Error: User Information Not Downloaded',
+            value=
+            f"Must run `{self.command_prefix}getdata [user]` on the user(s)")
         return embed
 
     def missing_information(self, *args):

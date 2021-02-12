@@ -1,14 +1,3 @@
-from TypeRacerStats.Core.Common.utility import reduce_list
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
-from TypeRacerStats.Core.Common.texts import load_texts_large
-from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color
-from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.aliases import get_aliases
-from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
-from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
-from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
 import csv
 import math
 import os
@@ -19,6 +8,17 @@ import discord
 from discord.ext import commands
 import matplotlib.pyplot as plt
 sys.path.insert(0, '')
+from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
+from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
+from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.texts import load_texts_large
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
+from TypeRacerStats.Core.Common.urls import Urls
+from TypeRacerStats.Core.Common.utility import reduce_list
 
 
 class TextStats(commands.Cog):
@@ -26,16 +26,17 @@ class TextStats(commands.Cog):
         self.bot = bot
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
-    @commands.command(aliases=get_aliases('textbests') + ['breakdown'] + get_aliases('breakdown'))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('textbests') + ['breakdown'] +
+                      get_aliases('breakdown'))
     async def textbests(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
         tb = ctx.invoked_with in ['textbests'] + get_aliases('textbests')
         bd = ctx.invoked_with in ['breakdown'] + get_aliases('breakdown')
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         try:
             if len(args) == 0:
@@ -47,16 +48,17 @@ class TextStats(commands.Cog):
         except ValueError:
             optional = ' <num_texts>' if tb else ''
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]{optional}"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user]{optional}"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         filter_tb = len(args) == 2
@@ -67,8 +69,8 @@ class TextStats(commands.Cog):
                     raise TypeError
             except TypeError:
                 await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format('`num_texts` must be a positive integer'))
+                               embed=Error(ctx, ctx.message).incorrect_format(
+                                   '`num_texts` must be a positive integer'))
                 return
 
         sum_, count = 0, 0
@@ -76,12 +78,13 @@ class TextStats(commands.Cog):
         c = conn.cursor()
         try:
             user_data = c.execute(
-                f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm").fetchall()
+                f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
             if filter_tb:
                 user_data = user_data[-num_texts:]
             min_bucket = int(user_data[0][2] // 10)
-            max_bucket = int(
-                user_data[-1][2] // 10) if user_data[-1][2] // 10 <= 30 else 30
+            max_bucket = int(user_data[-1][2] //
+                             10) if user_data[-1][2] // 10 <= 30 else 30
 
             if bd:
                 breakdown_dict, textbest_dict = {}, {}
@@ -105,8 +108,7 @@ class TextStats(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
@@ -126,9 +128,8 @@ class TextStats(commands.Cog):
             breakdown_text = ''
             max_count_spacer = len(f'{max(breakdown_dict.values()):,}')
             for bucket, count_ in breakdown_dict.items():
-                bucket_spacer = 1 + \
-                    math.floor(math.log10(max_bucket)) - \
-                    math.floor(math.log10(bucket))
+                bucket_spacer = 1 + math.floor(
+                    math.log10(max_bucket)) - math.floor(math.log10(bucket))
                 count_spacer = max_count_spacer - len(f'{count_:,}')
                 count_spacer_ = max_count_spacer - len(f'{count - count_:,}')
                 breakdown_text += f"{{{bucket * 10}+{' ' * bucket_spacer}WPM}} "
@@ -145,16 +146,17 @@ class TextStats(commands.Cog):
         title = f"{player}'s Text Bests"
         if filter_tb:
             title += f" (Top {f'{num_texts:,}'} Texts Filtered)"
-        embed = discord.Embed(title=title,
-                              color=discord.Color(MAIN_COLOR))
+        embed = discord.Embed(title=title, color=discord.Color(MAIN_COLOR))
         embed.set_thumbnail(url=Urls().thumbnail(player))
 
-        embed.add_field(name='Texts',
-                        value=(f"**Texts:** {f'{count:,}'}\n"
-                               f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'} ("
-                               f"{f'{round(count * (5 - (sum_ / count) % 5), 2):,}'} total WPM gain "
-                               f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"),
-                        inline=False)
+        embed.add_field(
+            name='Texts',
+            value=
+            (f"**Texts:** {f'{count:,}'}\n"
+             f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'} ("
+             f"{f'{round(count * (5 - (sum_ / count) % 5), 2):,}'} total WPM gain "
+             f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"),
+            inline=False)
 
         if tb:
             value = ''
@@ -174,13 +176,15 @@ class TextStats(commands.Cog):
                             inline=False)
         else:
             embed.add_field(name='Breakdown',
-                            value=f"```css\n{breakdown_text}```", inline=False)
+                            value=f"```css\n{breakdown_text}```",
+                            inline=False)
 
         await ctx.send(embed=embed)
         return
 
     @commands.cooldown(10, 50, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('personalbest'))
     async def personalbest(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -191,16 +195,17 @@ class TextStats(commands.Cog):
 
         if len(args) == 0 or len(args) > 2:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] [text_id]"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] [text_id]"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         cur_wpm = 0
@@ -214,8 +219,8 @@ class TextStats(commands.Cog):
                 cur_wpm = float(response['wpm'])
             except:
                 await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .missing_information())
+                               embed=Error(ctx,
+                                           ctx.message).missing_information())
                 return
 
         with open(TEXTS_FILE_PATH_CSV, 'r') as csvfile:
@@ -235,17 +240,18 @@ class TextStats(commands.Cog):
                 text = f"\"{text}\""
         except NameError:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format(f"{text_id} is not a valid text ID"))
+                           embed=Error(ctx, ctx.message).incorrect_format(
+                               f"{text_id} is not a valid text ID"))
             return
 
-        count, sum_, best, best_gn, worst_gn = (0,) * 5
+        count, sum_, best, best_gn, worst_gn = (0, ) * 5
         worst = 100000
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
             user_data = c.execute(
-                f"SELECT gn, wpm FROM t_{player} WHERE tid = ?", (text_id,)).fetchall()
+                f"SELECT gn, wpm FROM t_{player} WHERE tid = ?",
+                (text_id, )).fetchall()
             for row in user_data:
                 count += 1
                 sum_ += row[1]
@@ -256,8 +262,7 @@ class TextStats(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
@@ -268,8 +273,8 @@ class TextStats(commands.Cog):
 
         if not count:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information(f"**{player}** has not completed the text yet"))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               f"**{player}** has not completed the text yet"))
             return
 
         value = f"**Times:** {f'{count:,}'}\n"
@@ -296,8 +301,7 @@ class TextStats(commands.Cog):
 
         embed.set_thumbnail(url=Urls().thumbnail(player))
         embed.add_field(name='Quote', value=text, inline=False)
-        embed.add_field(name='Speeds',
-                        value=value)
+        embed.add_field(name='Speeds', value=value)
 
         if ctx.invoked_with[-1] == '*' and len(user_data) > 1:
             ax = plt.subplots()[1]
@@ -309,16 +313,20 @@ class TextStats(commands.Cog):
             if length < 30:
                 ax.plot(data_x, data_y)
             else:
-                ax.scatter(data_x, data_y, marker='.',
-                           alpha=0.1, color='#000000')
+                ax.scatter(data_x,
+                           data_y,
+                           marker='.',
+                           alpha=0.1,
+                           color='#000000')
                 if length < 500:
                     sma = length // 10
                 else:
                     sma = 50
 
                 moving_y = [sum(data_y[0:sma]) / sma]
-                moving_y += [sum(data_y[i - sma:i]) /
-                             sma for i in range(sma, length)]
+                moving_y += [
+                    sum(data_y[i - sma:i]) / sma for i in range(sma, length)
+                ]
                 moving_x = [data_x[0]] + data_x[sma:]
                 moving_y = reduce_list(moving_y)
                 moving_x = reduce_list(moving_x)
@@ -346,7 +354,8 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('unraced'))
     async def unraced(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -357,16 +366,17 @@ class TextStats(commands.Cog):
 
         if len(args) == 0 or len(args) > 2:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] <length>"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] <length>"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         if len(args) == 2:
@@ -375,9 +385,10 @@ class TextStats(commands.Cog):
                 if length < 1 or length > 999:
                     raise ValueError
             except ValueError:
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format('`length` must be a positive integer less than 999'))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        '`length` must be a positive integer less than 999'))
                 return
         else:
             length = 0
@@ -389,13 +400,10 @@ class TextStats(commands.Cog):
             for row in reader:
                 all_tids.add(int(row[0]))
                 texts_data.update(
-                    {
-                        int(row[0]): {
-                            'text': row[1],
-                            'ghost': row[2]
-                        }
-                    }
-                )
+                    {int(row[0]): {
+                         'text': row[1],
+                         'ghost': row[2]
+                     }})
 
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
@@ -406,15 +414,15 @@ class TextStats(commands.Cog):
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
         unraced_tids = list(all_tids - user_tids)
         if length:
-            unraced_tids = list(filter(lambda x: len(
-                texts_data[x]['text']) < length, unraced_tids))
+            unraced_tids = list(
+                filter(lambda x: len(texts_data[x]['text']) < length,
+                       unraced_tids))
         if len(unraced_tids) == 0:
             description = f"{player} has completed all texts"
             if length:
@@ -455,24 +463,27 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('textsunder'))
     async def textsunder(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) < 2 or len(args) > 3:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] [speed] <text_length>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    f"{ctx.invoked_with} [user] [speed] <text_length>"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         try:
@@ -485,9 +496,10 @@ class TextStats(commands.Cog):
                 if length <= 0:
                     raise ValueError
         except ValueError:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('`speed` and `length` must be positive numbers'))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).incorrect_format(
+                    '`speed` and `length` must be positive numbers'))
             return
 
         texts_data = dict()
@@ -496,24 +508,21 @@ class TextStats(commands.Cog):
             next(reader)
             for row in reader:
                 texts_data.update(
-                    {
-                        int(row[0]): {
-                            'text': row[1],
-                            'ghost': row[2]
-                        }
-                    }
-                )
+                    {int(row[0]): {
+                         'text': row[1],
+                         'ghost': row[2]
+                     }})
 
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
         try:
             user_data = c.execute(
-                f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm").fetchall()
+                f"SELECT gn, tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
@@ -528,9 +537,10 @@ class TextStats(commands.Cog):
             tids.append(tid[1])
 
         if len(tu_dict) == 0:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information('No texts found that meet the required criteria'))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    'No texts found that meet the required criteria'))
             return
 
         title = f"Random Texts Under {f'{speed:,}'} WPM"
@@ -550,10 +560,11 @@ class TextStats(commands.Cog):
                 if len(value) > 1024:
                     value_1 = value_1[0:1019 - len(value_2)]
                     value = value_1 + "…\" " + value_2
-                embed.add_field(name=(f"{i + 1}. {f'{tu_dict[random_tid]:,}'} WPM"
-                                      f" (Race Text ID: {random_tid})"),
-                                value=value,
-                                inline=False)
+                embed.add_field(
+                    name=(f"{i + 1}. {f'{tu_dict[random_tid]:,}'} WPM"
+                          f" (Race Text ID: {random_tid})"),
+                    value=value,
+                    inline=False)
                 tids.remove(random_tid)
             except IndexError:
                 pass
@@ -562,24 +573,27 @@ class TextStats(commands.Cog):
         return
 
     @commands.cooldown(10, 30, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('textslessequal'))
     async def textslessequal(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
         if len(args) < 2 or len(args) > 3:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user] [num] <wpm/points/time>"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    f"{ctx.invoked_with} [user] [num] <wpm/points/time>"))
             return
 
         player = args[0].lower()
         if escape_sequence(player):
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({Urls().user(player, 'play')}) "
-                                                 "doesn't exist")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
             return
 
         try:
@@ -587,9 +601,10 @@ class TextStats(commands.Cog):
             if num <= 0:
                 raise ValueError
         except ValueError:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('`speed` and `length` must be positive numbers'))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).incorrect_format(
+                    '`speed` and `length` must be positive numbers'))
             return
 
         if len(args) == 2:
@@ -597,9 +612,10 @@ class TextStats(commands.Cog):
         else:
             category = args[2].lower()
             if category not in ['wpm', 'points', 'times']:
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format('Must provide a valid category: `wpm/points/times`'))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        'Must provide a valid category: `wpm/points/times`'))
                 return
 
         conn = sqlite3.connect(DATABASE_PATH)
@@ -608,42 +624,53 @@ class TextStats(commands.Cog):
             count = len(
                 c.execute(f"SELECT DISTINCT tid from t_{player}").fetchall())
             if category == 'wpm':
-                user_data = c.execute(f"""SELECT tid, COUNT(tid)
+                user_data = c.execute(
+                    f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
                                           WHERE wpm >= ?
                                           GROUP BY tid
-                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
+                                          ORDER BY COUNT(tid) DESC""",
+                    (num, )).fetchall()
             elif category == 'points':
-                user_data = c.execute(f"""SELECT tid, COUNT(tid)
+                user_data = c.execute(
+                    f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
                                           WHERE pts >= ?
                                           GROUP BY tid
-                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
+                                          ORDER BY COUNT(tid) DESC""",
+                    (num, )).fetchall()
             else:
-                user_data = c.execute(f"""SELECT tid, COUNT(tid)
+                user_data = c.execute(
+                    f"""SELECT tid, COUNT(tid)
                                           FROM t_{player}
                                           GROUP BY tid
                                           HAVING COUNT(tid) >= ?
-                                          ORDER BY COUNT(tid) DESC""", (num,)).fetchall()
+                                          ORDER BY COUNT(tid) DESC""",
+                    (num, )).fetchall()
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .not_downloaded())
+                           embed=Error(ctx, ctx.message).not_downloaded())
             return
         conn.close()
 
         texts_data = load_texts_large()
-        category = {'wpm': 'WPM', 'points': 'Points',
-                    'times': 'Times'}[category]
+        category = {
+            'wpm': 'WPM',
+            'points': 'Points',
+            'times': 'Times'
+        }[category]
         if category == 'Times':
             num = int(num)
 
-        embed = discord.Embed(title=f"{player}'s Total Texts Typed Over {f'{num:,}'} {category}",
-                              color=discord.Color(MAIN_COLOR),
-                              description=(f"**Texts Typed:** {f'{count:,}'}\n"
-                                           f"**Texts Over {f'{num:,}'} {category}:** "
-                                           f"{f'{len(user_data):,}'} ({round(100 * len(user_data) / count, 2)}%)"))
+        embed = discord.Embed(
+            title=f"{player}'s Total Texts Typed Over {f'{num:,}'} {category}",
+            color=discord.Color(MAIN_COLOR),
+            description=
+            (f"**Texts Typed:** {f'{count:,}'}\n"
+             f"**Texts Over {f'{num:,}'} {category}:** "
+             f"{f'{len(user_data):,}'} ({round(100 * len(user_data) / count, 2)}%)"
+             ))
         embed.set_thumbnail(url=Urls().thumbnail(player))
         for i in range(0, 10):
             try:
@@ -653,10 +680,11 @@ class TextStats(commands.Cog):
                 if len(value) > 1024:
                     value_1 = value_1[0:1019 - len(value_2)]
                     value = value_1 + "…\" " + value_2
-                embed.add_field(name=(f"{i + 1}. {f'{user_data[i][1]:,}'} times "
-                                      f"(Race Text ID: {user_data[i][0]})"),
-                                value=value,
-                                inline=False)
+                embed.add_field(
+                    name=(f"{i + 1}. {f'{user_data[i][1]:,}'} times "
+                          f"(Race Text ID: {user_data[i][0]})"),
+                    value=value,
+                    inline=False)
             except:
                 pass
 

@@ -1,9 +1,9 @@
-from TypeRacerStats.Core.Common.accounts import check_account
-from TypeRacerStats.file_paths import SUPPORTERS_FILE_PATH
-from TypeRacerStats.config import MAIN_COLOR
 import json
 import sys
 sys.path.insert(0, '')
+from TypeRacerStats.config import MAIN_COLOR
+from TypeRacerStats.file_paths import SUPPORTERS_FILE_PATH
+from TypeRacerStats.Core.Common.accounts import check_account
 
 
 def load_supporters():

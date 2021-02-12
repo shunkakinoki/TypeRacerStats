@@ -16,4 +16,5 @@ def predicate(message, l, r, user_id):
         if r and reaction.emoji == '▶️':
             return True
         return False
+
     return check

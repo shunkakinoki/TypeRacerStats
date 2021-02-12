@@ -1,14 +1,3 @@
-from TypeRacerStats.Core.Common.urls import Urls
-from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
-from TypeRacerStats.Core.Common.scrapers import timestamp_scraper
-from TypeRacerStats.Core.Common.requests import fetch
-from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text, num_to_text, escape_sequence
-from TypeRacerStats.Core.Common.errors import Error
-from TypeRacerStats.Core.Common.data import fetch_data
-from TypeRacerStats.Core.Common.aliases import get_aliases
-from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
-from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH, DATABASE_PATH
-from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
 import datetime
 import json
 import os
@@ -19,6 +8,17 @@ from bs4 import BeautifulSoup
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
+from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH, DATABASE_PATH
+from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
+from TypeRacerStats.Core.Common.aliases import get_aliases
+from TypeRacerStats.Core.Common.data import fetch_data
+from TypeRacerStats.Core.Common.errors import Error
+from TypeRacerStats.Core.Common.formatting import href_universe, seconds_to_text, num_to_text, escape_sequence
+from TypeRacerStats.Core.Common.requests import fetch
+from TypeRacerStats.Core.Common.scrapers import timestamp_scraper
+from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.urls import Urls
 
 
 class BasicStats(commands.Cog):
@@ -27,7 +27,8 @@ class BasicStats(commands.Cog):
 
     @commands.cooldown(4, 12, commands.BucketType.user)
     @commands.cooldown(50, 150, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('stats'))
     async def stats(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -35,13 +36,13 @@ class BasicStats(commands.Cog):
         account = account_information(user_id)
         universe = account['universe']
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
@@ -50,12 +51,13 @@ class BasicStats(commands.Cog):
             user_api = (await fetch(urls, 'json'))[0]
         except:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({urls[0]}) "
-                                                 "doesn't exist")))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               (f"[**{player}**]({urls[0]}) "
+                                "doesn't exist")))
             return
 
-        country = f":flag_{user_api['country']}: " if user_api['country'] else ''
+        country = f":flag_{user_api['country']}: " if user_api[
+            'country'] else ''
         name = user_api['name'] if user_api['name'] else ''
         name += ' ' if user_api['name'] and user_api['lastName'] else ''
         name += user_api['lastName'] if user_api['lastName'] else ''
@@ -71,41 +73,39 @@ class BasicStats(commands.Cog):
             if universe != 'play':
                 raise NotImplementedError
             trd_user_api = (await fetch(urls, 'json'))[0]
-            textbests = round(
-                float(trd_user_api['account']['wpm_textbests']), 2)
+            textbests = round(float(trd_user_api['account']['wpm_textbests']),
+                              2)
             textsraced = trd_user_api['account']['texts_raced']
             extra_stats = (f"**Text Bests: **{textbests} WPM\n"
                            f"**Texts Typed: **{textsraced}\n")
         except:
-            textbests, textsraced, extra_stats = ('',) * 3
+            textbests, textsraced, extra_stats = ('', ) * 3
 
         urls = [Urls().user(player, universe)]
         try:
             response = (await fetch(urls, 'text'))[0]
             soup = BeautifulSoup(response, 'html.parser')
-            rows = soup.select("table[class='profileDetailsTable']")[
-                0].select('tr')
+            rows = soup.select("table[class='profileDetailsTable']")[0].select(
+                'tr')
             medal_count = 0
             for row in rows:
                 cells = row.select('td')
-                if len(cells) < 2:
-                    continue
+                if len(cells) < 2: continue
                 if cells[0].text.strip() == 'Racing Since':
                     date_joined = cells[1].text.strip()
 
-            rows = soup.select("table[class='personalInfoTable']")[
-                0].select('tr')
+            rows = soup.select("table[class='personalInfoTable']")[0].select(
+                'tr')
             for row in rows:
                 cells = row.select('td')
-                if len(cells) < 2:
-                    continue
+                if len(cells) < 2: continue
                 if cells[0].text.strip() == 'Awards':
                     medal_count = len(cells[1].select('a'))
         except:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({urls[0]}) "
-                                                 "doesn't exist")))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               (f"[**{player}**]({urls[0]}) "
+                                "doesn't exist")))
             return
 
         if banned:
@@ -113,31 +113,35 @@ class BasicStats(commands.Cog):
         else:
             color = MAIN_COLOR
 
-        embed = discord.Embed(title=f"{country}{player}",
-                              colour=discord.Colour(color),
-                              description=f"**Universe:** {href_universe(universe)}",
-                              url=urls[0])
+        embed = discord.Embed(
+            title=f"{country}{player}",
+            colour=discord.Colour(color),
+            description=f"**Universe:** {href_universe(universe)}",
+            url=urls[0])
         embed.set_thumbnail(url=Urls().thumbnail(player))
         embed.add_field(name="General",
                         value=(f"**Name:** {name}\n"
                                f"**Joined: **{date_joined}\n"
                                f"**Membership: **{premium}{banned}"),
                         inline=False)
-        embed.add_field(name="Stats",
-                        value=(f"""**Races: **{f"{user_api['tstats']['cg']:,}"}\n"""
-                               f"""**Races Won: **{f"{user_api['tstats']['gamesWon']:,}"}\n"""
-                               f"""**Points: **{f"{round(user_api['tstats']['points']):,}"}\n"""
-                               f"""**Full Average: **{round(user_api['tstats']['wpm'], 2)} WPM\n"""
-                               f"""**Fastest Race: **{round(user_api['tstats']['bestGameWpm'], 2)} WPM\n"""
-                               f"""**Captcha Speed: **{round(user_api['tstats']['certWpm'], 2)} WPM\n"""
-                               f"""{extra_stats}**Medals: **{f'{medal_count:,}'}\n"""),
-                        inline=False)
+        embed.add_field(
+            name="Stats",
+            value=
+            (f"""**Races: **{f"{user_api['tstats']['cg']:,}"}\n"""
+             f"""**Races Won: **{f"{user_api['tstats']['gamesWon']:,}"}\n"""
+             f"""**Points: **{f"{round(user_api['tstats']['points']):,}"}\n"""
+             f"""**Full Average: **{round(user_api['tstats']['wpm'], 2)} WPM\n"""
+             f"""**Fastest Race: **{round(user_api['tstats']['bestGameWpm'], 2)} WPM\n"""
+             f"""**Captcha Speed: **{round(user_api['tstats']['certWpm'], 2)} WPM\n"""
+             f"""{extra_stats}**Medals: **{f'{medal_count:,}'}\n"""),
+            inline=False)
 
         await ctx.send(embed=embed)
         await fetch([Urls().trd_import(player)], 'text')
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('lastonline'))
     async def lastonline(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -145,13 +149,13 @@ class BasicStats(commands.Cog):
         account = account_information(user_id)
         universe = account['universe']
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
@@ -160,64 +164,87 @@ class BasicStats(commands.Cog):
             urls = [Urls().get_races(player, universe, 1)]
             response = (await fetch(urls, 'json', lambda x: x[0]['t']))[0]
         except:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
-                                                 "doesn't exist or has no races in the "
-                                                 f"{href_universe(universe)} universe")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information((
+                    f"[**{player}**](https://data.typeracer.com/pit/race_history?user={player}&universe={universe}) "
+                    "doesn't exist or has no races in the "
+                    f"{href_universe(universe)} universe")))
             return
 
         time_difference = time.time() - response
 
-        await ctx.send(embed=discord.Embed(colour=discord.Colour(MAIN_COLOR),
-                                           description=(f"**{player}** last played {seconds_to_text(time_difference)}\n"
-                                                        f"ago on the {href_universe(universe)} universe")))
+        await ctx.send(embed=discord.Embed(
+            colour=discord.Colour(MAIN_COLOR),
+            description=(
+                f"**{player}** last played {seconds_to_text(time_difference)}\n"
+                f"ago on the {href_universe(universe)} universe")))
         return
 
     @commands.cooldown(4, 12, commands.BucketType.user)
     @commands.cooldown(50, 150, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('medals'))
     async def medals(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
         player = args[0].lower()
         try:
             urls = [Urls().user(player, 'play')]
             response = (await fetch(urls, 'text'))[0]
             soup = BeautifulSoup(response, 'lxml')
-            rows = soup.select("table[class='personalInfoTable']")[
-                0].select('tr')
+            rows = soup.select("table[class='personalInfoTable']")[0].select(
+                'tr')
         except:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .missing_information((f"[**{player}**]({urls[0]}) "
-                                                 "doesn't exist")))
+                           embed=Error(ctx, ctx.message).missing_information(
+                               (f"[**{player}**]({urls[0]}) "
+                                "doesn't exist")))
             return
 
         medals = []
         for row in rows:
             cells = row.select('td')
-            if len(cells) < 2:
-                continue
+            if len(cells) < 2: continue
             if cells[0].text.strip() == "Awards":
                 medals = cells[1].select('img')
                 break
 
         breakdown = {
-            "g": {1: 0, 2: 0, 3: 0},
-            "d": {1: 0, 2: 0, 3: 0},
-            "w": {1: 0, 2: 0, 3: 0},
-            "m": {1: 0, 2: 0, 3: 0},
-            "y": {1: 0, 2: 0, 3: 0}
+            "g": {
+                1: 0,
+                2: 0,
+                3: 0
+            },
+            "d": {
+                1: 0,
+                2: 0,
+                3: 0
+            },
+            "w": {
+                1: 0,
+                2: 0,
+                3: 0
+            },
+            "m": {
+                1: 0,
+                2: 0,
+                3: 0
+            },
+            "y": {
+                1: 0,
+                2: 0,
+                3: 0
+            }
         }
         for medal in medals:
             title = medal['title']
@@ -241,11 +268,10 @@ class BasicStats(commands.Cog):
         embed = discord.Embed(title=f"Medals Stats for {player}",
                               colour=discord.Colour(MAIN_COLOR))
         embed.set_thumbnail(url=Urls().thumbnail(player))
-
-        def helper_constructor(count): return (f"**Total: **{sum(count)}\n"
-                                               f":first_place: x {count[0]}\n"
-                                               f":second_place: x {count[1]}\n"
-                                               f":third_place: x {count[2]}")
+        helper_constructor = lambda count: (f"**Total: **{sum(count)}\n"
+                                            f":first_place: x {count[0]}\n"
+                                            f":second_place: x {count[1]}\n"
+                                            f":third_place: x {count[2]}")
         embed.add_field(name="General",
                         value=helper_constructor(general),
                         inline=False)
@@ -269,7 +295,8 @@ class BasicStats(commands.Cog):
         await ctx.send(embed=embed)
         return
 
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('toptens'))
     async def toptens(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -277,13 +304,13 @@ class BasicStats(commands.Cog):
         is_admin = user_id in BOT_ADMIN_IDS
         send_json = is_admin and ctx.invoked_with[-1] == '*'
 
-        if len(args) == 0:
-            args = check_account(user_id)(args)
+        if len(args) == 0: args = check_account(user_id)(args)
 
         if len(args) != 1:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [user]"))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
         player = args[0].lower()
@@ -293,7 +320,8 @@ class BasicStats(commands.Cog):
 
         if send_json:
             if player == '*':
-                await ctx.send(file=discord.File(TOPTENS_JSON_FILE_PATH, f"top_ten_{last_updated}.json"))
+                await ctx.send(file=discord.File(
+                    TOPTENS_JSON_FILE_PATH, f"top_ten_{last_updated}.json"))
                 return
 
             subset = dict()
@@ -304,7 +332,8 @@ class BasicStats(commands.Cog):
                     subset.update({item: value})
             with open('temporary.json', 'w') as jsonfile:
                 json.dump(subset, jsonfile)
-            await ctx.send(file=discord.File('temporary.json', f"top_ten_{player}_{last_updated}.json"))
+            await ctx.send(file=discord.File(
+                'temporary.json', f"top_ten_{player}_{last_updated}.json"))
             os.remove('temporary.json')
             return
 
@@ -335,23 +364,26 @@ class BasicStats(commands.Cog):
                               description=f"**{f'{total:,}'}** text top 10s")
         embed.set_thumbnail(url=Urls().thumbnail(player))
         embed.set_footer(
-            text=f"Text top 10 data was last updated {seconds_to_text(time.time() - last_updated)} ago")
+            text=
+            f"Text top 10 data was last updated {seconds_to_text(time.time() - last_updated)} ago"
+        )
         embed.add_field(name="Breakdown", value=breakdown, inline=False)
 
         await ctx.send(embed=embed)
         return
 
     @commands.cooldown(1, 20, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('leaderboard'))
     async def leaderboard(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
         num_lb = 10
         error_one = Error(ctx, ctx.message) \
-            .parameters(f"{ctx.invoked_with} [races/points/textbests/textstyped/toptens] <num>")
+                    .parameters(f"{ctx.invoked_with} [races/points/textbests/textstyped/toptens] <num>")
         error_two = Error(ctx, ctx.message) \
-            .incorrect_format('`num` must be a positive integer between 1 and 10')
+                    .incorrect_format('`num` must be a positive integer between 1 and 10')
 
         if len(args) == 0:
             await ctx.send(content=f"<@{user_id}>", embed=error_one)
@@ -403,14 +435,10 @@ class BasicStats(commands.Cog):
             return formatted
 
         value = ''
-        if category == 'races':
-            name = '**Races Leaderboard**'
-        elif category == 'points':
-            name = '**Points Leaderboard**'
-        elif category == 'wpm_textbests':
-            name = '**Text Bests Leaderboard**'
-        elif category == 'texts_raced':
-            name = '**Texts Raced Leaderboard**'
+        if category == 'races': name = '**Races Leaderboard**'
+        elif category == 'points': name = '**Points Leaderboard**'
+        elif category == 'wpm_textbests': name = '**Text Bests Leaderboard**'
+        elif category == 'texts_raced': name = '**Texts Raced Leaderboard**'
 
         top_players = []
         if category != 'toptens':
@@ -434,18 +462,19 @@ class BasicStats(commands.Cog):
                 top_players.append([player, parameter, country])
 
             if category != 'texts_raced':
-                top_players = sorted(
-                    top_players, key=lambda x: x[1], reverse=True)
+                top_players = sorted(top_players,
+                                     key=lambda x: x[1],
+                                     reverse=True)
             if category != 'wpm_textbests':
                 for i in range(0, 10):
                     player_info = top_players[i]
-                    value += helper_formatter(player_info[0],
-                                              player_info[2], player_info[1], i + 1)
+                    value += helper_formatter(player_info[0], player_info[2],
+                                              player_info[1], i + 1)
             else:
                 for i in range(0, 10):
                     player_info = top_players[i]
-                    value += helper_formatter(
-                        player_info[0], player_info[2], player_info[1], i + 1, True)
+                    value += helper_formatter(player_info[0], player_info[2],
+                                              player_info[1], i + 1, True)
         else:
             with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
                 player_top_tens = json.load(jsonfile)
@@ -487,10 +516,12 @@ class BasicStats(commands.Cog):
         embed.add_field(name=name, value=value)
         if category == 'wpm_textbests':
             embed.set_footer(
-                text='All users have at least 1,000 races and \n 400 texts typed')
+                text=
+                'All users have at least 1,000 races and \n 400 texts typed')
         elif category == 'toptens':
-            embed.set_footer(text=("Text top 10 data was last updated\n"
-                                   f"{seconds_to_text(time.time() - last_updated)} ago"))
+            embed.set_footer(
+                text=("Text top 10 data was last updated\n"
+                      f"{seconds_to_text(time.time() - last_updated)} ago"))
         await ctx.send(embed=embed)
 
         if category != 'toptens':
@@ -501,7 +532,8 @@ class BasicStats(commands.Cog):
         return
 
     @commands.cooldown(2, 25, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('competition'))
     async def competition(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -531,14 +563,15 @@ class BasicStats(commands.Cog):
             else:
                 raise ValueError
         except KeyError:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .incorrect_format('Must provide a valid category: `races/points/wpm`'))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).incorrect_format(
+                    'Must provide a valid category: `races/points/wpm`'))
             return
         except ValueError:
             await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters(f"{ctx.invoked_with} [races/points/wpm]"))
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [races/points/wpm]"))
             return
 
         urls = [Urls().get_competition(12, sort, category, universe)]
@@ -565,8 +598,8 @@ class BasicStats(commands.Cog):
                 else:
                     country = ''
 
-                today_timestamp = (datetime.datetime.utcnow().date()
-                                   - datetime.date(1970, 1, 1)).total_seconds()
+                today_timestamp = (datetime.datetime.utcnow().date() \
+                                - datetime.date(1970, 1, 1)).total_seconds()
                 file_name = f"t_{player}_{universe}_{today_timestamp}_{today_timestamp + 86400}".replace(
                     '.', '_')
 
@@ -578,20 +611,27 @@ class BasicStats(commands.Cog):
                 except sqlite3.OperationalError:
                     time_stamp = today_timestamp
                     c.execute(
-                        f"CREATE TABLE {file_name} (gn integer PRIMARY KEY, t, tid, wpm, pts)")
+                        f"CREATE TABLE {file_name} (gn integer PRIMARY KEY, t, tid, wpm, pts)"
+                    )
 
-                races = await fetch_data(player, universe, time_stamp, today_timestamp + 86400)
+                races = await fetch_data(player, universe, time_stamp,
+                                         today_timestamp + 86400)
                 if races:
                     c.executemany(
-                        f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)", races)
+                        f"INSERT INTO {file_name} VALUES (?, ?, ?, ?, ?)",
+                        races)
                     conn.commit()
                 points, wpm = [], []
                 data = c.execute(f"SELECT * FROM {file_name}").fetchall()
                 for row in data:
                     points.append(row[4])
                     wpm.append(row[3])
-                players.append([player, country, round(
-                    sum(points)), len(points), round(sum(wpm), 2)])
+                players.append([
+                    player, country,
+                    round(sum(points)),
+                    len(points),
+                    round(sum(wpm), 2)
+                ])
 
             conn.close()
         else:
@@ -602,11 +642,12 @@ class BasicStats(commands.Cog):
                 else:
                     country = ''
                 comp_stats = competitor[1]
-                players.append([player,
-                                country,
-                                round(comp_stats['points']),
-                                round(comp_stats['gamesFinished']),
-                                comp_stats['gamesFinished'] * comp_stats['wpm']])
+                players.append([
+                    player, country,
+                    round(comp_stats['points']),
+                    round(comp_stats['gamesFinished']),
+                    comp_stats['gamesFinished'] * comp_stats['wpm']
+                ])
 
         if category == 'points':
             players = sorted(players, key=lambda x: x[2])[-10:][::-1]
@@ -618,13 +659,12 @@ class BasicStats(commands.Cog):
         value = ''
         for i in range(0, 10):
             player = players[i]
-            value += helper_formatter(player[0], player[1],
-                                      player[2], player[3], player[4], i)
+            value += helper_formatter(player[0], player[1], player[2],
+                                      player[3], player[4], i)
 
         today = datetime.datetime.utcnow().date()
 
-        if sort == 'day':
-            date = today.strftime('%B %-d, %Y')
+        if sort == 'day': date = today.strftime('%B %-d, %Y')
         elif sort == 'week':
             normalizer = today.isocalendar()[2]
             start_time = today - datetime.timedelta(days=normalizer - 1)
@@ -648,18 +688,19 @@ class BasicStats(commands.Cog):
             'wpm': 'wpm'
         }[category]
 
-        embed = discord.Embed(title=f"{formatted_sort} Competition ({formatted_category})",
-                              color=discord.Color(MAIN_COLOR),
-                              description=f"**Universe:** {href_universe(universe)}",
-                              url=Urls().competition(sort, category, '', universe))
-        embed.add_field(name=date,
-                        value=value)
+        embed = discord.Embed(
+            title=f"{formatted_sort} Competition ({formatted_category})",
+            color=discord.Color(MAIN_COLOR),
+            description=f"**Universe:** {href_universe(universe)}",
+            url=Urls().competition(sort, category, '', universe))
+        embed.add_field(name=date, value=value)
         await ctx.send(embed=embed)
         return
 
     @commands.cooldown(5, 10, commands.BucketType.user)
     @commands.cooldown(50, 100, commands.BucketType.default)
-    @commands.check(lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
     @commands.command(aliases=get_aliases('timebetween'))
     async def timebetween(self, ctx, *args):
         user_id = ctx.message.author.id
@@ -669,10 +710,11 @@ class BasicStats(commands.Cog):
 
         url_param = False
         if len(args) < 2 or len(args) > 3:
-            await ctx.send(content=f"<@{user_id}>",
-                           embed=Error(ctx, ctx.message)
-                           .parameters((f"{ctx.invoked_with} [url] [url]` or "
-                                        f"`{ctx.invoked_with} [user] [race_one] [race_two]")))
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).parameters(
+                    (f"{ctx.invoked_with} [url] [url]` or "
+                     f"`{ctx.invoked_with} [user] [race_one] [race_two]")))
             return
         if len(args) == 2:
             try:
@@ -689,25 +731,27 @@ class BasicStats(commands.Cog):
                     raise ValueError
                 args = (race_one, race_two)
             except ValueError:
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .incorrect_format(f"Refer to `help {ctx.invoked_with}` for correct parameter formats"))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        f"Refer to `help {ctx.invoked_with}` for correct parameter formats"
+                    ))
                 return
 
         urls = []
-        if url_param:
-            urls = [url for url in args]
+        if url_param: urls = [url for url in args]
         else:
-            urls = [Urls().result(player, race_num, universe)
-                    for race_num in args]
+            urls = [
+                Urls().result(player, race_num, universe) for race_num in args
+            ]
 
         responses = await fetch(urls, 'text', timestamp_scraper)
         try:
             conn = sqlite3.connect(DATABASE_PATH)
             c = conn.cursor()
             player = responses[0]['player']
-            difference = abs(
-                responses[1]['timestamp'] - responses[0]['timestamp'])
+            difference = abs(responses[1]['timestamp'] -
+                             responses[0]['timestamp'])
             universe = responses[0]['universe']
             race_nums = [response['race_number'] for response in responses]
             race_one = min(race_nums)
@@ -717,15 +761,15 @@ class BasicStats(commands.Cog):
                 if escape_sequence(player):
                     raise sqlite3.OperationalError
                 difference = abs(c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_one,))
-                                 .fetchone()[0] -
-                                 c.execute(
-                                     f"SELECT t FROM t_{player} WHERE gn = ?", (race_two,))
-                                 .fetchone()[0])
+                                           .fetchone()[0] -\
+                                 c.execute(f"SELECT t FROM t_{player} WHERE gn = ?", (race_two,))
+                                           .fetchone()[0])
             except:
                 conn.close()
-                await ctx.send(content=f"<@{user_id}>",
-                               embed=Error(ctx, ctx.message)
-                               .missing_information('`timestamp` was not found in either race'))
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).missing_information(
+                        '`timestamp` was not found in either race'))
                 return
         conn.close()
 
