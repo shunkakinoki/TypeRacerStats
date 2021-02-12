@@ -123,19 +123,22 @@ def raw_typinglog_scraper(response):
             elif category == 'Opponents':
                 opponents = [i['href'] for i in cells[1].select('a')]
 
-        try:
-            actions = re.findall("\d+,(?:\d+[\+\-$].?)+,", typinglog[1])
-            raw_actions, raw = [], []
-            for action in actions:
-                if action[-3] == "+":
-                    raw_actions.append(action)
+        actions = []
+        for keystroke in re.findall("\d+,(?:\d+[\+\-$].?)+,", typinglog[1]):
+            chars = re.findall('(?:\d+[\+\-$].?)', keystroke)
+            if chars[0][-2] == '$': chars = chars[1:] + ['0-k', chars[0]]
+
+            for i, char in enumerate(chars):
+                if i > 0: actions.append([char[-2], 0])
                 else:
-                    for _ in range(0, len(re.findall("\d+-.?", action))):
-                        raw_actions.pop()
-            for raw_action in raw_actions:
-                raw.append(int(raw_action.split(',')[0]))
-        except:
-            raw = times
+                    actions.append([char[-2], int(keystroke.split(',')[0])])
+
+        raw_time = []
+        for action in actions:
+            if action[0] == '+' or action[0] == '$':
+                raw_time.append(action[1])
+            else:
+                raw_time.pop()
 
         return {
             'player': player,
@@ -147,8 +150,8 @@ def raw_typinglog_scraper(response):
             'duration': sum(times),
             'length': len(times),
             'opponents': opponents,
-            'correction': sum(times) - sum(raw),
-            'adj_correction': sum(times[1:]) - sum(raw[1:])
+            'correction': sum(times) - sum(raw_time),
+            'adj_correction': sum(times[1:]) - sum(raw_time[1:])
         }
     except:
         return None

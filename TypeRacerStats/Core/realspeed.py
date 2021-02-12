@@ -138,11 +138,11 @@ class RealSpeed(commands.Cog):
             if raw:
                 start, unlagged, adjusted, ping, desslejusted_wpm = tuple(
                     realspeeds.values())
-                correction, length = result['correction'], result['duration']
-                if correction <= 0:
-                    correction, raw_unlagged = 0, unlagged
-                else:
-                    raw_unlagged = (length * unlagged) / (length - correction)
+                correction, adj_correction, length = result[
+                    'correction'], result['adj_correction'], result['duration']
+                raw_unlagged = (length * unlagged) / (length - correction)
+                raw_adjusted = ((length - start) *
+                                adjusted) / (length - start - adj_correction)
         elif lr:
             players.append([player, urls[0]] + list((realspeeds.values())))
             for opponent in result['opponents']:
@@ -195,7 +195,8 @@ class RealSpeed(commands.Cog):
             if raw:
                 real_speeds += (
                     f"\n**Raw Unlagged:** {f'{round(raw_unlagged, 2):,}'} WPM "
-                    f"({f'{correction:,}'}ms correction time)")
+                    f"({f'{correction:,}'}ms correction time)"
+                    f"\n**Raw Adjusted:** {f'{round(raw_adjusted, 3):,}'} WPM")
             embed.add_field(name="Speeds", value=real_speeds, inline=False)
         elif lr:
             value = ''
