@@ -587,12 +587,22 @@ class Other(commands.Cog):
         for i in range(4):
             svg += return_key(20, 230 + 22 * i, 84)
 
-        legend_labels = [
-            'LP', 'LR', 'LM', 'LI', 'LT', 'RT', 'RI', 'RM', 'RR', 'RP'
-        ]
+        legend_labels = ['Pinky', 'Ring', 'Middle', 'Index', 'Thumb']
+
+        colors.insert(5, '#474448')
+
+        cur_width = 0
         for i, color in enumerate(colors):
-            svg += f"""<rect width="20" x="{49 + 22 * i}" y="110" fill="{color}"/>"""
-            svg += f"""<text x="{59 + 22 * i}" y="120" class="b">{legend_labels[i]}</text>"""
+            width, text_class = 20, 'l'
+            if i < 5: text_one, text_two = 'Left', legend_labels[i]
+            elif i == 5:
+                text_one, text_two, width, text_class = 'Not', 'Used', 96, 'k'
+            else:
+                text_one, text_two = 'Right', legend_labels[::-1][i - 6]
+            svg += f"""<rect width="{width}" x="{cur_width}" y="110" fill="{color}"/>"""
+            svg += f"""<text x="{cur_width + width / 2}" y="117" class="{text_class}">{text_one}</text>"""
+            svg += f"""<text x="{cur_width + width / 2}" y="123" class="{text_class}">{text_two}</text>"""
+            cur_width += 2 + width
 
         svg += '</svg>'
         svg2png(bytestring=svg, write_to='keymap.png', scale=10)
