@@ -40,7 +40,8 @@ class RealSpeed(commands.Cog):
         lr = ctx.invoked_with.lower() in ['lastrace'] + get_aliases('lastrace')
         raw = ctx.invoked_with.lower() in ['raw'] + get_aliases('raw')
 
-        if len(args) == 0: args = check_account(user_id)(args)
+        if len(args) == 0 or (len(args) == 1 and args[0][0] == '-'):
+            args = check_account(user_id)(args)
 
         if len(args) > 2 or len(args) == 0:
             await ctx.send(
@@ -49,6 +50,14 @@ class RealSpeed(commands.Cog):
                     f"{ctx.invoked_with} [user] [race_num]` or `{ctx.invoked_with} [url]"
                 ))
             return
+
+        race_num = 0
+        if len(args) == 2 and args[1][0] == '-':
+            try:
+                race_num = int(args[1])
+                args = (args[0], )
+            except ValueError:
+                pass
 
         players = []
         if len(args) == 1:
@@ -62,6 +71,7 @@ class RealSpeed(commands.Cog):
                     urls = [Urls().get_races(player, universe, 1)]
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
+                    if race_num < 0: last_race += race_num
                     race_api_response = race_api_response[0][0]
                     replay_url = Urls().result(player, last_race, universe)
                     urls = [replay_url]
@@ -73,7 +83,6 @@ class RealSpeed(commands.Cog):
                             "doesn't exist or has no races in the "
                             f"{href_universe(universe)} universe")))
                     return
-
         elif len(args) == 2:
             try:
                 player = args[0].lower()
@@ -84,7 +93,6 @@ class RealSpeed(commands.Cog):
                                embed=Error(ctx, ctx.message).incorrect_format(
                                    '`race_num` must be a positive integer'))
                 return
-
         try:
             if raw:
                 responses = await fetch(urls, 'text', raw_typinglog_scraper)
