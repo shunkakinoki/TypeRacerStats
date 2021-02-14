@@ -71,8 +71,11 @@ class RealSpeed(commands.Cog):
                     urls = [Urls().get_races(player, universe, 1)]
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
-                    if race_num < 0: last_race += race_num
-                    race_api_response = race_api_response[0][0]
+                    if race_num < 0:
+                        last_race += race_num
+                        race_api_response = None
+                    else:
+                        race_api_response = race_api_response[0][0]
                     replay_url = Urls().result(player, last_race, universe)
                     urls = [replay_url]
                 except:
@@ -97,7 +100,7 @@ class RealSpeed(commands.Cog):
             if raw:
                 responses = await fetch(urls, 'text', raw_typinglog_scraper)
             else:
-                urls, responses = self.check_cache(urls)
+                if not lr: urls, responses = self.check_cache(urls)
                 if urls:
                     responses = await fetch(urls, 'text', rs_typinglog_scraper,
                                             True)
