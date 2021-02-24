@@ -206,7 +206,7 @@ class RealSpeed(commands.Cog):
             if raw:
                 real_speeds += (
                     f"\n**Raw Unlagged:** {f'{round(raw_unlagged, 2):,}'} WPM "
-                    f"({f'{correction:,}'}ms correction time)"
+                    f"({f'{correction:,}'}ms correction time, {round(100 * correction / length, 2)}%)"
                     f"\n**Raw Adjusted:** {f'{round(raw_adjusted, 3):,}'} WPM")
             embed.add_field(name="Speeds", value=real_speeds, inline=False)
         elif lr:
