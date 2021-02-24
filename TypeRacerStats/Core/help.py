@@ -4,7 +4,7 @@ import os
 import time
 import discord
 from discord.ext import commands
-from TypeRacerStats.config import BOT_OWNER_IDS, HELP_BLACK, HELP_IMG, SPEED_INDICATORS
+from TypeRacerStats.config import BOT_ADMIN_IDS, BOT_OWNER_IDS, HELP_BLACK, HELP_IMG, SPEED_INDICATORS
 from TypeRacerStats.Core.Common.accounts import check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.prefixes import get_prefix
@@ -160,6 +160,22 @@ class Help(commands.Cog):
         )
         self.perks_embed.set_thumbnail(url=HELP_IMG)
         self.perks_embed.add_field(name='Commands', value=value)
+
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author.id == self.bot.user.id:
+            return
+
+        if str(self.bot.user.id) in message.content:
+            if message.author.id in BOT_ADMIN_IDS:
+                await message.channel.send('Who @ me.')
+                return
+            prefix = get_prefix(self.bot, message)
+            await message.channel.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                title=f"The prefix is `{prefix}`",
+                description=f"`{prefix}setprefix [prefix]`\n`{prefix}help`"))
+            return
 
     @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.command(aliases=get_aliases('help'))

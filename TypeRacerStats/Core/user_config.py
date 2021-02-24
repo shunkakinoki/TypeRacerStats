@@ -2,7 +2,7 @@ import sys
 import discord
 from discord.ext import commands
 sys.path.insert(0, '')
-from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
+from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, HELP_BLACK
 from TypeRacerStats.file_paths import UNIVERSES_FILE_PATH
 from TypeRacerStats.Core.Common.accounts import load_accounts, update_accounts, check_banned_status
 from TypeRacerStats.Core.Common.aliases import get_aliases
@@ -22,7 +22,21 @@ class UserConfig(commands.Cog):
     @commands.command(aliases=get_aliases('setprefix'))
     @commands.check(lambda ctx: ctx.message.author.guild_permissions.
                     administrator and check_banned_status(ctx))
-    async def setprefix(self, ctx, prefix):
+    async def setprefix(self, ctx, *args):
+        if len(args) == 0:
+            prefix = get_prefix(self.bot, ctx.message)
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(HELP_BLACK),
+                title=f"The prefix is `{prefix}`",
+                description=f"`{prefix}setprefix [prefix]`\n`{prefix}help`"))
+            return
+        elif len(args) > 1:
+            await ctx.send(embed=Error(ctx, ctx.message).parameters(
+                f"{ctx.invoked_with} <prefix>"))
+            return
+
+        prefix = args[0]
+
         if len(prefix) > 14:
             await ctx.send(
                 f"<@{ctx.message.author.id}>",
