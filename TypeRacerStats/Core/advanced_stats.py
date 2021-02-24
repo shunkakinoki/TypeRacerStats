@@ -143,7 +143,8 @@ class AdvancedStats(commands.Cog):
             return
 
         texts_length = load_texts_json()
-        races, words_typed, chars_typed, points, retro, time_spent = (0, ) * 6
+        races, words_typed, chars_typed, points, retro, time_spent, total_wpm = (
+            0, ) * 7
         conn = sqlite3.connect(DATABASE_PATH)
         c = conn.cursor()
 
@@ -153,8 +154,12 @@ class AdvancedStats(commands.Cog):
             first_point_race = 0
             text_id = str(first_race[2])
             races += 1
+            total_wpm += first_race[3]
             words_typed += texts_length[text_id]['word count']
             chars_typed += texts_length[text_id]['length']
+            fastest_race, slowest_race = (first_race[3],
+                                          first_race[0]), (first_race[3],
+                                                           first_race[0])
             try:
                 time_spent += 12 * texts_length[text_id][
                     'length'] / first_race[3]
@@ -170,18 +175,25 @@ class AdvancedStats(commands.Cog):
                 points += first_race[4]
             first_race = first_race[1]
             for row in user_data:
+                race_wpm = row[3]
+                total_wpm += race_wpm
+                if race_wpm > fastest_race[0]:
+                    fastest_race = (race_wpm, row[0])
+                if race_wpm < slowest_race[0]:
+                    slowest_race = (race_wpm, row[0])
                 text_id = str(row[2])
                 races += 1
                 words_typed += texts_length[text_id]['word count']
                 chars_typed += texts_length[text_id]['length']
                 if row[4] == 0:
-                    retro += row[3] / 60 * texts_length[text_id]['word count']
+                    retro += race_wpm / 60 * texts_length[text_id]['word count']
                 else:
                     if not first_point_race:
                         first_point_race = row[1]
                     points += row[4]
                 try:
-                    time_spent += 12 * texts_length[text_id]['length'] / row[3]
+                    time_spent += 12 * texts_length[text_id][
+                        'length'] / race_wpm
                 except ZeroDivisionError:
                     races -= 1
                     pass
@@ -213,8 +225,6 @@ class AdvancedStats(commands.Cog):
              f"**Average Words Per Race:** {f'{round(words_typed / races, 2):,}'}\n"
              f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
              f"**Average Chars Per Race: **{f'{round(chars_typed / races, 2):,}'}\n"
-             f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
-             f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
              ))
         embed.add_field(
             name='Points',
@@ -224,6 +234,22 @@ class AdvancedStats(commands.Cog):
              f"**Average Points Per Race:** {f'{round((points + retro) / races, 2):,}'}\n"
              f"**Retroactive Points:** {f'{round(retro):,}'}\n"
              f"**Total Points:** {f'{round(points + retro):,}'}"))
+        embed.add_field(
+            name='Speed',
+            value=
+            (f"**Average (Lagged):** {f'{round(total_wpm / races, 2):,}'} WPM\n"
+             f"**Fastest Race:** {f'{fastest_race[0]:,}'} WPM "
+             f"[:cinema:]({Urls().result(player, fastest_race[1], 'play')})\n"
+             f"**Slowest Race:** {f'{slowest_race[0]:,}'} WPM "
+             f"[:cinema:]({Urls().result(player, slowest_race[1], 'play')})"),
+            inline=False)
+        embed.add_field(
+            name='Time',
+            value=
+            (f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
+             f"**Average Daily Time Spent Racing:** {seconds_to_text(time_spent / num_days)}"
+             f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
+             ))
         await ctx.send(embed=embed)
         return
 

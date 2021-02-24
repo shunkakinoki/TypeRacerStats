@@ -270,11 +270,15 @@ class GetData(commands.Cog):
         texts_data = load_texts_json()
         races, wpm, points, seconds_played, chars_typed, words_typed = (
             0, ) * 6
+        fastest_race, slowest_race = (data[0][3], data[0][0]), (data[0][3],
+                                                                data[0][0])
         for row in data:
             races += 1
             race_text_id = str(row[2])
             race_wpm = row[3]
             wpm += race_wpm
+            if race_wpm > fastest_race[0]: fastest_race = (race_wpm, row[0])
+            if race_wpm < slowest_race[0]: slowest_race = (race_wpm, row[0])
             points += row[4]
             word_count = texts_data[race_text_id]['word count']
             race_text_length = texts_data[race_text_id]['length']
@@ -287,7 +291,9 @@ class GetData(commands.Cog):
         embed.add_field(
             name='Summary',
             value=
-            (f"**Average Speed:** {average_wpm} WPM\n"
+            (f"**Average Speed:** {average_wpm} WPM "
+             f"([{slowest_race[0]}]({Urls().result(player, slowest_race[1], 'play')})"
+             f" - [{fastest_race[0]}]({Urls().result(player, fastest_race[1], 'play')}))\n"
              f"**Total Races:** {f'{races:,}'}\n"
              f"**Total Points:** {f'{total_points:,}'} ({f'{round(points / races, 2)}'} points/race)"
              ),
@@ -530,10 +536,13 @@ class GetData(commands.Cog):
         today = time.time() if time.time() < end_time else end_time
         num_days = (today - start_time) / 86400
 
-        embed.set_footer(
-            text=('Retroactive points represent the total number of points '
-                  'a user would have gained, before points were introduced '
-                  'in 2017'))
+        retro_text = f"**Retroactive Points:** {f'{round(retro):,}'}\n" if retro else ""
+
+        if retro_text:
+            embed.set_footer(text=(
+                'Retroactive points represent the total number of points '
+                'a user would have gained, before points were introduced '
+                'in 2017'))
 
         embed.add_field(
             name='Races',
@@ -543,9 +552,7 @@ class GetData(commands.Cog):
              f"**Total Words Typed:** {f'{words_typed:,}'}\n"
              f"**Average Words Per Race:** {f'{round(words_typed / races, 2):,}'}\n"
              f"**Total Chars Typed:** {f'{chars_typed:,}'}\n"
-             f"**Average Chars Per Race: **{f'{round(chars_typed / races, 2):,}'}\n"
-             f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
-             f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
+             f"**Average Chars Per Race: **{f'{round(chars_typed / races, 2):,}'}"
              ))
         embed.add_field(
             name='Points',
@@ -553,7 +560,7 @@ class GetData(commands.Cog):
             (f"**Points:** {f'{round(points):,}'}\n"
              f"**Average Daily Points:** {f'{round(points / num_days, 2):,}'}\n"
              f"**Average Points Per Race:** {f'{round((points + retro) / races, 2):,}'}\n"
-             f"**Retroactive Points:** {f'{round(retro):,}'}\n"
+             f"{retro_text}"
              f"**Total Points:** {f'{round(points + retro):,}'}"))
         embed.add_field(
             name='Speed',
@@ -562,6 +569,13 @@ class GetData(commands.Cog):
              f"**Fastest Race:** {f'{wpm_best:,}'} WPM\n"
              f"**Slowest Race:** {f'{wpm_worst:,}'} WPM"),
             inline=False)
+        embed.add_field(
+            name='Time',
+            value=
+            (f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
+             f"**Average Daily Time Spent Racing:** {seconds_to_text(time_spent / num_days)}\n"
+             f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
+             ))
 
         if ctx.invoked_with[-1] == '*':
             csv_data = [['date'] + list(next(iter(csv_dict.values())).keys())]
