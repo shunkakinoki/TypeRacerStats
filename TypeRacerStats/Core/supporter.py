@@ -874,7 +874,6 @@ class Supporter(commands.Cog):
             current_month['time_spent'] = round(current_month['time_spent'], 2)
             current_month['points'] = round(current_month['points'], 2)
             monthly_races.append(list(current_month.values()))
-        monthly_races.insert(0, list(current_month.keys()))
 
         index, longest_chain_index = (0, ) * 2
         max_chain, current_chain = (1, ) * 2
@@ -895,6 +894,8 @@ class Supporter(commands.Cog):
             else:
                 current_chain = 1
 
+        monthly_races.insert(0, list(current_month.keys()))
+
         file_name = f"{player}_longevity_{num_races}.csv"
         with open(file_name, 'w') as csvfile:
             writer = csv.writer(csvfile)
@@ -906,7 +907,7 @@ class Supporter(commands.Cog):
             color=discord.Color(MAIN_COLOR),
             title=f"{f'{num_races:,}'} Races Longevity Statistics for {player}",
             description=
-            (f"**{f'{index:,}'}** months with chain of "
+            (f"**{f'{(index + 1):,}'}** months with chain of "
              f"**{f'{max_chain:,}'}** starting on "
              f"**{datetime.datetime.strptime(monthly_races[longest_chain_index + 1][0], '%Y-%m').strftime('%B %Y')}**"
              ))
