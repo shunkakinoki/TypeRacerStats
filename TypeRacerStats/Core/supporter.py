@@ -862,7 +862,8 @@ class Supporter(commands.Cog):
                 color=discord.Color(MAIN_COLOR),
                 title=
                 f"{f'{num_races:,}'} Races Longevity Statistics for {player}",
-                description='It\'s empty here.'))
+                description='It\'s empty here.').set_footer(
+                    text="ginoo75#6666's custom command"))
             return
 
         if current_month['races'] >= num_races:
