@@ -987,6 +987,18 @@
                 ]
             },
             "aliases": ["mt", "des", "enlighten"],
+            "linked": true
+        },
+        {
+            "name": "ginoo",
+            "description": "Returns the number of months with given number of races",
+            "speed": "fast",
+            "usage": {
+                "general": "[player] [num_races]",
+                "example": "ginoo75 1000",
+                "alt_example": []
+            },
+            "aliases": ["g75", "ginoo75"],
             "linked": false
         }
     ]
