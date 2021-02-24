@@ -573,7 +573,7 @@ class GetData(commands.Cog):
             name='Time',
             value=
             (f"**Total Time Spent Racing:** {seconds_to_text(time_spent)}\n"
-             f"**Average Daily Time Spent Racing:** {seconds_to_text(time_spent / num_days)}\n"
+             f"**Average Daily Time:** {seconds_to_text(time_spent / num_days)}\n"
              f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
              ))
 
