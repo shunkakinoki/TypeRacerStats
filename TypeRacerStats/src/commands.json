@@ -197,7 +197,7 @@
                     }
                 ]
             },
-            "aliases": ["rsa", "rsa*", "raw"],
+            "aliases": ["rsa", "rsa*", "rawsa"],
             "linked": true
         },
         {

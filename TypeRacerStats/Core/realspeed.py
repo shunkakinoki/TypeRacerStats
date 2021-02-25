@@ -240,6 +240,7 @@ class RealSpeed(commands.Cog):
         race_api_response = None
         replay_url = ''
         redact = not ctx.invoked_with[-1] == '*'
+        rawsa = 'raw' in ctx.invoked_with
 
         if len(args) == 0 or (len(args) == 1 and len(args[0]) < 4):
             args = check_account(user_id)(args)
@@ -312,9 +313,9 @@ class RealSpeed(commands.Cog):
             urls.append(replay_url)
 
         responses = []
-        urls, responses = self.check_cache(urls)
+        urls, responses = self.check_cache(urls, True)
         if urls:
-            new_responses = await fetch(urls, 'text', rs_typinglog_scraper,
+            new_responses = await fetch(urls, 'text', raw_typinglog_scraper,
                                         True)
             self.update_cache(new_responses)
             new_responses = [
@@ -347,6 +348,8 @@ class RealSpeed(commands.Cog):
         j = 0
         lagged_sum, unlagged_sum, adjusted_sum, ping_sum = (0, ) * 4
         start_sum, desslejusted_sum, lag_sum, reverse_lag_count = (0, ) * 4
+        raw_unlagged_sum, raw_adjusted_sum, correction_time_sum, correction_percentage_sum = (
+            0, ) * 4
         for i in range(0, len(race_api_responses)):
             response, race_api_response = responses[j], race_api_responses[i]
             if response['race_number'] == race_api_response['gn']:
@@ -386,6 +389,31 @@ class RealSpeed(commands.Cog):
                         reverse_lag_count += 1
                     if desslejusted:
                         desslejusted_sum += realspeeds['desslejusted']
+                    if rawsa:
+                        correction, adj_correction, length = response[
+                            'correction'], response[
+                                'adj_correction'], response['duration']
+                        raw_unlagged = (length * realspeeds['unlagged']) / (
+                            length - correction)
+                        raw_adjusted = (
+                            (length - realspeeds['start']) *
+                            realspeeds['adjusted']) / (
+                                length - realspeeds['start'] - adj_correction)
+                        computed_responses[-1].update({
+                            'raw_unlagged':
+                            raw_unlagged,
+                            'raw_adjusted':
+                            raw_adjusted,
+                            'correction_time':
+                            correction,
+                            'correction_percentage':
+                            round(100 * correction / length, 2)
+                        })
+                        raw_unlagged_sum += raw_unlagged
+                        raw_adjusted_sum += raw_adjusted
+                        correction_time_sum += correction
+                        correction_percentage_sum += 100 * correction / length
+
                 except ZeroDivisionError:
                     continue
             else:
@@ -406,14 +434,20 @@ class RealSpeed(commands.Cog):
         real_speeds = f"**Lagged Average:** {f'{round(lagged_sum / race_count, 2):,}'} WPM\n"
         delays = (
             f"**Average Lag:** {f'{round(lag_sum / race_count, 2):,}'} WPM\n"
-            f"**Average Ping:** {f'{round(ping_sum / race_count, 3):,}'}ms\n")
+            f"**Average Ping:** {f'{round(ping_sum / race_count, 3):,}'}ms\n"
+            f"**Average Start:** {f'{round(start_sum / race_count, 3):,}'}ms")
         real_speeds += f"**Unlagged Average:** {f'{round(unlagged_sum / race_count, 2):,}'} WPM\n"
         real_speeds += f"**Adjusted Average:** {f'{round(adjusted_sum / race_count, 3):,}'} WPM"
         if desslejusted:
             real_speeds += f"\n**Desslejusted Average:** {f'{round(desslejusted_sum / race_count, 3):,}'} WPM"
-        delays += f"**Average Start:** {f'{round(start_sum / race_count, 3):,}'}ms"
+        if rawsa:
+            real_speeds += f"\n**Raw Unlagged Average:** {f'{round(raw_unlagged_sum / race_count, 3):,}'} WPM"
+            real_speeds += f"\n**Raw Adjusted Average:** {f'{round(raw_adjusted_sum / race_count, 3):,}'} WPM"
+            delays += f"\n**Correction Time:** {f'{round(correction_time_sum / race_count):,}'}ms"
+            delays += f" ({round(correction_percentage_sum  / race_count, 2)}%)"
 
         if race_count >= 20 or redact:
+            delays = f"\n{delays}"
             if not redact:
                 csv_data = [list(computed_responses[0].keys())[1:]]
                 csv_data += [
@@ -475,12 +509,14 @@ class RealSpeed(commands.Cog):
         for response in responses:
             self.realspeed_cache.update(response)
 
-    def check_cache(self, urls):
+    def check_cache(self, urls, *raw):
         results = []
         uncached_urls = []
 
         for url in urls:
             try:
+                if raw and raw[0]:
+                    self.realspeed_cache[url]['correction']
                 results.append(self.realspeed_cache[url])
             except KeyError:
                 uncached_urls.append(url)
