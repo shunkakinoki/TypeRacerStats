@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 import sys
 import time
@@ -250,6 +251,96 @@ class AdvancedStats(commands.Cog):
              f"**Average Daily Time:** {seconds_to_text(time_spent / num_days)}\n"
              f"**Average Time Per Race:** {seconds_to_text(time_spent / races)}"
              ))
+        await ctx.send(embed=embed)
+        return
+
+    @commands.cooldown(1, 5, commands.BucketType.user)
+    @commands.cooldown(20, 100, commands.BucketType.default)
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('longestbreak'))
+    async def longestbreak(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) == 0: args = check_account(user_id)(args)
+
+        if len(args) == 0 or len(args) > 2:
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] <seconds>"))
+            return
+
+        player = args[0].lower()
+        if escape_sequence(player):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        duration = 0
+        if len(args) == 2:
+            try:
+                duration = int(args[1])
+                if duration <= 0 or duration > 1_000_000_000_000:
+                    raise ValueError
+            except ValueError:
+                await ctx.send(
+                    content=f"<@{user_id}>",
+                    embed=Error(ctx, ctx.message).incorrect_format(
+                        '`seconds` must be a positive number less than 1,000,000,000,000'
+                    ))
+                return
+
+        count, longest_break = (0, ) * 2
+        longest_break_gn, longest_break_time = (1, ) * 2
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            user_data = c.execute(f"SELECT t, gn FROM t_{player} ORDER BY t")
+            previous_time, previous_gn = user_data.fetchone()
+            for row in user_data:
+                break_ = row[0] - previous_time
+                if break_ >= duration: count += 1
+                if break_ > longest_break:
+                    longest_break = break_
+                    longest_break_gn = previous_gn
+                    longest_break_time = previous_time
+                previous_time, previous_gn = row
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).not_downloaded())
+            return
+        conn.close()
+
+        break_ = time.time() - previous_time
+        on_break = break_ > longest_break
+        if break_ >= duration: count += 1
+        if on_break:
+            longest_break = break_
+            longest_break_gn = previous_gn
+            longest_break_time = previous_time
+
+        if duration:
+            await ctx.send(embed=discord.Embed(
+                color=discord.Color(MAIN_COLOR),
+                description=
+                f"**{player}** had **{f'{count:,}'}** breaks longer than **{seconds_to_text(duration)}**"
+            ))
+            return
+
+        embed = discord.Embed(
+            color=discord.Color(MAIN_COLOR),
+            description=
+            (f"**{player}**'s longest break was **{seconds_to_text(longest_break)}**, "
+             f"and it started on race **{f'{longest_break_gn:,}'}** "
+             f" / **{datetime.datetime.fromtimestamp(longest_break_time).strftime('%B %-d, %Y, %-I:%M:%S %p')}**"
+             ))
+        if on_break: embed.set_footer(text='Currently on break')
+
         await ctx.send(embed=embed)
         return
 

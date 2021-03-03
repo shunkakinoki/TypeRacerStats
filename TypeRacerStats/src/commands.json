@@ -721,6 +721,23 @@
             },
             "aliases": ["y", "y*"],
             "linked": true
+        },
+        {
+            "name": "longestbreak",
+            "description": "Returns a given user's longest break (longest amount of time between races) or the number of times the user went on a break longer than `seconds` seconds",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] <seconds>",
+                "example": "e6f4e37l 500",
+                "alt_example": [
+                    {
+                        "usage": "pastashapes",
+                        "notes": "If `seconds` isn't provided, it defaults to the longest break the user went on"
+                    }
+                ]
+            },
+            "aliases": ["break"],
+            "linked": true
         }
     ],
     "other": [
