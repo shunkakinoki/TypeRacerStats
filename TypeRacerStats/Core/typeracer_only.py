@@ -44,25 +44,6 @@ class TypeRacerOnly(commands.Cog):
         self.update_records.cancel()
 
     @commands.Cog.listener()
-    async def on_member_join(self, member):
-        #e6f4e37l's Discord ID / TypeRacer Discord guild ID
-        if member.id != 697048255254495312 or member.guild.id != 175964903033667585:
-            return
-
-        role_ids = [
-            450016581292916761,  #Premium
-            492709794877145109,  #Partner
-            676030226874236948,  #Sheet Master
-            658349038403452939  #Updates
-        ]
-
-        get_role = lambda id_: discord.utils.get(member.guild.roles, id=id_)
-        roles = map(get_role, role_ids)
-
-        await member.add_roles(*roles)
-        return
-
-    @commands.Cog.listener()
     async def on_message(self, message):
         if message.author.id == self.bot.user.id:
             return
@@ -213,6 +194,26 @@ class TypeRacerOnly(commands.Cog):
                                        embed=embed)
             return
 
+        return
+
+    #e6f4e37l's Discord ID / TypeRacer Discord guild ID
+    @commands.check(lambda ctx: ctx.message.author.id == 697048255254495312 and
+                    ctx.message.guild.id == 175964903033667585)
+    @commands.command()
+    async def eugeneroles(self, ctx):
+        role_ids = [
+            450016581292916761,  #Premium
+            492709794877145109,  #Partner
+            676030226874236948,  #Sheet Master
+            658349038403452939  #Updates
+        ]
+
+        get_role = lambda id_: discord.utils.get(ctx.message.guild.roles,
+                                                 id=id_)
+        roles = map(get_role, role_ids)
+        print(roles)
+
+        await ctx.message.author.add_roles(*roles)
         return
 
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
