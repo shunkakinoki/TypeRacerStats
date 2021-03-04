@@ -211,9 +211,11 @@ class TypeRacerOnly(commands.Cog):
         get_role = lambda id_: discord.utils.get(ctx.message.guild.roles,
                                                  id=id_)
         roles = map(get_role, role_ids)
-        print(roles)
-
-        await ctx.message.author.add_roles(*roles)
+        for role in roles:
+            try:
+                await ctx.message.author.add_roles(role)
+            except:
+                pass
         return
 
     @commands.check(lambda ctx: ctx.message.author.id in BOT_OWNER_IDS and
