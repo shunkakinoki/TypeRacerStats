@@ -56,12 +56,11 @@ class TypeRacerOnly(commands.Cog):
             658349038403452939  #Updates
         ]
 
-        role_ids = []
-
         get_role = lambda id_: discord.utils.get(member.guild.roles, id=id_)
         roles = map(get_role, role_ids)
 
         await member.add_roles(*roles)
+        return
 
     @commands.Cog.listener()
     async def on_message(self, message):
