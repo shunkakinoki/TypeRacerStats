@@ -43,7 +43,7 @@ class TypeRacerOnly(commands.Cog):
     def cog_unload(self):
         self.update_records.cancel()
 
-    @command.Cog.listener()
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         #e6f4e37l's Discord ID / TypeRacer Discord guild ID
         if member.id != 697048255254495312 or member.guild.id != 175964903033667585:
