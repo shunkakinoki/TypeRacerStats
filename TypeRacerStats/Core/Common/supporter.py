@@ -38,12 +38,12 @@ def get_graph_colors(id_):
             raise KeyError
     except KeyError:
         graph_colors = {
-            'bg': None,
-            'graph_bg': None,
-            'axis': None,
-            'line': None,
-            'text': None,
-            'grid': None,
+            'bg': 0xDAD3C1,
+            'graph_bg': 0xDAD3C1,
+            'axis': 0xABA495,
+            'line': 0xAD4F4E,
+            'text': 0xAD4F4E,
+            'grid': 0xABA495,
             'cmap': None
         }
 
