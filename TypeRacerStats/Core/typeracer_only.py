@@ -394,13 +394,16 @@ class TypeRacerOnly(commands.Cog):
         description, members_list = '', []
 
         for member, url in three_hundred_information.items():
-            result = (await fetch([url], 'text', rs_typinglog_scraper))[0]
-            wpm = round(
-                12000 * (result['length'] - 1) /
-                (result['duration'] - result['start']), 3)
-            date = datetime.datetime.fromtimestamp(
-                result['timestamp']).strftime('%-m/%-d/%y')
-            members_list.append([member, wpm, url, date])
+            try:
+                result = (await fetch([url], 'text', rs_typinglog_scraper))[0]
+                wpm = round(
+                    12000 * (result['length'] - 1) /
+                    (result['duration'] - result['start']), 3)
+                date = datetime.datetime.fromtimestamp(
+                    result['timestamp']).strftime('%-m/%-d/%y')
+                members_list.append([member, wpm, url, date])
+            except TypeError:
+                pass
 
         members_list = sorted(members_list, key=lambda x: x[1], reverse=True)
 
@@ -521,7 +524,8 @@ class TypeRacerOnly(commands.Cog):
                         'points_time_difference': points_time_difference
                     }
                 })
-            except:
+            except Exception as exception:
+                print(user, exception)
                 continue
 
         conn.close()
