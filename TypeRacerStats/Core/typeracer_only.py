@@ -404,7 +404,7 @@ class TypeRacerOnly(commands.Cog):
                 members_list.append([member, wpm, url, date])
             except TypeError:
                 pass
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(5)
 
         members_list = sorted(members_list, key=lambda x: x[1], reverse=True)
 
@@ -449,7 +449,7 @@ class TypeRacerOnly(commands.Cog):
         c = conn.cursor()
 
         for user in all_time_leaders:
-            await asyncio.sleep(1.5)
+            await asyncio.sleep(5)
             medals = {1: 0, 2: 0, 3: 0}
             try:
                 response = (await fetch([url_constructor.user(user, 'play')],
