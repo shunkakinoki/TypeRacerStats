@@ -94,7 +94,7 @@ async def maintain_top_tens():
     urls, partition = [], []
     for i, tid in enumerate(tids):
         partition.append(Urls().tr_text(tid))
-        if i % 500 == 0:
+        if i % 10 == 0:
             urls.append(partition)
             partition = []
 
@@ -104,7 +104,7 @@ async def maintain_top_tens():
                             lambda x: re.findall('[0-9]+', x)[0]))
         for text in data:
             text_top_tens.update(text)
-        await asyncio.sleep(100)
+        await asyncio.sleep(25)
 
     with open(TOPTENS_JSON_FILE_PATH, 'w') as jsonfile:
         json.dump(text_top_tens, jsonfile)

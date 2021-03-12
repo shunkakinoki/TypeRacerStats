@@ -291,15 +291,15 @@ class RealSpeed(commands.Cog):
                 embed=Error(ctx, ctx.message).incorrect_format(
                     'The number of races must be a positive integer'))
             return
-        if race_interval >= 20 and not user_id in BOT_ADMIN_IDS:
+        if race_interval >= 10 and not user_id in BOT_ADMIN_IDS:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).lacking_permissions(
-                               'You may only request up to 20 races'))
+                               'You may only request up to 10 races'))
             return
-        elif race_interval >= 100 and not user_id in BOT_OWNER_IDS:
+        elif race_interval >= 10 and not user_id in BOT_OWNER_IDS:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).lacking_permissions(
-                               'You may only request up to 100 races'))
+                               'You may only request up to 10 races'))
             return
         elif race_interval >= 500:
             await ctx.send(content=f"<@{user_id}>",
