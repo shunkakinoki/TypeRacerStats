@@ -913,6 +913,7 @@ class Graphs(commands.Cog):
 
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False, patches)
+        graph_color(ax_, graph_colors, False, patches)
         plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
         plt.close()
 
