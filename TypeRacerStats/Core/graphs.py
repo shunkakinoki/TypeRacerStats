@@ -811,7 +811,7 @@ class Graphs(commands.Cog):
     @commands.command(aliases=get_aliases('compare'))
     async def compare(self, ctx, *args):
         user_id = ctx.message.author.id
-        MAIN_COLOR = get_supporter(user_id)d
+        MAIN_COLOR = get_supporter(user_id)
 
         if len(args) == 1: args = check_account(user_id)(args)
 
