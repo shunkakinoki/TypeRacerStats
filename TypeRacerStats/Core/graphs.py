@@ -879,8 +879,14 @@ class Graphs(commands.Cog):
             return
 
         fig, (ax, ax_) = plt.subplots(1, 2, sharey=True)
-        first_max = max(first_player)
-        second_max = max(second_player)
+        if first_player:
+            first_max = max(first_player)
+        else:
+            first_max = 0
+        if second_player:
+            second_max = max(second_player)
+        else:
+            second_max = 0
 
         if int(first_max) // 10 == 0:
             patches = ax.hist(first_player, bins=1, orientation='horizontal')[2]
@@ -906,14 +912,23 @@ class Graphs(commands.Cog):
         ax_.set_xlim(0, max_xlim)
 
         title = f"{player} vs. {player_} Text Bests Comparison"
-        fig.suptitle(title)
-        fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center')
         plt.subplots_adjust(wspace=0, hspace=0)
         file_name = f"{player}_{player_}_text_bests_comparison.png"
 
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False, patches)
         graph_color(ax_, graph_colors, False, patches)
+
+        to_rgba = lambda x: (x // 65536 / 255,
+                         ((x % 65536) // 256) / 255, x % 256 / 255)
+
+        if graph_colors['text']:
+            fig.suptitle(title, color=to_rgba(graph_colors['text']))
+            fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center', color=to_rgba(graph_colors['text']))
+        else:
+            fig.suptitle(title)
+            fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center')
+
         plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
         plt.close()
 
