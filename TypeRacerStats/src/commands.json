@@ -738,6 +738,18 @@
             },
             "aliases": ["break"],
             "linked": true
+        },
+        {
+            "name": "compare",
+            "description": "Returns a histogram comparing two users' text bests",
+            "speed": "fast",
+            "usage": {
+                "general": "[user_1] [user_2]",
+                "example": "e6f4e37l despot",
+                "alt_example": []
+            },
+            "aliases": [],
+            "linked": true
         }
     ],
     "other": [

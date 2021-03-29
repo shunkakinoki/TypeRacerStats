@@ -80,7 +80,6 @@ class Graphs(commands.Cog):
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False, patches)
         plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
-        races_over_time_picture = discord.File(file_name, filename=file_name)
         wpm_picture = discord.File(file_name, filename=file_name)
         await ctx.send(file=wpm_picture)
         os.remove(file_name)
@@ -806,6 +805,127 @@ class Graphs(commands.Cog):
             return f"{round(x / 1_000, 1)}K"
         else:
             return x
+
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('compare'))
+    async def compare(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)d
+
+        if len(args) == 1: args = check_account(user_id)(args)
+
+        if len(args) != 2:
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user_1] [user_2]"))
+            return
+
+        player = args[0].lower()
+        player_ = args[1].lower()
+        if escape_sequence(player):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        if escape_sequence(player_):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player_}**]({Urls().user(player_, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            player_data = c.execute(
+                f"SELECT tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
+            player_data_ = c.execute(
+                f"SELECT tid, MAX(wpm) FROM t_{player_} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).not_downloaded())
+            return
+        conn.close()
+
+        player_dict = dict()
+        for text in player_data:
+            player_dict.update({
+                text[0]: text[1]
+            })
+
+        first_player, second_player = [], []
+        for text in player_data_:
+            if player_dict.get(text[0], -1) > 0:
+                difference = text[1] - player_dict[text[0]]
+                if difference == 0: pass
+                elif difference < 0:
+                    first_player.append(-1 * difference)
+                else:
+                    second_player.append(difference)
+
+        if len(first_player) + len(second_player) == 0:
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message)
+                                 .missing_information(f"**{player}** and **{player_}** have no texts in common"))
+            return
+
+        fig, (ax, ax_) = plt.subplots(1, 2, sharey=True)
+        first_max = max(first_player)
+        second_max = max(second_player)
+
+        if int(first_max) // 10 == 0:
+            patches = ax.hist(first_player, bins=1, orientation='horizontal')[2]
+        else:
+            patches = ax.hist(first_player, bins=int(first_max) // 10, orientation='horizontal')[2]
+        if int(second_max) // 10 == 0:
+            patches_ = ax_.hist(second_player, bins=1, orientation='horizontal')[2]
+        else:
+            patches_ = ax_.hist(second_player, bins=int(second_max) // 10, orientation='horizontal')[2]
+
+        ax.yaxis.tick_left()
+        ax.set_ylim(ax.get_ylim()[::-1])
+        ax.set_ylabel('Difference (WPM)')
+        ax.grid()
+        ax.set_title(player)
+
+        ax_.grid()
+        ax_.set_title(player_)
+
+        max_xlim = max(ax.get_xlim()[1], ax_.get_xlim()[1])
+        ax.set_xlim(0, max_xlim)
+        ax.set_xlim(ax.get_xlim()[::-1])
+        ax_.set_xlim(0, max_xlim)
+
+        title = f"{player} vs. {player_} Text Bests Comparison"
+        fig.suptitle(title)
+        fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center')
+        plt.subplots_adjust(wspace=0, hspace=0)
+        file_name = f"{player}_{player_}_text_bests_comparison.png"
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False, patches)
+        plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
+        plt.close()
+
+        embed = discord.Embed(title=title, color=MAIN_COLOR)
+        file_ = discord.File(file_name, filename=file_name)
+        embed.set_image(url=f"attachment://{file_name}")
+        embed.add_field(name=player,
+                        value=f"**{f'{len(first_player):,}'}** texts (+**{f'{round(sum(first_player), 2):,}'}** WPM)")
+        embed.add_field(name=player_,
+                        value=f"**{f'{len(second_player):,}'}** texts (+**{f'{round(sum(second_player), 2):,}'}** WPM)")
+        await ctx.send(file=file_, embed=embed)
+        os.remove(file_name)
+        return
 
 
 def setup(bot):
