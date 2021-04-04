@@ -9,7 +9,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH, TEMPORARY_DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -41,7 +41,7 @@ class GetData(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -183,7 +183,7 @@ class GetData(commands.Cog):
                                    '`date` must be in the yyyy-mm-dd format'))
                 return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -386,7 +386,7 @@ class GetData(commands.Cog):
         end_time = (end_time - datetime.date(1970, 1, 1)).total_seconds()
         end_time += 86400
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",

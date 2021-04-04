@@ -14,13 +14,14 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_OWNER_IDS, BOT_ADMIN_IDS, MAIN_COLOR, TR_GHOST, TR_INFO
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV, CSS_COLORS, CMAPS
-from TypeRacerStats.Core.Common.accounts import check_account, load_accounts, update_accounts, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, load_accounts, update_accounts, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, seconds_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.supporter import load_supporters, get_supporter, update_supporters, check_dm_perms
+from TypeRacerStats.Core.Common.text_id_caching import cache_id, get_cached_id
 from TypeRacerStats.Core.Common.texts import load_texts_json
 from TypeRacerStats.Core.Common.urls import Urls
 
@@ -362,7 +363,7 @@ class Supporter(commands.Cog):
                                f"{ctx.invoked_with} [user] <text_id>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -373,7 +374,12 @@ class Supporter(commands.Cog):
 
         if len(args) == 2:
             try:
-                tid = int(args[1])
+                if args[1] == '*':
+                    tid = get_cached_id(ctx.message.channel.id)
+                    if not tid:
+                        tid = int(args[1])
+                else:
+                    tid = int(args[1])
                 if tid <= 0:
                     raise ValueError
             except ValueError:
@@ -421,6 +427,8 @@ class Supporter(commands.Cog):
                                f"{tid} is not a valid text ID"))
             return
 
+        cache_id(ctx.message.channel.id, tid)
+
         value_1 = f"\"{text}\" "
         value_2 = (f"[{TR_INFO}]({Urls().text(tid)}) "
                    f"[{TR_GHOST}]({ghost})")
@@ -439,10 +447,10 @@ class Supporter(commands.Cog):
         conn.commit()
         data = c.execute(
             f"""SELECT * FROM
-                                    (SELECT *
-                                    FROM {file_name}
-                                    WHERE t >= ?)
-                            WHERE tid = ?""",
+                        (SELECT *
+                        FROM {file_name}
+                        WHERE t >= ?)
+                WHERE tid = ?""",
             (time.time() - 86400, tid)).fetchall()
         conn.close()
 
@@ -768,7 +776,7 @@ class Supporter(commands.Cog):
                                f"{ctx.invoked_with} [player] [num_races]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",

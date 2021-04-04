@@ -13,7 +13,7 @@ import matplotlib.ticker as ticker
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
@@ -43,7 +43,7 @@ class Graphs(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -102,7 +102,9 @@ class Graphs(commands.Cog):
                     f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
             return
 
-        for player in args:
+        args = list(args)
+        for i, player in enumerate(args):
+            args[i] = get_player(user_id, args[i])
             if escape_sequence(player):
                 await ctx.send(
                     content=f"<@{user_id}>",
@@ -197,7 +199,9 @@ class Graphs(commands.Cog):
             except ValueError:
                 pass
 
-        for player in args:
+        args = list(args)
+        for i, player in enumerate(args):
+            args[i] = get_player(ctx.message.channel.id, args[i])
             if escape_sequence(player):
                 await ctx.send(
                     content=f"<@{user_id}>",
@@ -369,7 +373,7 @@ class Graphs(commands.Cog):
                                f"{ctx.invoked_with} [user] <time/races>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).incorrect_format(
@@ -508,7 +512,7 @@ class Graphs(commands.Cog):
                 urls = [replay_url]
             except ValueError:
                 try:
-                    player = args[0].lower()
+                    player = get_player(user_id, args[0])
                     urls = [Urls().get_races(player, universe, 1)]
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
@@ -527,7 +531,7 @@ class Graphs(commands.Cog):
 
         elif len(args) == 2:
             try:
-                player = args[0].lower()
+                player = get_player(user_id, args[0])
                 replay_url = Urls().result(player, int(args[1]), universe)
                 urls = [replay_url]
             except ValueError:
@@ -721,7 +725,7 @@ class Graphs(commands.Cog):
                                f"{ctx.invoked_with} [user] <time/races>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).incorrect_format(
@@ -822,8 +826,8 @@ class Graphs(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user_1] [user_2]"))
             return
 
-        player = args[0].lower()
-        player_ = args[1].lower()
+        player = get_player(user_id, args[0])
+        player_ = get_player(user_id, args[1])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",

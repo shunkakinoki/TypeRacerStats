@@ -13,6 +13,7 @@ from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import scrape_text
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.text_id_caching import cache_id, get_cached_id
 from TypeRacerStats.Core.Common.urls import Urls
 from TypeRacerStats.Core.Common.utility import predicate
 
@@ -232,10 +233,17 @@ class Texts(commands.Cog):
                     ctx.message).parameters(f"{ctx.invoked_with} [text_id]"))
             return
 
-        tid = args[0]
+        if args[0] == '*':
+            tid = get_cached_id(ctx.message.channel.id)
+            if not tid:
+                tid = args[0]
+        else:
+            tid = args[0]
         urls = [Urls().text(tid)]
+
         text = await fetch(urls, 'read', scrape_text)
         if text[0]:
+            cache_id(ctx.message.channel.id, tid)
             value_1 = f"\"{text[0]}\""
             value_2 = f" [{TR_INFO}]({urls[0]})"
             value = value_1 + value_2
@@ -254,7 +262,7 @@ class Texts(commands.Cog):
             content=f"<@{user_id}>",
             embed=Error(
                 ctx,
-                ctx.message).incorrect_format(f"{tid} is not a valid text ID"))
+                ctx.message).incorrect_format(f"**{tid}** is not a valid text ID"))
         return
 
 

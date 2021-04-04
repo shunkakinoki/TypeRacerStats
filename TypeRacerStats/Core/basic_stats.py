@@ -10,7 +10,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import TEMPORARY_DATABASE_PATH, TOPTENS_FILE_PATH, TOPTENS_JSON_FILE_PATH, DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
+from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.data import fetch_data
 from TypeRacerStats.Core.Common.errors import Error
@@ -45,7 +45,7 @@ class BasicStats(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         urls = [Urls().get_user(player, universe)]
         try:
             user_api = (await fetch(urls, 'json'))[0]
@@ -158,7 +158,7 @@ class BasicStats(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
 
         try:
             urls = [Urls().get_races(player, universe, 1)]
@@ -197,7 +197,7 @@ class BasicStats(commands.Cog):
                 content=f"<@{user_id}>",
                 embed=Error(
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         try:
             urls = [Urls().user(player, 'play')]
             response = (await fetch(urls, 'text'))[0]
@@ -313,7 +313,7 @@ class BasicStats(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         with open(TOPTENS_FILE_PATH, 'r') as jsonfile:
             player_top_tens = json.load(jsonfile)
         last_updated = float(player_top_tens['last updated'])
@@ -723,7 +723,7 @@ class BasicStats(commands.Cog):
             except ValueError:
                 args = check_account(user_id)(args)
         if len(args) == 3:
-            player = args[0].lower()
+            player = get_player(user_id, args[0])
             try:
                 race_one = int(args[1])
                 race_two = int(args[2])
