@@ -201,7 +201,7 @@ class Graphs(commands.Cog):
 
         args = list(args)
         for i, player in enumerate(args):
-            args[i] = get_player(ctx.message.channel.id, args[i])
+            args[i] = get_player(user_id, args[i])
             if escape_sequence(player):
                 await ctx.send(
                     content=f"<@{user_id}>",
