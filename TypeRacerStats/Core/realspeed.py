@@ -507,7 +507,8 @@ class RealSpeed(commands.Cog):
 
     def update_cache(self, responses):
         for response in responses:
-            self.realspeed_cache.update(response)
+            if response:
+                self.realspeed_cache.update(response)
 
     def check_cache(self, urls, *raw):
         results = []
