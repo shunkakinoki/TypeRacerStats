@@ -5,13 +5,14 @@ import discord
 from discord.ext import commands, tasks
 sys.path.insert(0, '')
 from TypeRacerStats.config import BOT_ADMIN_IDS, BOT_OWNER_IDS, MAIN_COLOR, NUMBERS, TR_WARNING
-from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status
+from TypeRacerStats.Core.Common.accounts import account_information, check_account, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import href_universe, num_to_text
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.scrapers import compute_realspeed, find_registered, raw_typinglog_scraper, rs_typinglog_scraper
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms
+from TypeRacerStats.Core.Common.text_id_caching import cache_id
 from TypeRacerStats.Core.Common.urls import Urls
 
 
@@ -67,7 +68,7 @@ class RealSpeed(commands.Cog):
                 urls = [replay_url]
             except ValueError:
                 try:
-                    player = args[0].lower()
+                    player = get_player(user_id, args[0])
                     urls = [Urls().get_races(player, universe, 1)]
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
@@ -88,7 +89,7 @@ class RealSpeed(commands.Cog):
                     return
         elif len(args) == 2:
             try:
-                player = args[0].lower()
+                player = get_player(user_id, args[0])
                 replay_url = Urls().result(player, int(args[1]), universe)
                 urls = [replay_url]
             except ValueError:
@@ -194,6 +195,8 @@ class RealSpeed(commands.Cog):
             value=value,
             inline=False)
 
+        cache_id(ctx.message.channel.id, race_api_response['tid'])
+
         if rs or raw:
             real_speeds = (f"**Lagged:** {f'{lagged:,}'} WPM "
                            f"({f'{round(unlagged - lagged, 2):,}'} WPM lag)\n"
@@ -253,7 +256,7 @@ class RealSpeed(commands.Cog):
             return
 
         try:
-            player = args[0].lower()
+            player = get_player(user_id, args[0])
             urls = [Urls().get_races(player, universe, 1)]
             race_api_response = (await fetch(urls, 'json'))[0][0]
             last_race = int(race_api_response['gn'])

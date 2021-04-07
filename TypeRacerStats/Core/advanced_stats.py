@@ -7,7 +7,7 @@ from discord.ext import commands
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, seconds_to_text
@@ -41,7 +41,7 @@ class AdvancedStats(commands.Cog):
                     f"{ctx.invoked_with} [user] [wpm/points/weightedwpm]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -134,7 +134,7 @@ class AdvancedStats(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -271,7 +271,7 @@ class AdvancedStats(commands.Cog):
                                f"{ctx.invoked_with} [user] <seconds>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",

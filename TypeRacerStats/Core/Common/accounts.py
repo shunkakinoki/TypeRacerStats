@@ -26,6 +26,19 @@ def check_account(discord_id):
         return lambda x: x
 
 
+def get_player(discord_id, user):
+    accounts = load_accounts()
+
+    if user.lower() == 'me':
+        try:
+            account = accounts[str(discord_id)]['main']
+            return account
+        except KeyError:
+            return user.lower()
+
+    return user.lower()
+
+
 def account_information(discord_id):
     accounts = load_accounts()
 

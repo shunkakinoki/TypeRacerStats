@@ -13,7 +13,7 @@ import matplotlib.ticker as ticker
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, NUMBERS
 from TypeRacerStats.file_paths import DATABASE_PATH
-from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, account_information, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color, href_universe, num_to_text
@@ -43,7 +43,7 @@ class Graphs(commands.Cog):
                     ctx, ctx.message).parameters(f"{ctx.invoked_with} [user]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -80,7 +80,6 @@ class Graphs(commands.Cog):
         graph_colors = get_graph_colors(user_id)
         graph_color(ax, graph_colors, False, patches)
         plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
-        races_over_time_picture = discord.File(file_name, filename=file_name)
         wpm_picture = discord.File(file_name, filename=file_name)
         await ctx.send(file=wpm_picture)
         os.remove(file_name)
@@ -103,7 +102,9 @@ class Graphs(commands.Cog):
                     f"{ctx.invoked_with} [user] <user_2>...<user_4>"))
             return
 
-        for player in args:
+        args = list(args)
+        for i, player in enumerate(args):
+            args[i] = get_player(user_id, args[i])
             if escape_sequence(player):
                 await ctx.send(
                     content=f"<@{user_id}>",
@@ -198,7 +199,9 @@ class Graphs(commands.Cog):
             except ValueError:
                 pass
 
-        for player in args:
+        args = list(args)
+        for i, player in enumerate(args):
+            args[i] = get_player(user_id, args[i])
             if escape_sequence(player):
                 await ctx.send(
                     content=f"<@{user_id}>",
@@ -370,7 +373,7 @@ class Graphs(commands.Cog):
                                f"{ctx.invoked_with} [user] <time/races>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).incorrect_format(
@@ -509,7 +512,7 @@ class Graphs(commands.Cog):
                 urls = [replay_url]
             except ValueError:
                 try:
-                    player = args[0].lower()
+                    player = get_player(user_id, args[0])
                     urls = [Urls().get_races(player, universe, 1)]
                     race_api_response = await fetch(urls, 'json')
                     last_race = race_api_response[0][0]['gn']
@@ -528,7 +531,7 @@ class Graphs(commands.Cog):
 
         elif len(args) == 2:
             try:
-                player = args[0].lower()
+                player = get_player(user_id, args[0])
                 replay_url = Urls().result(player, int(args[1]), universe)
                 urls = [replay_url]
             except ValueError:
@@ -722,7 +725,7 @@ class Graphs(commands.Cog):
                                f"{ctx.invoked_with} [user] <time/races>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if args[1].lower() not in ['time', 'races']:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).incorrect_format(
@@ -806,6 +809,143 @@ class Graphs(commands.Cog):
             return f"{round(x / 1_000, 1)}K"
         else:
             return x
+
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('compare'))
+    async def compare(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) == 1: args = check_account(user_id)(args)
+
+        if len(args) != 2:
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(
+                    ctx, ctx.message).parameters(f"{ctx.invoked_with} [user_1] [user_2]"))
+            return
+
+        player = get_player(user_id, args[0])
+        player_ = get_player(user_id, args[1])
+        if escape_sequence(player):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        if escape_sequence(player_):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player_}**]({Urls().user(player_, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            player_data = c.execute(
+                f"SELECT tid, MAX(wpm) FROM t_{player} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
+            player_data_ = c.execute(
+                f"SELECT tid, MAX(wpm) FROM t_{player_} GROUP BY tid ORDER BY wpm"
+            ).fetchall()
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).not_downloaded())
+            return
+        conn.close()
+
+        player_dict = dict()
+        for text in player_data:
+            player_dict.update({
+                text[0]: text[1]
+            })
+
+        first_player, second_player = [], []
+        for text in player_data_:
+            if player_dict.get(text[0], -1) > 0:
+                difference = text[1] - player_dict[text[0]]
+                if difference == 0: pass
+                elif difference < 0:
+                    first_player.append(-1 * difference)
+                else:
+                    second_player.append(difference)
+
+        if len(first_player) + len(second_player) == 0:
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message)
+                                 .missing_information(f"**{player}** and **{player_}** have no texts in common"))
+            return
+
+        fig, (ax, ax_) = plt.subplots(1, 2, sharey=True)
+        if first_player:
+            first_max = max(first_player)
+        else:
+            first_max = 0
+        if second_player:
+            second_max = max(second_player)
+        else:
+            second_max = 0
+
+        if int(first_max) // 10 == 0:
+            patches = ax.hist(first_player, bins=1, orientation='horizontal')[2]
+        else:
+            patches = ax.hist(first_player, bins=int(first_max) // 10, orientation='horizontal')[2]
+        if int(second_max) // 10 == 0:
+            patches_ = ax_.hist(second_player, bins=1, orientation='horizontal')[2]
+        else:
+            patches_ = ax_.hist(second_player, bins=int(second_max) // 10, orientation='horizontal')[2]
+
+        ax.yaxis.tick_left()
+        ax.set_ylim(ax.get_ylim()[::-1])
+        ax.set_ylabel('Difference (WPM)')
+        ax.grid()
+        ax.set_title(player)
+
+        ax_.grid()
+        ax_.set_title(player_)
+
+        max_xlim = max(ax.get_xlim()[1], ax_.get_xlim()[1])
+        ax.set_xlim(0, max_xlim)
+        ax.set_xlim(ax.get_xlim()[::-1])
+        ax_.set_xlim(0, max_xlim)
+
+        title = f"{player} vs. {player_} Text Bests Comparison"
+        plt.subplots_adjust(wspace=0, hspace=0)
+        file_name = f"{player}_{player_}_text_bests_comparison.png"
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False, patches)
+        graph_color(ax_, graph_colors, False, patches)
+
+        to_rgba = lambda x: (x // 65536 / 255,
+                         ((x % 65536) // 256) / 255, x % 256 / 255)
+
+        if graph_colors['text']:
+            fig.suptitle(title, color=to_rgba(graph_colors['text']))
+            fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center', color=to_rgba(graph_colors['text']))
+        else:
+            fig.suptitle(title)
+            fig.text(0.5, 0.025, 'Frequency (Texts)', ha='center')
+
+        plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
+        plt.close()
+
+        embed = discord.Embed(title=title, color=MAIN_COLOR)
+        file_ = discord.File(file_name, filename=file_name)
+        embed.set_image(url=f"attachment://{file_name}")
+        embed.add_field(name=player,
+                        value=f"**{f'{len(first_player):,}'}** texts (+**{f'{round(sum(first_player), 2):,}'}** WPM)")
+        embed.add_field(name=player_,
+                        value=f"**{f'{len(second_player):,}'}** texts (+**{f'{round(sum(second_player), 2):,}'}** WPM)")
+        await ctx.send(file=file_, embed=embed)
+        os.remove(file_name)
+        return
 
 
 def setup(bot):

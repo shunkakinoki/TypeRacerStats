@@ -10,13 +10,14 @@ import matplotlib.pyplot as plt
 sys.path.insert(0, '')
 from TypeRacerStats.config import MAIN_COLOR, TR_INFO, TR_GHOST
 from TypeRacerStats.file_paths import DATABASE_PATH, TEXTS_FILE_PATH_CSV
-from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status
+from TypeRacerStats.Core.Common.accounts import check_account, check_banned_status, get_player
 from TypeRacerStats.Core.Common.aliases import get_aliases
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.formatting import escape_sequence, graph_color
 from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.Core.Common.texts import load_texts_large
 from TypeRacerStats.Core.Common.supporter import get_supporter, check_dm_perms, get_graph_colors
+from TypeRacerStats.Core.Common.text_id_caching import cache_id, get_cached_id
 from TypeRacerStats.Core.Common.urls import Urls
 from TypeRacerStats.Core.Common.utility import reduce_list
 
@@ -52,7 +53,7 @@ class TextStats(commands.Cog):
                                f"{ctx.invoked_with} [user]{optional}"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -199,7 +200,7 @@ class TextStats(commands.Cog):
                                f"{ctx.invoked_with} [user] [text_id]"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -210,7 +211,18 @@ class TextStats(commands.Cog):
 
         cur_wpm = 0
         if len(args) == 2:
-            text_id = int(args[1])
+            try:
+                if args[1] == '*':
+                    text_id = get_cached_id(ctx.message.channel.id)
+                    if not text_id:
+                        text_id = int(args[1])
+                else:
+                    text_id = int(args[1])
+            except ValueError:
+                await ctx.send(content=f"<@{user_id}>",
+                               embed=Error(ctx,
+                                           ctx.message).incorrect_format(f"**{args[1]}** is not a valid text ID"))
+                return
         else:
             try:
                 urls = [Urls().get_races(player, 'play', 1)]
@@ -289,6 +301,7 @@ class TextStats(commands.Cog):
                   f"({Urls().result(player, worst_gn, 'play')})\n")
 
         title = f"Quote #{text_id} Statistics for {player}"
+        cache_id(ctx.message.channel.id, text_id)
         if description:
             embed = discord.Embed(title=title,
                                   color=discord.Color(color),
@@ -370,7 +383,7 @@ class TextStats(commands.Cog):
                                f"{ctx.invoked_with} [user] <length>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -477,7 +490,7 @@ class TextStats(commands.Cog):
                     f"{ctx.invoked_with} [user] [speed] <text_length>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
@@ -587,7 +600,7 @@ class TextStats(commands.Cog):
                     f"{ctx.invoked_with} [user] [num] <wpm/points/time>"))
             return
 
-        player = args[0].lower()
+        player = get_player(user_id, args[0])
         if escape_sequence(player):
             await ctx.send(
                 content=f"<@{user_id}>",
