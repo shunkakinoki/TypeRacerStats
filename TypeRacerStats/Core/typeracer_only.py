@@ -115,7 +115,7 @@ class TypeRacerOnly(commands.Cog):
             return
 
         if not ({'show', 'unlagged'} -
-                words_set) or not ({'show', 'adjusted', 'raw'} - words_set):
+                words_set) or not ({'show', 'adjusted'} - words_set) or not ({'show', 'raw'} - words_set):
             embed = discord.Embed(
                 title='FAQ: How do I get unlagged/adjusted/raw WPM to show?',
                 color=discord.Color(0),
