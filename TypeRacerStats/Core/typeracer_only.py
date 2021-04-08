@@ -115,30 +115,27 @@ class TypeRacerOnly(commands.Cog):
             return
 
         if not ({'show', 'unlagged'} -
-                words_set) or not ({'show', 'adjusted'} - words_set):
+                words_set) or not ({'show', 'adjusted', 'raw'} - words_set):
             embed = discord.Embed(
-                title='FAQ: How do I get unlagged/adjusted WPM to show?',
+                title='FAQ: How do I get unlagged/adjusted/raw WPM to show?',
                 color=discord.Color(0),
                 description=
                 ('_By: Poem_\n\n'
                  'To install, ```'
-                 'Get Tampermonkey from the Chrome Web store. '
-                 'Click on one of the GitHub links below to access the code, '
-                 'then `ctrl + a` and `ctrl + c` copy everything. '
-                 'Click on the Tampermonkey icon in Chrome at the top right corner, '
-                 'then "Dashboard," then "⊞" to create a new script. '
-                 'Finally, replace the contents of that new script with the code, '
-                 'and press file > save. You\'re set!```'))
+                 '1) Add the Tampermonkey extension to your browser (from the Chrome web store, '
+                 'also available for most other browsers)\n'
+                 '2) Click the link below\n'
+                 '3) Click \'install.\'```'))
             embed.add_field(
                 name=
-                'Adjusted Speed (including on Race End pages), Text Difficulty',
+                'Unlagged/Adjusted/Raw Speed, Text Difficulty',
                 value=
                 ('[__`Script`__]'
                  '(https://github.com/PoemOnTyperacer/tampermonkey/raw/master/adjusted_speed.user.js) - '
                  'Thanks to **ph0t0shop#6788** for help implementing various changes such as cross-browser support!\n'
                  '[Information on the "difficulty" in this script.]'
                  '(http://bit.ly/typeracertextdifficulty)\n\n'
-                 '_Warning 1: this script is in beat. If you notice it causing repeated glitches to your gamme, disable it.'
+                 '_Warning 1: this script is in beta. If you notice it causing repeated glitches to your gamme, disable it.'
                  '<#746460695670816798> can also give you quick access to the unlagged, adjusted, and raw speed metrics._'),
                 inline=False)
 
