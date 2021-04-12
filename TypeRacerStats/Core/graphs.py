@@ -722,11 +722,11 @@ class Graphs(commands.Cog):
         if len(args) != 2:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).parameters(
-                               f"{ctx.invoked_with} [user] <time/races>"))
+                               f"{ctx.invoked_with} [user] [time/races]"))
             return
 
         player = get_player(user_id, args[0])
-        if args[1].lower() not in ['time', 'races']:
+        if args[1].lower() not in {'time', 'races'}:
             await ctx.send(content=f"<@{user_id}>",
                            embed=Error(ctx, ctx.message).incorrect_format(
                                'Must provide a valid category: `time/races`'))
@@ -947,6 +947,115 @@ class Graphs(commands.Cog):
         os.remove(file_name)
         return
 
+
+    @commands.check(
+        lambda ctx: check_dm_perms(ctx, 4) and check_banned_status(ctx))
+    @commands.command(aliases=get_aliases('textbestsgraph'))
+    async def textbestsgraph(self, ctx, *args):
+        user_id = ctx.message.author.id
+
+        if len(args) <= 1: args = check_account(user_id)(args)
+
+        if len(args) == 1: args += ('races', )
+
+        if len(args) != 2:
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).parameters(
+                               f"{ctx.invoked_with} [user] [time/races/texts]"))
+            return
+
+        player = get_player(user_id, args[0])
+        if args[1].lower() not in {'time', 'races', 'texts'}:
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).incorrect_format(
+                               'Must provide a valid category: `time/races/texts`'))
+            return
+
+        if args[1].lower() == 'time':
+            q_category = 't'
+            category = 'Time'
+        elif args[1].lower() == 'races':
+            q_category = 'gn'
+            category = 'Races'
+        elif args[1].lower() == 'texts':
+            q_category = None
+            category = 'Texts'
+
+        if escape_sequence(player):
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx, ctx.message).missing_information(
+                    (f"[**{player}**]({Urls().user(player, 'play')}) "
+                     "doesn't exist")))
+            return
+
+        data_x, data_y = [], []
+        text_ids = {}
+        wpm_sum, wpm_count = 0, 0
+        conn = sqlite3.connect(DATABASE_PATH)
+        c = conn.cursor()
+        try:
+            user_data = c.execute(f"SELECT gn, t, tid, wpm FROM t_{player}")
+            for race_data in user_data:
+                if text_ids.get(race_data[2], False):
+                    if race_data[3] > text_ids[race_data[2]]:
+                        if not q_category:
+                            data_x.append(len(data_x))
+                        elif q_category == 'gn':
+                            data_x.append(race_data[0])
+                        else:
+                            data_x.append(datetime.datetime.fromtimestamp(race_data[1]))
+                        wpm_sum += race_data[3] - text_ids[race_data[2]]
+                        text_ids.update({race_data[2]: race_data[3]})
+                        data_y.append(wpm_sum / wpm_count)
+                else:
+                    if not q_category:
+                        data_x.append(len(data_x))
+                    elif q_category == 'gn':
+                        data_x.append(race_data[0])
+                    else:
+                        data_x.append(datetime.datetime.fromtimestamp(race_data[1]))
+                    text_ids.update({race_data[2]: race_data[3]})
+                    wpm_sum += race_data[3]
+                    wpm_count += 1
+                    data_y.append(wpm_sum / wpm_count)
+        except sqlite3.OperationalError:
+            conn.close()
+            await ctx.send(content=f"<@{user_id}>",
+                           embed=Error(ctx, ctx.message).not_downloaded())
+            return
+        conn.close()
+
+        data_x = reduce_list(data_x)
+        data_y = reduce_list(data_y)
+
+        ax = plt.subplots()[1]
+        ax.plot(data_x, data_y)
+        ax.set_title(f"{player}'s Text Bests Average Over {category}")
+
+        if not q_category:
+            ax.set_xlabel('Text Changes (Additions/Improvements')
+        elif q_category == 't':
+            ax.set_xlabel('Date')
+            ax.set_xticks(ax.get_xticks()[::2])
+            formatter = mdates.DateFormatter("%b. %-d '%y")
+            ax.xaxis.set_major_formatter(formatter)
+        else:
+            ax.set_xlabel('Race #')
+
+        ax.set_ylabel('WPM')
+        plt.grid(True)
+        file_name = f"Text Bests Average Over {category}.png"
+
+        graph_colors = get_graph_colors(user_id)
+        graph_color(ax, graph_colors, False)
+        plt.savefig(file_name, facecolor=ax.figure.get_facecolor())
+        races_over_time_picture = discord.File(file_name, filename=file_name)
+
+        await ctx.send(file=races_over_time_picture)
+        os.remove(file_name)
+        plt.close()
+        return
 
 def setup(bot):
     bot.add_cog(Graphs(bot))

@@ -750,6 +750,18 @@
             },
             "aliases": [],
             "linked": true
+        },
+        {
+            "name": "textbestsgraph",
+            "description": "Returns a graph of text bests average over time",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [races/time/texts]",
+                "example": "joshua728 texts",
+                "alt_example": []
+            },
+            "aliases": ["tbg"],
+            "linked": true
         }
     ],
     "other": [
