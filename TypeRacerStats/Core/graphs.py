@@ -1034,7 +1034,7 @@ class Graphs(commands.Cog):
         ax.set_title(f"{player}'s Text Bests Average Over {category}")
 
         if not q_category:
-            ax.set_xlabel('Text Changes (Additions/Improvements')
+            ax.set_xlabel('Text Changes (Additions/Improvements)')
         elif q_category == 't':
             ax.set_xlabel('Date')
             ax.set_xticks(ax.get_xticks()[::2])
