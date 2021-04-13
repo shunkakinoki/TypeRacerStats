@@ -616,7 +616,7 @@ class Other(commands.Cog):
     @commands.check(lambda ctx: check_banned_status(ctx))
     @commands.cooldown(1, 600, commands.BucketType.default)
     @commands.command(aliases=get_aliases('calc'))
-    async def calc(self, ctx, args):
+    async def calc(self, ctx, *args):
         user_id = ctx.message.author.id
         MAIN_COLOR = get_supporter(user_id)
 
@@ -628,7 +628,6 @@ class Other(commands.Cog):
             return
 
         expression = urllib.parse.quote_plus(''.join(args))
-
         urls = [Urls().eval_math(expression)]
 
         try:
