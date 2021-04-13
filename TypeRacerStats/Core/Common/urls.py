@@ -12,6 +12,7 @@ class Urls:
         self.trd_imports = 'http://typeracerdata.com/import?username='
         self.trd_leaders = 'http://typeracerdata.com/leaders?min_races=1000&min_texts=400&rank_end=15&sort='
         self.trd_text_ids = 'http://typeracerdata.com/text?id='
+        self.mathjs_api = 'https://api.mathjs.org/v4/?expr='
 
     def get_races(self, player, universe, *args):
         base = f"{self.trapi_races}{player}&universe={universe}"
@@ -52,3 +53,6 @@ class Urls:
 
     def text(self, text_id):
         return f"{self.trd_text_ids}{text_id}"
+
+    def eval_math(self, expr):
+        return f"{self.mathjs_api}{expr}"
