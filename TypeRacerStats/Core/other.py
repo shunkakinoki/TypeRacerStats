@@ -640,7 +640,7 @@ class Other(commands.Cog):
                             ctx.message).incorrect_format(f"Please provide a valid expression"))
             return
 
-        embed = discord.Embed(title=f"`{' '.join(args)}` =", color=discord.Color(MAIN_COLOR), description=f"```{response[0]}```")
+        embed = discord.Embed(title=f"`{''.join(args)}` =", color=discord.Color(MAIN_COLOR), description=f"```{response[0]}```")
 
         await ctx.send(embed=embed)
         return
