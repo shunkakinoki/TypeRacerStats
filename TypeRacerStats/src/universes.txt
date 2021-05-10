@@ -162,10 +162,6 @@ eugene
 jokes
 ladygaga
 starwars
-<<<<<<< HEAD
-dictionary
-=======
->>>>>>> refs/remotes/origin/main
 wvtyperacer
 kungfupanda
 simpsons
@@ -174,11 +170,6 @@ music
 halo
 copypasta
 fullplate
-<<<<<<< HEAD
-movies
-feelsgood
-=======
 dictionary
 movies
 feelsgood
->>>>>>> refs/remotes/origin/main
