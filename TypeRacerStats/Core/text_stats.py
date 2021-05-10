@@ -320,6 +320,7 @@ class TextStats(commands.Cog):
             ax = plt.subplots()[1]
 
             data_y = [i[1] for i in user_data]
+            if cur_wpm: data_y += [cur_wpm]
             length = len(data_y)
             data_x = [i + 1 for i in range(length)]
 

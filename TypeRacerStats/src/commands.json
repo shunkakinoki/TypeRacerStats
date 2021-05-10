@@ -750,6 +750,18 @@
             },
             "aliases": [],
             "linked": true
+        },
+        {
+            "name": "textbestsgraph",
+            "description": "Returns a graph of text bests average over time",
+            "speed": "fast",
+            "usage": {
+                "general": "[user] [races/time/texts]",
+                "example": "joshua728 texts",
+                "alt_example": []
+            },
+            "aliases": ["tbg"],
+            "linked": true
         }
     ],
     "other": [
@@ -886,6 +898,18 @@
                 "alt_example": []
             },
             "aliases": ["km"],
+            "linked": false
+        },
+        {
+            "name": "calc",
+            "description": "Uses [`https://api.mathjs.org`](https://api.mathjs.org) to evaluate math expression.",
+            "speed": "fast",
+            "usage": {
+                "general": "[expression]",
+                "example": "12000 * 46 / 1840",
+                "alt_example": []
+            },
+            "aliases": ["math"],
             "linked": false
         }
     ],

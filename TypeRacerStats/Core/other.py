@@ -4,6 +4,7 @@ import os
 import random
 import sqlite3
 import sys
+import urllib
 from cairosvg import svg2png
 import discord
 from discord.ext import commands
@@ -14,6 +15,7 @@ from TypeRacerStats.Core.Common.formatting import escape_sequence
 from TypeRacerStats.Core.Common.errors import Error
 from TypeRacerStats.Core.Common.aliases import get_aliases, normalized_commands
 from TypeRacerStats.Core.Common.accounts import check_banned_status
+from TypeRacerStats.Core.Common.requests import fetch
 from TypeRacerStats.file_paths import ART_JSON, CHANGELOG, CLIPS_JSON, DATABASE_PATH, KEYMAPS_SVG, BLANK_KEYMAP
 from TypeRacerStats.config import MAIN_COLOR, TABLE_KEY, NUMBERS, BOT_OWNER_IDS
 
@@ -609,6 +611,37 @@ class Other(commands.Cog):
 
         await ctx.send(file=discord.File('keymap.png', 'keymap.png'))
         os.remove('keymap.png')
+        return
+
+    @commands.check(lambda ctx: check_banned_status(ctx))
+    @commands.cooldown(1, 600, commands.BucketType.default)
+    @commands.command(aliases=get_aliases('calc'))
+    async def calc(self, ctx, *args):
+        user_id = ctx.message.author.id
+        MAIN_COLOR = get_supporter(user_id)
+
+        if len(args) == 0:
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx,
+                            ctx.message).parameters(f"{ctx.invoked_with} [expression]"))
+            return
+
+        expression = urllib.parse.quote_plus(''.join(args))
+        urls = [Urls().eval_math(expression)]
+
+        try:
+            response = await fetch(urls, 'json')
+        except:
+            await ctx.send(
+                content=f"<@{user_id}>",
+                embed=Error(ctx,
+                            ctx.message).incorrect_format(f"Please provide a valid expression"))
+            return
+
+        embed = discord.Embed(title=f"`{''.join(args)}` =", color=discord.Color(MAIN_COLOR), description=f"```{response[0]}```")
+
+        await ctx.send(embed=embed)
         return
 
 
