@@ -280,7 +280,7 @@ class GetData(commands.Cog):
             if race_wpm > fastest_race[0]: fastest_race = (race_wpm, row[0])
             if race_wpm < slowest_race[0]: slowest_race = (race_wpm, row[0])
             points += row[4]
-            word_count = texts_data.get(race_text_id, {"word count": 0})]['word count']
+            word_count = texts_data.get(race_text_id, {"word count": 0})['word count']
             race_text_length = texts_data.get(race_text_id, {"length": 0})['length']
             seconds_played += 12 * race_text_length / race_wpm
             chars_typed += race_text_length
