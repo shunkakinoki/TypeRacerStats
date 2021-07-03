@@ -468,11 +468,10 @@ class TypeRacerOnly(commands.Cog):
                 for race in data:
                     races += 1
                     race_text_id = str(race[2])
-                    text_length = texts_data[race_text_id]['length']
+                    text_length = texts_data.get(race_text_id, {"length": 0})['length']
                     chars_typed += text_length
                     points += race[4]
-                    total_points += race[4] if race[4] else texts_data[
-                        race_text_id]['word count'] * race[3] / 60
+                    total_points += race[4] if race[4] else texts_data.get(race_text_id, {"word count": 0})['word count'] * race[3] / 60
                     try:
                         seconds_played += 12 * text_length / race[3]
                     except ZeroDivisionError:

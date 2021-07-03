@@ -156,20 +156,17 @@ class AdvancedStats(commands.Cog):
             text_id = str(first_race[2])
             races += 1
             total_wpm += first_race[3]
-            words_typed += texts_length[text_id]['word count']
-            chars_typed += texts_length[text_id]['length']
+            words_typed += texts_length.get(text_id, {"word count": 0})['word count']
+            chars_typed += texts_length.get(text_id, {"length": 0})['length']
             fastest_race, slowest_race = (first_race[3],
                                           first_race[0]), (first_race[3],
                                                            first_race[0])
             try:
-                time_spent += 12 * texts_length[text_id][
-                    'length'] / first_race[3]
+                time_spent += 12 * texts_length.get(text_id, {"length": 0}) / first_race[3]
             except ZeroDivisionError:
-                races -= 1
                 pass
             if first_race[4] == 0:
-                retro += first_race[3] / 60 * texts_length[text_id][
-                    'word count']
+                retro += first_race[3] / 60 * texts_length.get(text_id, {"word count": 0})['word count']
             else:
                 if not first_point_race:
                     first_point_race = first_race[1]
@@ -184,17 +181,16 @@ class AdvancedStats(commands.Cog):
                     slowest_race = (race_wpm, row[0])
                 text_id = str(row[2])
                 races += 1
-                words_typed += texts_length[text_id]['word count']
-                chars_typed += texts_length[text_id]['length']
+                words_typed += texts_length.get(text_id, {'word count': 0})['word count']
+                chars_typed += texts_length.get(text_id, {'length': 0})['length']
                 if row[4] == 0:
-                    retro += race_wpm / 60 * texts_length[text_id]['word count']
+                    retro += race_wpm / 60 * texts_length.get(text_id, {'word count': 0})['word count']
                 else:
                     if not first_point_race:
                         first_point_race = row[1]
                     points += row[4]
                 try:
-                    time_spent += 12 * texts_length[text_id][
-                        'length'] / race_wpm
+                    time_spent += 12 * texts_length.get(text_id, {'lenegth': 0})['length'] / race_wpm
                 except ZeroDivisionError:
                     races -= 1
                     pass

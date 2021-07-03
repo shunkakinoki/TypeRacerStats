@@ -280,8 +280,8 @@ class GetData(commands.Cog):
             if race_wpm > fastest_race[0]: fastest_race = (race_wpm, row[0])
             if race_wpm < slowest_race[0]: slowest_race = (race_wpm, row[0])
             points += row[4]
-            word_count = texts_data[race_text_id]['word count']
-            race_text_length = texts_data[race_text_id]['length']
+            word_count = texts_data.get(race_text_id, {"word count": 0})]['word count']
+            race_text_length = texts_data.get(race_text_id, {"length": 0})['length']
             seconds_played += 12 * race_text_length / race_wpm
             chars_typed += race_text_length
             words_typed += word_count
@@ -496,8 +496,8 @@ class GetData(commands.Cog):
             text_id = str(row[2])
             wpm = row[3]
             races += 1
-            words_typed_ = texts_length[text_id]['word count']
-            chars_typed_ = texts_length[text_id]['length']
+            words_typed_ = texts_length.get(text_id, {"word count": 0})['word count']
+            chars_typed_ = texts_length.get(text_id, {"length": 0})['length']
             words_typed += words_typed_
             chars_typed += chars_typed_
 
@@ -518,14 +518,14 @@ class GetData(commands.Cog):
                 csv_day['worst_wpm'] = wpm
 
             if row[4] == 0:
-                retro_ = row[3] / 60 * texts_length[text_id]['word count']
+                retro_ = row[3] / 60 * texts_length.get(text_id, {"word count": 0})['word count']
                 retro += retro_
                 csv_day['points'] += row[4]
             else:
                 points += row[4]
                 csv_day['points'] += row[4]
             try:
-                time_spent_ = 12 * texts_length[text_id]['length'] / row[3]
+                time_spent_ = 12 * texts_length.get(text_id, {"length": 0})['length'] / row[3]
                 time_spent += time_spent_
                 csv_day['time_spent'] += time_spent_
             except ZeroDivisionError:
