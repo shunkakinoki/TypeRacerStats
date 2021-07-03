@@ -162,7 +162,7 @@ class AdvancedStats(commands.Cog):
                                           first_race[0]), (first_race[3],
                                                            first_race[0])
             try:
-                time_spent += 12 * texts_length.get(text_id, {"length": 0}) / first_race[3]
+                time_spent += 12 * texts_length.get(text_id, {"length": 0})['length'] / first_race[3]
             except ZeroDivisionError:
                 pass
             if first_race[4] == 0:
@@ -190,7 +190,7 @@ class AdvancedStats(commands.Cog):
                         first_point_race = row[1]
                     points += row[4]
                 try:
-                    time_spent += 12 * texts_length.get(text_id, {'lenegth': 0})['length'] / race_wpm
+                    time_spent += 12 * texts_length.get(text_id, {'length': 0})['length'] / race_wpm
                 except ZeroDivisionError:
                     races -= 1
                     pass
