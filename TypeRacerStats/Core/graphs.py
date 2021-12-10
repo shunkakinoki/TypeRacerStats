@@ -422,7 +422,7 @@ class Graphs(commands.Cog):
             await ctx.send(
                 content=f"<@{user_id}>",
                 embed=Error(ctx, ctx.message).missing_information(
-                    f"`{ctx.invoked_with}` requires 15≤ races to generate a graph"
+                    f"`{ctx.invoked_with}` requires at least 15 races to generate a graph"
                 ))
             return
 
