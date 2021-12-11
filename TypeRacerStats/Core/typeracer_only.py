@@ -164,7 +164,7 @@ class TypeRacerOnly(commands.Cog):
                 title='FAQ: How do I type faster?',
                 color=discord.Color(0),
                 description=('_By: Izzy_\n\n'
-                             'Type the words faster in the right order.'))
+                             'type the words faster and in the right order'))
 
             await message.channel.send(content=f"<@{message.author.id}>",
                                        embed=embed)
