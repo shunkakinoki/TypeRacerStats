@@ -173,3 +173,15 @@ fullplate
 dictionary
 movies
 feelsgood
+talkracer
+haiku
+comicbooks
+classicwild
+mobilerepeat
+lang_pt_accuracy
+lang_pt_dictionary
+te66st
+moddinglegacy
+rhymes
+besmartee_vn
+lang_it_dictionary
