@@ -44,7 +44,7 @@ class Help(commands.Cog):
             description=
             ('[`Invite`](https://discord.com/oauth2/authorize?client_id=742267194443956334&permissions=378944&scope=bot) - '
              '[`top.gg`](https://top.gg/bot/742267194443956334) - '
-             '[`GitHub`](https://github.com/e6f4e37l/TypeRacerStats) - '
+             '[`GitHub`](https://github.com/fiveoutofnine/TypeRacerStats) - '
              '[`PayPal`](https://www.paypal.me/e3e2)\n\n'
              f"**Run `{command_prefix}help [command]` to learn more**\n"
              "`[ ]` represent required paramaters\n"

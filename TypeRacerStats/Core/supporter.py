@@ -846,18 +846,19 @@ class Supporter(commands.Cog):
                     }
 
                 current_month['races'] += 1
-                current_month['words_typed'] += texts_length[str(
-                    row[2])]['word count']
-                current_month['chars_typed'] += texts_length[str(
-                    row[2])]['length']
+                current_month['words_typed'] += texts_length.get(
+                    str(row[2]), {'word count': 0}
+                )['word count']
+                current_month['chars_typed'] += texts_length.get(
+                    str(row[2]), {'length': 0}
+                )['length']
                 current_month['points'] += row[4]
-                current_month['time_spent'] += texts_length[str(
-                    row[2])]['length'] * 12 / row[3]
+                current_month['time_spent'] += texts_length.get(
+                    str(row[2]), {'length': 0}
+                )['length'] * 12 / row[3]
                 current_month['total_wpm'] += row[3]
-                current_month['best_wpm'] = max(current_month['best_wpm'],
-                                                row[3])
-                current_month['worst_wpm'] = min(current_month['worst_wpm'],
-                                                 row[3])
+                current_month['best_wpm'] = max(current_month['best_wpm'], row[3])
+                current_month['worst_wpm'] = min(current_month['worst_wpm'], row[3])
         except sqlite3.OperationalError:
             conn.close()
             await ctx.send(content=f"<@{user_id}>",

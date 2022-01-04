@@ -1051,7 +1051,7 @@
                 "example": "ginoo75 1000",
                 "alt_example": []
             },
-            "aliases": ["g75", "ginoo75", "75"],
+            "aliases": ["g75", "ginoo75", "75", "wellknown"],
             "linked": false
         }
     ]

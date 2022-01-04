@@ -157,13 +157,14 @@ class TextStats(commands.Cog):
              f"**Text Bests Average:** {f'{round(sum_ / count, 2):,}'} ("
              f"{f'{round(count * (5 - (sum_ / count) % 5), 2):,}'} total WPM gain "
              f"til {round(5 * ((sum_ / count) // 5 + 1))} WPM)"),
-            inline=False)
+            inline=False
+        )
 
         if tb:
             value = ''
             for i, text in enumerate(top):
                 value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-                value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
+                value += f"{texts_data.get(str(text[1]), 'Missing Text')} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
             embed.add_field(name=f"Top {i + 1} Texts",
                             value=value,
                             inline=False)
@@ -171,7 +172,7 @@ class TextStats(commands.Cog):
             value = ''
             for i, text in enumerate(worst):
                 value += f"**{i + 1}. {f'{text[2]:,}'} WPM (Race #{f'{text[0]:,}'})**\n"
-                value += f"{texts_data[str(text[1])]} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
+                value += f"{texts_data.get(str(text[1]), 'Missing Text')} [:cinema:]({Urls().result(player, text[0], 'play')})\n"
             embed.add_field(name=f"Worst {i + 1} Texts",
                             value=value,
                             inline=False)

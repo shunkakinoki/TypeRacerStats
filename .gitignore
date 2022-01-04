@@ -4,3 +4,5 @@
 *temp.db
 *TypeRacerStats/src/data/typeracer_records.json
 *TypeRacerStats/src/changelog.json
+*.vscode
+*.idea
