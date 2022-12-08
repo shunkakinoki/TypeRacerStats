@@ -6,3 +6,4 @@
 *TypeRacerStats/src/changelog.json
 *.vscode
 *.idea
+.DS_Store
